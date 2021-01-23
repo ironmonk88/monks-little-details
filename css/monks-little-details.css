@@ -1,0 +1,196 @@
+.sidebar-tab .directory-list .directory-item img {
+    object-fit: contain !important;
+}
+
+.filepicker .thumbs-list img {
+    object-fit: contain !important;
+}
+
+.sidebar-tab .directory-list .directory-item.scene {
+    position: relative;
+}
+
+.sidebar-tab .directory-list .directory-item.scene img {
+    flex: 1;
+    object-fit: cover !important;
+}
+
+.sidebar-tab .directory-list .directory-item.scene h4 {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    text-shadow: 1px 1px 3px #000;
+    color: #f0f0e0;
+}
+
+.control-icon.token-info-icon:empty {
+    visibility: hidden;
+}
+
+.control-icon.token-info-icon {
+    height: 40px;
+}
+
+.col.token-info-column-left {
+    justify-content: center;
+    padding-top: 0px !important;
+}
+
+.control-icon.active > img {
+    filter: sepia(100%) saturate(2000%) hue-rotate(-50deg);
+}
+
+#token-hud .status-effects {
+    top: -56px !important;
+    width: unset;
+    grid-template-columns: 130px 130px 130px 130px !important;
+    font-size: 16px;
+    line-height: 24px;
+    text-align: left;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+#token-hud .status-effects .clear-all {
+    position: absolute;
+    bottom: 100%;
+    right: 5px;
+    cursor: pointer;
+    color: #ccc;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    background: #333;
+    padding: 4px 8px;
+}
+
+#token-hud .status-effects .clear-all:hover {
+    color: #d2d1d0;
+}
+
+#token-hud .status-effects div.effect-control {
+    width: 100%;
+    color: #ccc;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 1px;
+    border: 1px solid transparent;
+}
+
+#token-hud .status-effects div.effect-control:hover {
+    color: #d2d1d0 !important;
+}
+
+#token-hud .status-effects div.effect-control.active {
+    color: #ff6400;
+    border: 1px solid #ff6400;
+}
+
+#token-hud .status-effects div.effect-control.active:hover {
+    color: #ffc163 !important;
+}
+
+#token-hud .status-effects .effect-control img {
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    margin-top:-1px;
+    padding: 0;
+    border: none;
+    opacity: 0.5;
+    display: inline-block;
+}
+
+#token-hud .status-effects .effect-control:hover img {
+    opacity: 0.8;
+}
+
+#token-hud .status-effects .effect-control.active img {
+    opacity: 1;
+    filter: sepia(100%) saturate(2000%) hue-rotate(-50deg);
+}
+
+#token-hud .status-effects div.effect-control div {
+    vertical-align: top;
+    padding-left: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: calc(100% - 24px);
+    display: inline-block;
+}
+
+.encounter-cr-row{
+    line-height:25px;
+}
+
+.encounter-cr {
+    display: inline-block;
+    padding: 2px 4px;
+    line-height: 16px;
+    color: #fff;
+    text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+    white-space: nowrap;
+    vertical-align: top;
+    background-color: #999;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    height: 25px;
+    flex: 0 0 120px;
+    text-align: center;
+    position: relative;
+    font-size: 16px;
+    font-weight: normal;
+    padding: 4px;
+    margin-left: 4px;
+}
+
+.encounter-cr[rating="easy"] {
+    background-color: #468847;
+}
+.encounter-cr[rating="average"] {
+    background-color: #3a87ad;
+}
+.encounter-cr[rating="challenging"] {
+    background-color: #f89406;
+}
+.encounter-cr[rating="hard"] {
+    background-color: #b94a48;
+}
+.encounter-cr[rating="epic"] {
+    background-color: #333333;
+}
+
+.encounter-cr-rating {
+    /*width: calc(100% - 8px);
+    position: absolute;
+    bottom: 1px;*/
+    line-height: 10px;
+    font-size: 10px;
+    text-align: center;
+}
+
+#chat-controls .button.confetti {
+    flex: 0;
+    font-size: 20px;
+    margin-left: 4px;
+}
+
+.background-palette {
+    height: 20px;
+    border-radius: 4px;
+    display: inline-block;
+    border: 1px solid #7a7971;
+    cursor: pointer;
+}
+
+.background-size {
+    position: absolute;
+    font-size: 10px;
+    margin-top: -10px !important;
+    margin-right: 5px !important;
+    color: #808080;
+}
+
+.background-size.width {
+    margin-right: 202px !important;
+}
