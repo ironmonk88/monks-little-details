@@ -1,4 +1,5 @@
-# monks-little-details
+# Monks Little Details
+It's just a bunch of little things to make the program run a little smoother and look a little better.  But a lot are based on personal preference.
 
 # Core Css Changes
 The images displayed for the filepicker and compendiums crops the image if it's not square, due to the object-fit being set to cover.  I think it looks a but better as contain instead.  I also changed the scene compendium items to more closely match the styling used on the scene tab.  The wider image gives you a better idea of what you're seeing.  I found the core sytling a bit cramped.
