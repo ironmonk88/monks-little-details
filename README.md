@@ -25,6 +25,9 @@ Changed the invisible ivcon from the standard Masked Man image to one that more 
 ## Dominant Scene Colours
 Added the top 5 dominant colours of a scene so that you can choose a background colour that blends with the scene a bit better.
 
+## Drag wall points together
+Added a toggle to the wall tools.  When selected, dragging a wall point to a new location will also move any other wall points that exactly overlapped the first one.  So instead of having to move both wall points to the new location it will maintain the connection between wall joints and move the second one after the first has been moved.  SAves me some time when editing lengths of wall.
+
 ## GM Move characters
 If you select characters, hold down the M Key and click on another map location, the tokens will instantly move there.  I found dragging them there has unfortunate side effects of showing spaces they shouldn't see while they're moving.  Teleporting them there preserves the fog of war between the two spots.
 
