@@ -44,7 +44,7 @@ I can never remember what the icons stand for.  I'm displaying the names beside 
 I personally like the setup button below the target button, it makes more sense to me to be ordered that way.
 
 ### Changed the invisible image
-Changed the invisible ivcon from the standard Masked Man image to one that more closely resembles a 5e graphic.
+Changed the invisible icon from the standard Masked Man image to one that more closely resembles a 5e graphic.
 
 ### Dominant Scene Colours
 Added the top 5 dominant colours of a scene so that you can choose a background colour that blends with the scene a bit better.
