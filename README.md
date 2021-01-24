@@ -11,7 +11,7 @@ Simply use the install module screen within the FoundryVTT setup
 The images displayed for the filepicker and compendiums crops the image if it's not square, due to the object-fit being set to cover.  I think it looks a bit better as contain instead. 
 
 Before
-![monks-little-details](/screenshots/CoreCssBefore.png)
+![monks-little-details](/screenshots/CoreCssBefore.PNG)
 
 After
 ![monks-little-details](/screenshots/CoreCssAfter.png)
