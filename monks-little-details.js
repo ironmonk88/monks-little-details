@@ -19,8 +19,6 @@ export let combatposition = () => {
     return game.settings.get("monks-little-details", "combat-position");
 };
 
-CONFIG.controlIcons.visibility = "modules/conditions5e/icons/invisible.svg";
-
 export class MonksLittleDetails {
     static tracker = false;
 
@@ -78,6 +76,11 @@ export class MonksLittleDetails {
 
         registerSettings();
 
+        MonksLittleDetails.injectCSS();
+
+        if (game.settings.get("monks-little-details", "change-invisible-image"))
+            CONFIG.controlIcons.visibility = "modules/monks-little-details/icons/invisible.svg";
+
         if (game.settings.get("monks-little-details", "alter-hud")) {
             CONFIG.statusEffects = CONFIG.statusEffects.concat(
                 [
@@ -118,6 +121,130 @@ export class MonksLittleDetails {
         game.socket.on('module.monks-little-details', MonksLittleDetails.onMessage);
 
         canvas.stage.on("mousedown", MonksLittleDetails.moveTokens);    //move all tokens while holding down m
+    }
+
+    static injectCSS() {
+        let innerHTML = '';
+        let style = document.createElement("style");
+        style.id = "monks-css-changes";
+        if (game.settings.get("monks-little-details", "core-css-changes")) {
+            innerHTML += `
+.sidebar-tab .directory-list .directory-item img {
+    object-fit: contain !important;
+}
+
+.filepicker .thumbs-list img {
+    object-fit: contain !important;
+}
+
+.sidebar-tab .directory-list .directory-item.scene {
+    position: relative;
+}
+
+.sidebar-tab .directory-list .directory-item.scene img {
+    flex: 1;
+    object-fit: cover !important;
+}
+
+.sidebar-tab .directory-list .directory-item.scene h4 {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    text-shadow: 1px 1px 3px #000;
+    color: #f0f0e0;
+}
+`;
+        }
+
+        if (game.settings.get("monks-little-details", "alter-hud")) {
+            innerHTML += `
+.control-icon.active > img {
+    filter: sepia(100%) saturate(2000%) hue-rotate(-50deg);
+}
+
+#token-hud .status-effects {
+    top: -56px !important;
+    width: unset;
+    grid-template-columns: 130px 130px 130px 130px !important;
+    font-size: 16px;
+    line-height: 24px;
+    text-align: left;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+#token-hud .status-effects .clear-all {
+    position: absolute;
+    bottom: 100%;
+    right: 5px;
+    cursor: pointer;
+    color: #ccc;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    background: #333;
+    padding: 4px 8px;
+}
+
+#token-hud .status-effects .clear-all:hover {
+    color: #d2d1d0;
+}
+
+#token-hud .status-effects div.effect-control {
+    width: 100%;
+    color: #ccc;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 1px;
+    border: 1px solid transparent;
+}
+
+#token-hud .status-effects div.effect-control:hover {
+    color: #d2d1d0 !important;
+}
+
+#token-hud .status-effects div.effect-control.active {
+    color: #ff6400;
+    border: 1px solid #ff6400;
+}
+
+#token-hud .status-effects div.effect-control.active:hover {
+    color: #ffc163 !important;
+}
+
+#token-hud .status-effects .effect-control img {
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    margin-top:-1px;
+    padding: 0;
+    border: none;
+    opacity: 0.5;
+    display: inline-block;
+}
+
+#token-hud .status-effects .effect-control:hover img {
+    opacity: 0.8;
+}
+
+#token-hud .status-effects .effect-control.active img {
+    opacity: 1;
+    filter: sepia(100%) saturate(2000%) hue-rotate(-50deg);
+}
+
+#token-hud .status-effects div.effect-control div {
+    vertical-align: top;
+    padding-left: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: calc(100% - 24px);
+    display: inline-block;
+}
+`;
+        }
+
+        style.innerHTML = innerHTML;
+        if (innerHTML != '')
+            document.querySelector("head").appendChild(style);
     }
 
     static async moveTokens(event) {
@@ -320,7 +447,7 @@ export class MonksLittleDetails {
 
         //get the CR of any unfriendly/neutral
         var cr = 999;
-        $(CombatDetails.xpchart).each(function () {
+        $(MonksLittleDetails.xpchart).each(function () {
             if (this.xp >= xp)
                 cr = Math.min(cr, this.cr);
         });
@@ -547,9 +674,9 @@ Hooks.on('closeCombatTracker', async (app, html) => {
 });
 
 Hooks.on('renderTokenHUD', async (app, html, options) => {
-    if (game.settings.get("monks-little-details", "alter-hud")) {
-        MonksLittleDetails.element = html;
-        MonksLittleDetails.tokenHUD = app;
+    MonksLittleDetails.element = html;
+    MonksLittleDetails.tokenHUD = app;
+    if (game.settings.get("monks-little-details", "swap-buttons")) {
         $('.col.left .control-icon.target', html).insertBefore($('#token-hud .col.left .control-icon.config'));
     }
 });
@@ -577,20 +704,8 @@ Hooks.on('renderCombatTracker', async (app, html, options) => {
     }
 });
 
-Hooks.on('renderChatLog', (app, html, options) => {
-    if (game.user.isGM) {
-        $('<a>').addClass('button confetti').html('🎉').insertAfter($('#chat-controls .chat-control-icon', html)).on('click', function () {
-            if (window.confetti) {
-                const shootConfettiProps = window.confetti.getShootConfettiProps(2);
-                window.confetti.shootConfetti(shootConfettiProps);
-            }
-        });
-        $('.confetti-buttons', html).hide();
-    }
-});
-
 Hooks.on('renderSceneConfig', async (app, html, options) => {
-    if (game.settings.get("combatdetails", 'scene-palette')) {
+    if (game.settings.get("monks-little-details", 'scene-palette')) {
         MonksLittleDetails.currentScene = app.object;
 
         if (MonksLittleDetails.currentScene.img != undefined) {
@@ -602,32 +717,74 @@ Hooks.on('renderSceneConfig', async (app, html, options) => {
                 .append($('<div>').addClass('form-fields palette-fields'))
                 .insertAfter(backgroundColor);
 
-            MonksLittleDetails.getPalette(CombatDetails.currentScene.img);
+            MonksLittleDetails.getPalette(MonksLittleDetails.currentScene.img);
             //get dimensions
-            loadTexture(CombatDetails.currentScene.img).then((bg) => {
+            /*
+            loadTexture(MonksLittleDetails.currentScene.img).then((bg) => {
                 if (bg != undefined) {
                     $('.background-size.width').html(bg.width);
                     $('.background-size.height').html(bg.height);
                 }
-            });
+            });*/
         }
 
+        /*
         $('<div>')
             .addClass('background-size width')
             .insertAfter($('input[name="width"]'));
         $('<div>')
             .addClass('background-size height')
             .insertAfter($('input[name="height"]'));
+            */
 
         $('input.image[name="img"]').on('change', function () {
             let img = $(this).val();
             MonksLittleDetails.getPalette(img);
+            /*
             loadTexture(img).then((bg) => {
                 if (bg != undefined) {
                     $('.background-size.width').html(bg.width);
                     $('.background-size.height').html(bg.height);
                 }
-            });
+            });*/
         })
     }
+});
+
+Hooks.on("getSceneControlButtons", (controls) => {
+    if (game.settings.get('monks-little-details', 'show-drag-points-together')) {
+        const dragtogetherTools = [{
+            name: "toggledragtogether",
+            title: "Drag points together",
+            icon: "fas fa-angle-double-right",
+            onClick: function () { MonksLittleDetails.dragtogether = !MonksLittleDetails.dragtogether; },
+            toggle: true
+        }];
+        let wallTools = controls.find(control => control.name === "walls").tools;
+        wallTools.splice(wallTools.findIndex(e => e.name === 'clone') + 1, 0, ...dragtogetherTools);
+    }
+});
+
+Hooks.on("preUpdateWall", (scene, wall, update, options) => {
+    if (MonksLittleDetails.dragtogether && options.ignore == undefined) {
+        let oldcoord = ((wall.c[0] != update.c[0] || wall.c[1] != update.c[1]) && wall.c[2] == update.c[2] && wall.c[3] == update.c[3] ? [wall.c[0], wall.c[1], update.c[0], update.c[1]] :
+            ((wall.c[2] != update.c[2] || wall.c[3] != update.c[3]) && wall.c[0] == update.c[0] && wall.c[1] == update.c[1] ? [wall.c[2], wall.c[3], update.c[2], update.c[3]] : null));
+        if (oldcoord != null) {
+            scene.data.walls.forEach(w => {
+                if (w._id != wall._id) {
+                    if (w.c[0] == oldcoord[0] && w.c[1] == oldcoord[1])
+                        scene.updateEmbeddedEntity("Wall", { c: [oldcoord[2], oldcoord[3], w.c[2], w.c[3]], _id: w._id }, { ignore: true });
+                    else if (w.c[2] == oldcoord[0] && w.c[3] == oldcoord[1])
+                        scene.updateEmbeddedEntity("Wall", { c: [w.c[0], w.c[1], oldcoord[2], oldcoord[3]], _id: w._id }, { ignore: true });
+                }
+            });
+        }
+    }
+    let thewall = scene.data.walls.find(w => w._id === wall._id);
+    log('preupdatewall', thewall.c, wall.c, update);
+});
+
+Hooks.on("updateWall", (scene, wall, update, options) => {
+    let thewall = scene.data.walls.find(w => w._id === wall._id);
+    log('updatewall', thewall);
 });

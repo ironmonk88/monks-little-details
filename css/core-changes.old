@@ -1,0 +1,24 @@
+.sidebar-tab .directory-list .directory-item img {
+    object-fit: contain !important;
+}
+
+.filepicker .thumbs-list img {
+    object-fit: contain !important;
+}
+
+.sidebar-tab .directory-list .directory-item.scene {
+    position: relative;
+}
+
+.sidebar-tab .directory-list .directory-item.scene img {
+    flex: 1;
+    object-fit: cover !important;
+}
+
+.sidebar-tab .directory-list .directory-item.scene h4 {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    text-shadow: 1px 1px 3px #000;
+    color: #f0f0e0;
+}
