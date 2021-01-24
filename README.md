@@ -21,6 +21,7 @@ After
 I also changed the scene compendium items to more closely match the styling used on the scene tab.  The wider image gives you a better idea of what you're seeing.
 
 Scene Compendium
+
 ![monks-little-details](/screenshots/SceneCompendium.PNG)
 
 ### Turn notifications
