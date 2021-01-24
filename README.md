@@ -32,12 +32,13 @@ When a combat is started, it will popout the Encounter Dialog and switch to the 
 
 ### Show Combat CR
 Display the calculated CR of the Encounter.  This should give you a clue if the encounter might be scaled too hard for the current party.  Not 100% accurate but enough for a good idea.
+
 ![monks-little-details](/screenshots/ShowCombatCR.PNG)
 
 ### Altered Status Effects
 I can never remember what the icons stand for.  I'm displaying the names beside the icons aswell as sorting the statuses alphabetically.  Makes finding them a lot easier.  Also added a clear all button in case you want to get rid of all the statuses quickly.  And I've highlighted each item in bold orange so it's easier at a glance to see what's been selected.  And added some more of the standard statuses you might encounter in a 5e game.
 
-![monks-little-details](/screenshots/TokenHUDUpdate.PNG)
+![monks-little-details](/screenshots/TokenHUDUpdates.PNG)
 
 ### Swapped Token HUD buttons
 I personally like the setup button below the target button, it makes more sense to me to be ordered that way.
