@@ -28,7 +28,11 @@
 }
 
 .control-icon.token-info-icon {
-    height: 40px;
+    min-height: 40px;
+}
+
+.control-icon:not(.token-info-icon){
+    cursor: pointer;
 }
 
 .col.token-info-column-left {
@@ -94,6 +98,28 @@
     border: 1px solid #7a7971;
     cursor: pointer;
 }
+
+#mldCharacterSound {
+    width: 28px;
+    height: 28px;
+    max-width: 28px;
+    max-height: 28px;
+    border: none;
+    font-size: 18px;
+    line-height: 28px;
+    padding: 0px 3px;
+}
+#mldCharacterSound.loaded {
+    border: 1px solid #ff6400;
+        
+}
+
+.mldCharacterName {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
 /*
 .background-size {
     position: absolute;
