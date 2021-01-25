@@ -78,7 +78,7 @@ export class MonksLittleDetails {
 
         MonksLittleDetails.injectCSS();
 
-        if (game.settings.get("monks-little-details", "change-invisible-image"))
+        if (game.settings.get("monks-little-details", "change-invisible-image") && game.world.system === "dnd5e")
             CONFIG.controlIcons.visibility = "modules/monks-little-details/icons/invisible.svg";
 
         if (game.settings.get("monks-little-details", "alter-hud")) {
@@ -160,8 +160,11 @@ export class MonksLittleDetails {
             innerHTML += `
 .control-icon.active > img {
     filter: sepia(100%) saturate(2000%) hue-rotate(-50deg);
-}
+}`;
+        }
 
+            if (game.world.system === "dnd5e") {
+                innerHTML += `
 #token-hud .status-effects {
     top: -56px !important;
     width: unset;
@@ -329,9 +332,9 @@ export class MonksLittleDetails {
                 nxtentry = curCombat.turns[nxtturn];
             }
 
-            if (entry !== undefined) {
-                let isActive = entry.actor?._id === game.users.current.character?._id;
-                let isNext = nxtentry.actor?._id === game.users.current.character?._id;
+            if (entry !== undefined && !game.user.isGM) {
+                let isActive = entry.actor?.owner;
+                let isNext = nxtentry.actor?.owner; //_id === game.users.current.character?._id;
 
                 if (isActive) {
                     MonksLittleDetails.doDisplayTurn();
@@ -376,9 +379,11 @@ export class MonksLittleDetails {
                 }));
             div[0].src = $(this).attr('src');
         });
-        $('.col.right .control-icon.effects .status-effects', html).append(
-            $('<div>').addClass('clear-all').html('<i class="fas fa-times-circle"></i> clear all').click($.proxy(MonksLittleDetails.clearAll, this))
-        );
+        if (game.world.system === "dnd5e") {
+            $('.col.right .control-icon.effects .status-effects', html).append(
+                $('<div>').addClass('clear-all').html('<i class="fas fa-times-circle"></i> clear all').click($.proxy(MonksLittleDetails.clearAll, this))
+            );
+        }
     }
 
     static async clearAll() {
@@ -682,7 +687,7 @@ Hooks.on('renderTokenHUD', async (app, html, options) => {
 });
 
 Hooks.on('renderCombatTracker', async (app, html, options) => {
-    if (game.user.isGM && game.combat && !game.combat.started && game.settings.get("monks-little-details", 'show-combat-cr')) {
+    if (game.user.isGM && game.combat && !game.combat.started && game.settings.get("monks-little-details", 'show-combat-cr') && game.world.system === "dnd5e") {
         //calculate CR
         let data = MonksLittleDetails.getCR(game.combat);
 
