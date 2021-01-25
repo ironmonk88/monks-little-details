@@ -274,7 +274,7 @@ export class MonksLittleDetails {
                     .toggleClass('loaded', app.entity.data.flags['monks-little-details'] != undefined)
                     .html('<i class="fas fa-volume-up"></i>')
                     .click($.proxy(MonksLittleDetails.findSoundEffect, app))
-                    .contextmenu($.proxy(MonksLittleDetails.playSoundEffect, app));
+                    .contextmenu($.proxy(MonksLittleDetails.loadSoundEffect, app));
 
                 let wrap = $('<div class="mldCharacterName"></div>');
                 $(html).find("input[name='name']").wrap(wrap);
@@ -299,13 +299,31 @@ export class MonksLittleDetails {
         return fp.browse();
     }
 
-    static playSoundEffect(event) {
-        const current = this.actor.getFlag('monks-little-details', 'sound-effect');
-        if (current != undefined) {
-            let volume = game.settings.get("core", 'globalInterfaceVolume');
-            AudioHelper.play({ src: current, volume: volume });
+    static loadSoundEffect(event) {
+        const audiofile = this.actor.getFlag('monks-little-details', 'sound-effect');
+        if (audiofile != undefined) {
+            MonksLittleDetails.playSoundEffect(audiofile);
+            if (this instanceof Token) {
+                game.socket.emit(
+                    MonksLittleDetails.SOCKET,
+                    {
+                        msgtype: 'playsoundeffect',
+                        senderId: game.user._id,
+                        actorid: this.actor.id,
+                        audiofile: audiofile
+                    },
+                    (resp) => { }
+                );
+            }
         }
         event.preventDefault;
+    }
+
+    static playSoundEffect(audiofile) {
+        if (audiofile != undefined) {
+            let volume = game.settings.get("core", 'globalInterfaceVolume');
+            AudioHelper.play({ src: audiofile, volume: volume });
+        }
     }
 
     static async moveTokens(event) {
@@ -337,6 +355,9 @@ export class MonksLittleDetails {
 
     static onMessage(data) {
         switch (data.msgtype) {
+            case 'playsoundeffect': {
+                MonksLittleDetails.playSoundEffect(data.audiofile);
+            } break;
         }
     }
 
@@ -351,7 +372,7 @@ export class MonksLittleDetails {
         ui.notifications.warn(i18n("MonksLittleDetails.Turn"));
 
         // play a sound
-        if(volume() > 0)
+        if (volume() > 0 && !game.settings.get("monks-little-details", "disablesounds"))
             AudioHelper.play({ src: MonksLittleDetails.TURN_SOUND, volume: volume() });
     }
 
@@ -366,7 +387,7 @@ export class MonksLittleDetails {
 
         ui.notifications.info(i18n("MonksLittleDetails.Next"));
         // play a sound
-        if(volume() > 0)
+        if (volume() > 0 && !game.settings.get("monks-little-details", "disablesounds"))
             AudioHelper.play({ src: MonksLittleDetails.NEXT_SOUND, volume: volume() });
     }
 
@@ -801,7 +822,7 @@ Hooks.on("updateCombat", function (data, delta) {
         MonksLittleDetails.tracker = false;   //delete this so that the next render will reposition the popout, changin between combats changes the height
     }
 
-    if (!game.user.isGM && volume() > 0 && Object.keys(delta).some((k) => k === "round")) {
+    if (!game.user.isGM && volume() > 0 && !game.settings.get("monks-little-details", "disablesounds") && Object.keys(delta).some((k) => k === "round")) {
 		AudioHelper.play({
             src: MonksLittleDetails.ROUND_SOUND,
 		    volume: volume()
@@ -839,7 +860,7 @@ Hooks.on('renderTokenHUD', async (app, html, options) => {
         $('.col.right', html).append(
             $('<div>').addClass('control-icon sound-effect')
                 .append('<img src="modules/monks-little-details/icons/volumeup.svg" width="36" height="36" title="Play Sound Effect">')
-                .click($.proxy(MonksLittleDetails.playSoundEffect, app.object)));
+                .click($.proxy(MonksLittleDetails.loadSoundEffect, app.object)));
     }
 });
 

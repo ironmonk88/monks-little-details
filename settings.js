@@ -39,6 +39,14 @@ export const registerSettings = function () {
 		default: 60,
 		type: Number,
 	});
+	game.settings.register(modulename, "disablesounds", {
+		name: game.i18n.localize("MonksLittleDetails.DisableSounds"),
+		hint: game.i18n.localize("MonksLittleDetails.DisableSoundsHint"),
+		scope: "world",
+		config: true,
+		default: false,
+		type: Boolean,
+	});
 	game.settings.register(modulename, "combat-position", {
 		name: game.i18n.localize("MonksLittleDetails.Position"),
 		hint: game.i18n.localize("MonksLittleDetails.PositionHint"),
