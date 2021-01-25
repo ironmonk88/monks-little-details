@@ -27,6 +27,9 @@ export class MonksLittleDetails {
         // element statics
        // CONFIG.debug.hooks = true;
 
+        if (game.MonksLittleDetails == undefined)
+            game.MonksLittleDetails = MonksLittleDetails;
+
         MonksLittleDetails.SOCKET = "module.monks-little-details";
 
         MonksLittleDetails.READY = true;
@@ -116,6 +119,8 @@ export class MonksLittleDetails {
     }
 
     static ready() {
+        MonksLittleDetails.injectSoundCtrls();
+
         MonksLittleDetails.checkCombatTurn();
 
         game.socket.on('module.monks-little-details', MonksLittleDetails.onMessage);
@@ -248,6 +253,59 @@ export class MonksLittleDetails {
         style.innerHTML = innerHTML;
         if (innerHTML != '')
             document.querySelector("head").appendChild(style);
+    }
+
+    static injectSoundCtrls() {
+        let npcSheetNames = Object.values(CONFIG.Actor.sheetClasses.npc)
+            .map((sheetClass) => sheetClass.cls)
+            .map((sheet) => sheet.name);
+
+        npcSheetNames.forEach((sheetName) => {
+            Hooks.on("render" + sheetName, (app, html, data) => {
+                // only for GMs or the owner of this npc
+                if (!data.owner || !data.actor) return;
+
+                // don't add the button multiple times
+                if ($(html).find("#mldCharacterSound").length > 0) return;
+
+                let button = $('<button>')
+                    .attr('type', "button")
+                    .attr('id', "mldCharacterSound")
+                    .toggleClass('loaded', app.entity.data.flags['monks-little-details'] != undefined)
+                    .html('<i class="fas fa-volume-up"></i>')
+                    .click($.proxy(MonksLittleDetails.findSoundEffect, app))
+                    .contextmenu($.proxy(MonksLittleDetails.playSoundEffect, app));
+
+                let wrap = $('<div class="mldCharacterName"></div>');
+                $(html).find("input[name='name']").wrap(wrap);
+                $(html).find("input[name='name']").parent().prepend(button);
+            });
+        });
+    }
+
+    static findSoundEffect(event) {
+        log('Click sound button');
+        //Display the filepicker to save a sound
+        const current = this.actor.getFlag('monks-little-details', 'sound-effect');
+        const fp = new FilePicker({
+            type: "audio",
+            current: current,
+            callback: path => {
+                this.actor.setFlag('monks-little-details', 'sound-effect', path);
+            },
+            top: this.position.top + 40,
+            left: this.position.left + 10
+        });
+        return fp.browse();
+    }
+
+    static playSoundEffect(event) {
+        const current = this.actor.getFlag('monks-little-details', 'sound-effect');
+        if (current != undefined) {
+            let volume = game.settings.get("core", 'globalInterfaceVolume');
+            AudioHelper.play({ src: current, volume: volume });
+        }
+        event.preventDefault;
     }
 
     static async moveTokens(event) {
@@ -574,6 +632,98 @@ export class MonksLittleDetails {
     static async updateSceneBackground(hexCode) {
         await MonksLittleDetails.currentScene.update({ backgroundColor: hexCode });
     }
+
+    static fixImages() {
+        var dnd5emonsters = game.packs.get("dnd5e.monsters");
+        dnd5emonsters.locked = false;
+
+        dnd5emonsters.getContent().then(entries => {
+            debugger;
+            for (var i = 0; i < entries.length; i++) {
+                var entry = entries[i];
+                var montype = entry.data.data.details.type.toLowerCase();
+                montype = montype.replace(/\(.*\)/, '').replace(/\s/g, '');
+                var monname = entry.name.toLowerCase();
+                if (monname.startsWith('ancient'))
+                    monname = monname.replace('ancient', '');
+                if (monname.startsWith('adult'))
+                    monname = monname.replace('adult', '');
+                if (monname.startsWith('young'))
+                    monname = monname.replace('young', '');
+                monname = monname.replace(/\s/g, '').replace(/-/g, '').replace(/'/g, '').replace(/\(.*\)/, '');
+
+                var imgname = 'images/avatar/dnd/' + montype + '/' + monname + '.png';
+                if (entry.data.img != imgname) {
+                    var data = { _id: entry._id, img: imgname };
+                    var fetchname = window.location.protocol + "//" + window.location.host + '/' + imgname;
+                    $.get(imgname)
+                        .done(function () {
+                            // Do something now you know the image exists.
+                            xhr.dnd5emonsters.updateEntity(xhr.entity);
+                        }).fail(function () {
+                            // Image doesn't exist - do something else.
+
+                        });
+                    /*
+                    let xhr = new XMLHttpRequest();
+                    xhr.dnd5emonsters = dnd5emonsters;
+                    xhr.entity = data;
+                    xhr.onload = () => {
+                        if (xhr.status == 200) {
+                            xhr.dnd5emonsters.updateEntity(xhr.entity);
+                            log('Fixing:' + xhr.entity.img);
+                        } else {
+                            log('Image does not exist:' + xhr.entity.img);
+                        }
+                    };
+                    xhr.open('HEAD', fetchname);
+                    xhr.send();*/
+                }
+
+                /*
+                var tokentype = 'overhead';
+                var tokenname = 'images/tokens/' + tokentype + '/' + montype + '/' + monname + '.png';
+                if (entry.data.token.img != '' && entry.data.token.img != tokenname) {
+                    var data = { _id: entry._id, token: { img: tokenname } };
+                    var fetchname = window.location.protocol + "//" + window.location.host + '/' + tokenname;
+                    var img = new Image();
+                    img.dnd5emonsters = dnd5emonsters;
+                    img.entity = data;
+                    img.tokentype = tokentype;
+                    img.montype = montype;
+                    img.monname = monname;
+
+                    img.onload = function () {
+                        this.dnd5emonsters.updateEntity(this.entity);
+                        console.log('Fixing token:' + this.entity.token.img);
+                    }
+
+                    img.onerror = function () {
+                        if (this.tokentype == 'overhead')
+                            this.tokentype = 'disc';
+                        else if (this.tokentype == 'disc')
+                            this.tokentype = 'artwork';
+                        else
+                            return;
+                        var tokenname = 'images/tokens/' + this.tokentype + '/' + this.montype + '/' + this.monname + '.png';
+                        this.entity.token.img = tokenname;
+                        this.src = tokenname;
+                    }
+                    img.src = fetchname;
+                }*/
+                /*
+                var token = new Image();
+                token.onload = function(){
+                    dnd5emonsters.updateEntity({
+                        _id:entry._id,
+                        token:{img:tokenname}
+                    });
+                }
+                token.src = tokenname;
+                */
+            }
+        });
+    }
 }
 
 /**
@@ -683,6 +833,13 @@ Hooks.on('renderTokenHUD', async (app, html, options) => {
     MonksLittleDetails.tokenHUD = app;
     if (game.settings.get("monks-little-details", "swap-buttons")) {
         $('.col.left .control-icon.target', html).insertBefore($('#token-hud .col.left .control-icon.config'));
+    }
+
+    if (app.object.actor.data.flags['monks-little-details'] != undefined) {
+        $('.col.right', html).append(
+            $('<div>').addClass('control-icon sound-effect')
+                .append('<img src="modules/monks-little-details/icons/volumeup.svg" width="36" height="36" title="Play Sound Effect">')
+                .click($.proxy(MonksLittleDetails.playSoundEffect, app.object)));
     }
 });
 
