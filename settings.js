@@ -10,6 +10,15 @@ export const registerSettings = function () {
 		'bottomright': 'Bottom Right'
 	  };
 	
+	game.settings.register(modulename, "playroundsound", {
+		name: game.i18n.localize("MonksLittleDetails.PlayRoundSound"),
+		hint: game.i18n.localize("MonksLittleDetails.PlayRoundSoundHint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+	
 	game.settings.register(modulename, "shownextup", {
 		name: game.i18n.localize("MonksLittleDetails.ShowNextUp"),
 		hint: game.i18n.localize("MonksLittleDetails.ShowNextUpHint"),

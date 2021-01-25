@@ -801,7 +801,7 @@ Hooks.on("updateCombat", function (data, delta) {
         MonksLittleDetails.tracker = false;   //delete this so that the next render will reposition the popout, changin between combats changes the height
     }
 
-    if (!game.user.isGM && volume() > 0 && Object.keys(delta).some((k) => k === "round")) {
+    if (!game.user.isGM && volume() > 0 && game.settings.get("monks-little-details", "playroundsound") && Object.keys(delta).some((k) => k === "round")) {
 		AudioHelper.play({
             src: MonksLittleDetails.ROUND_SOUND,
 		    volume: volume()
