@@ -1,3 +1,6 @@
+# Version 1.0.5
+Fixed the conflicts with Token Scaler.  Little Details doesn't exactly play nice, but will resize where it can.
+
 # Version 1.0.4
 Fixed some issues with the next turn not working
 
