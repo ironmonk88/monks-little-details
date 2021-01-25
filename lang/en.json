@@ -1,8 +1,8 @@
 {
 	"MonksLittleDetails.Turn": "It's your turn, what would you like to do?",
 	"MonksLittleDetails.Next": "Get ready, you're up next",
-	"MonksLittleDeatils.PlayRoundSound": "Play new round sound",
-	"MonksLittleDeatils.PlayRoundSoundHint": "Play a sound when the next round starts",
+	"MonksLittleDetails.PlayRoundSound": "Play new round sound",
+	"MonksLittleDetails.PlayRoundSoundHint": "Play a sound when the next round starts",
 	"MonksLittleDetails.ShowNextUp": "Show 'Next Up' notification",
 	"MonksLittleDetails.ShowNextUpHint": "Show notification to the players that their turn is next",
 	"MonksLittleDetails.ShowCurrentUp": "Show 'Your Turn' notification",
