@@ -1,6 +1,7 @@
 {
 	"MonksLittleDetails.Turn": "It's your turn, what would you like to do?",
 	"MonksLittleDetails.Next": "Get ready, you're up next",
+
 	"MonksLittleDetails.ShowNextUp": "Show 'Next Up' notification",
 	"MonksLittleDetails.ShowNextUpHint": "Show notification to the players that their turn is next",
 	"MonksLittleDetails.ShowCurrentUp": "Show 'Your Turn' notification",
@@ -13,6 +14,8 @@
 	"MonksLittleDetails.PopoutCombatHint": "When starting a combat, popout the dialog, and switch to the chat window",
 	"MonksLittleDetails.DisableSounds": "Disable Sounds",
 	"MonksLittleDetails.DisableSoundsHint": "Disable all turn sound effects for all players",
+	"MonksLittleDetails.PlayRoundSound": "Play new round sound",
+	"MonksLittleDetails.PlayRoundSoundHint": "Play a sound when the next round starts",
 
 	"MonksLittleDetails.StatusCharmed": "Charmed",
 	"MonksLittleDetails.StatusExhausted": "Exhausted",

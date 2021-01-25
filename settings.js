@@ -39,6 +39,14 @@ export const registerSettings = function () {
 		default: 60,
 		type: Number,
 	});
+	game.settings.register(modulename, "playroundsound", {
+		name: game.i18n.localize("MonksLittleDetails.PlayRoundSound"),
+		hint: game.i18n.localize("MonksLittleDetails.PlayRoundSoundHint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
 	game.settings.register(modulename, "disablesounds", {
 		name: game.i18n.localize("MonksLittleDetails.DisableSounds"),
 		hint: game.i18n.localize("MonksLittleDetails.DisableSoundsHint"),
