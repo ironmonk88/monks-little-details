@@ -158,24 +158,25 @@ export class MonksLittleDetails {
     text-shadow: 1px 1px 3px #000;
     color: #f0f0e0;
 }
+
+.control-icon.active > img {
+    filter: sepia(100%) saturate(2000%) hue-rotate(-50deg);
+}
 `;
         }
 
-        if (game.settings.get("monks-little-details", "alter-hud")) {
-            innerHTML += `
-.control-icon.active > img {
-    filter: sepia(100%) saturate(2000%) hue-rotate(-50deg);
-}`;
-        }
+        let iconWidth = '24';
+        if (game.modules.get("illandril-token-hud-scale") != undefined && game.settings.get("illandril-token-hud-scale", "enableStatusSelectorScale"))
+            iconWidth = '36';
 
-            if (game.world.system === "dnd5e") {
-                innerHTML += `
+        if (game.world.system === "dnd5e" && game.settings.get("monks-little-details", "alter-hud")) {
+            innerHTML += `
 #token-hud .status-effects {
     top: -56px !important;
-    width: unset;
+    width: unset !important;
     grid-template-columns: 130px 130px 130px 130px !important;
     font-size: 16px;
-    line-height: 24px;
+    line-height: ${iconWidth}px;
     text-align: left;
     background: rgba(0, 0, 0, 0.8);
 }
@@ -197,7 +198,8 @@ export class MonksLittleDetails {
 }
 
 #token-hud .status-effects div.effect-control {
-    width: 100%;
+    width: 100% !important;
+    height: ${iconWidth}px !important;
     color: #ccc;
     cursor: pointer;
     border-radius: 4px;
@@ -219,8 +221,8 @@ export class MonksLittleDetails {
 }
 
 #token-hud .status-effects .effect-control img {
-    width: 24px;
-    height: 24px;
+    width: ${iconWidth}px;
+    height: ${iconWidth}px;
     margin: 0;
     margin-top:-1px;
     padding: 0;
@@ -244,7 +246,7 @@ export class MonksLittleDetails {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: calc(100% - 24px);
+    max-width: calc(100% - ${iconWidth}px);
     display: inline-block;
 }
 `;
@@ -520,7 +522,7 @@ export class MonksLittleDetails {
                     apl.count = apl.count + 1;
                     apl.levels = apl.levels + combatant.actor.data.data.details.level;
                 } else {
-                    xp += (combatant.actor.data.data.details.xp.value);
+                    xp += (combatant?.actor.data.data.details?.xp?.value || 0);
                 }
             }
         });
