@@ -3,6 +3,8 @@ Fixed the conflicts with Token Scaler.  Little Details doesn't exactly play nice
 
 Fixed an issue with the settings not turning off the HUD changes.
 
+Fixed an issue with the CR estimation not working due to vehicles added to the encounter.
+
 # Version 1.0.4
 Fixed some issues with the next turn not working
 
