@@ -166,7 +166,7 @@ export class MonksLittleDetails {
         }
 
         let iconWidth = '24';
-        if (game.modules.get("illandril-token-hud-scale") != undefined && game.settings.get("illandril-token-hud-scale", "enableStatusSelectorScale"))
+        if (game.modules.get("illandril-token-hud-scale") != undefined && game.modules.get("illandril-token-hud-scale").active && game.settings.get("illandril-token-hud-scale", "enableStatusSelectorScale"))
             iconWidth = '36';
 
         if (game.world.system === "dnd5e" && game.settings.get("monks-little-details", "alter-hud")) {
