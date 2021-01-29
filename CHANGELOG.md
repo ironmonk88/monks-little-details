@@ -3,6 +3,8 @@ Added support to specify what audio file to play for the next, current, and roun
 
 Scene Navigation changes
 
+Fixed an issue with closing the Combat Tracker after the encounter is finished.
+
 # Version 1.0.5
 Fixed the conflicts with Token Scaler.  Little Details doesn't exactly play nice, but will resize where it can.
 
