@@ -24,6 +24,8 @@ Scene Compendium
 
 ![monks-little-details](/screenshots/SceneCompendium.PNG)
 
+Scene Navigation changes
+
 ### Turn notifications
 Added turn notification for the player.  During combat the player will receive an alert notification when their turn is up next, and another one when it's their turn to move.  Either message or accompanying sound effects can be toggled.
 
