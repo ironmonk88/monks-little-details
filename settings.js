@@ -18,6 +18,14 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean,
 	});
+	game.settings.register(modulename, "next-sound", {
+		name: "Next Sound",
+		hint: "Audio effect to play when a players turn is up next, leave blank to not play any sound",
+		scope: "world",
+		config: true,
+		default: "modules/monks-little-details/sounds/next.wav",
+		type: String,
+	});
 	game.settings.register(modulename, "showcurrentup", {
 		name: game.i18n.localize("MonksLittleDetails.ShowCurrentUp"),
 		hint: game.i18n.localize("MonksLittleDetails.ShowCurrentUpHint"),
@@ -25,6 +33,22 @@ export const registerSettings = function () {
 		config: true,
 		default: true,
 		type: Boolean,
+	});
+	game.settings.register(modulename, "turn-sound", {
+		name: "Current Turn Sound",
+		hint: "Audio effect to play at the beginning of a players turn, leave blank to not play any sound",
+		scope: "world",
+		config: true,
+		default: "modules/monks-little-details/sounds/turn.wav",
+		type: String,
+	});
+	game.settings.register(modulename, "round-sound", {
+		name: "Next Round Sound",
+		hint: "Audio effect to play at the start of a new round, leave blank to not play any sound",
+		scope: "world",
+		config: true,
+		default: "modules/monks-little-details/sounds/round.wav",
+		type: String,
 	});
 	game.settings.register(modulename, "volume", {
 		name: game.i18n.localize("MonksLittleDetails.Volume"),
@@ -38,14 +62,6 @@ export const registerSettings = function () {
 		},
 		default: 60,
 		type: Number,
-	});
-	game.settings.register(modulename, "playroundsound", {
-		name: game.i18n.localize("MonksLittleDetails.PlayRoundSound"),
-		hint: game.i18n.localize("MonksLittleDetails.PlayRoundSoundHint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
 	});
 	game.settings.register(modulename, "disablesounds", {
 		name: game.i18n.localize("MonksLittleDetails.DisableSounds"),
@@ -96,6 +112,14 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean,
 	});
+	game.settings.register(modulename, "actor-sounds", {
+		name: "Actor Sound Effects",
+		hint: "Add a button to the character sheet and the TokenHUD to play a sound effect.",
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
 	game.settings.register(modulename, "scene-palette", {
 		name: "Show Scene Palette",
 		hint: "Show the top 5 dominant colours of a scene just in case you want to set the background colour to a similar colour.",
@@ -131,6 +155,14 @@ export const registerSettings = function () {
 	game.settings.register(modulename, "show-drag-points-together", {
 		name: "Show Drag Points Together",
 		hint: "Show a toggle button on the wall tools that will drag points together if they overlap exactly",
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "alter-scene-navigation", {
+		name: "Scene Navigation changes",
+		hint: "Show the scene navigation on a single line instead of spreading across the screen.",
 		scope: "world",
 		config: true,
 		default: true,

@@ -72,10 +72,9 @@ export class MonksLittleDetails {
         ];
 
         // sound statics
-        MonksLittleDetails.TURN_SOUND = "modules/monks-little-details/sounds/turn.wav";
         MonksLittleDetails.NEXT_SOUND = "modules/monks-little-details/sounds/next.wav";
+        MonksLittleDetails.TURN_SOUND = "modules/monks-little-details/sounds/turn.wav";
         MonksLittleDetails.ROUND_SOUND = "modules/monks-little-details/sounds/round.wav";
-        MonksLittleDetails.ACK_SOUND = "modules/monks-little-details/sounds/ack.wav";
 
         registerSettings();
 
@@ -119,7 +118,8 @@ export class MonksLittleDetails {
     }
 
     static ready() {
-        MonksLittleDetails.injectSoundCtrls();
+        if(game.settings.get("monks-little-details", "actor-sounds"))
+            MonksLittleDetails.injectSoundCtrls();
 
         MonksLittleDetails.checkCombatTurn();
 
@@ -161,6 +161,10 @@ export class MonksLittleDetails {
 
 .control-icon.active > img {
     filter: sepia(100%) saturate(2000%) hue-rotate(-50deg);
+}
+
+#context-menu li.context-item{
+    text-align: left;
 }
 `;
         }
@@ -270,17 +274,55 @@ export class MonksLittleDetails {
                 // don't add the button multiple times
                 if ($(html).find("#mldCharacterSound").length > 0) return;
 
+                let hasSound = (app.entity.getFlag('monks-little-details', 'sound-effect') != undefined);
+
                 let button = $('<button>')
                     .attr('type', "button")
                     .attr('id', "mldCharacterSound")
-                    .toggleClass('loaded', app.entity.data.flags['monks-little-details'] != undefined)
+                    .toggleClass('loaded', hasSound)
                     .html('<i class="fas fa-volume-up"></i>')
-                    .click($.proxy(MonksLittleDetails.findSoundEffect, app))
-                    .contextmenu($.proxy(MonksLittleDetails.loadSoundEffect, app));
+                    .click($.proxy(MonksLittleDetails.findSoundEffect, app));
+                    //.contextmenu($.proxy(MonksLittleDetails.loadSoundEffect, app));
+
+                if (app.soundcontext == undefined) {
+                    app.soundcontext = new ContextMenu(html, "#mldCharacterSound", [
+                        {
+                            name: "Select Sound",
+                            icon: '<i class="fas fa-file-import"></i>',
+                            callback: li => {
+                                MonksLittleDetails.findSoundEffect.call(app);
+                            }
+                        },
+                        {
+                            name: "Play Sound",
+                            icon: '<i class="fas fa-play"></i>',
+                            condition: $.proxy(function () {
+                                return this.entity.getFlag('monks-little-details', 'sound-effect');
+                            }, app),
+                            callback: li => {
+                                MonksLittleDetails.loadSoundEffect.call(app);
+                            }
+                        },
+                        {
+                            name: "Delete Sound",
+                            icon: '<i class="fas fa-trash-alt"></i>',
+                            condition: $.proxy(function () {
+                                return this.entity.getFlag('monks-little-details', 'sound-effect');
+                            }, app),
+                            callback: li => {
+                                MonksLittleDetails.clearSoundEffect.call(app);
+                            }
+                        }
+                    ]);
+                }
 
                 let wrap = $('<div class="mldCharacterName"></div>');
                 $(html).find("input[name='name']").wrap(wrap);
                 $(html).find("input[name='name']").parent().prepend(button);
+            });
+
+            Hooks.on("close" + sheetName, (app, html, data) => {
+                delete app.soundcontext;
             });
         });
     }
@@ -318,7 +360,8 @@ export class MonksLittleDetails {
                 );
             }
         }
-        event.preventDefault;
+        if(event != undefined)
+            event.preventDefault;
     }
 
     static playSoundEffect(audiofile) {
@@ -326,6 +369,11 @@ export class MonksLittleDetails {
             let volume = game.settings.get("core", 'globalInterfaceVolume');
             AudioHelper.play({ src: audiofile, volume: volume });
         }
+    }
+
+    static clearSoundEffect(event) {
+        log('Clear Sound effect');
+        this.actor.unsetFlag('monks-little-details', 'sound-effect');
     }
 
     static async moveTokens(event) {
@@ -374,8 +422,8 @@ export class MonksLittleDetails {
         ui.notifications.warn(i18n("MonksLittleDetails.Turn"));
 
         // play a sound
-        if (volume() > 0 && !game.settings.get("monks-little-details", "disablesounds"))
-            AudioHelper.play({ src: MonksLittleDetails.TURN_SOUND, volume: volume() });
+        if (volume() > 0 && !game.settings.get("monks-little-details", "disablesounds") && game.settings.get('monks-little-details', 'turn-sound') != '')
+            AudioHelper.play({ src: game.settings.get('monks-little-details', 'turn-sound'), volume: volume() });
     }
 
     static doDisplayNext() {
@@ -389,8 +437,8 @@ export class MonksLittleDetails {
 
         ui.notifications.info(i18n("MonksLittleDetails.Next"));
         // play a sound
-        if (volume() > 0 && !game.settings.get("monks-little-details", "disablesounds"))
-            AudioHelper.play({ src: MonksLittleDetails.NEXT_SOUND, volume: volume() });
+        if (volume() > 0 && !game.settings.get("monks-little-details", "disablesounds") && game.settings.get('monks-little-details', 'next-sound') != '')
+            AudioHelper.play({ src: game.settings.get('monks-little-details', 'next-sound'), volume: volume() });
     }
 
     /**
@@ -801,9 +849,24 @@ Hooks.on("deleteCombat", function (combat) {
 
     if (game.combats.combats.length == 0 && game.settings.get("monks-little-details", 'close-combat-when-done')) {
         const tabApp = ui["combat"];
-        tabApp.close();
-    }
+        if (tabApp._popout != undefined) {
+            MonksLittleDetails.closeCount = 0;
+            MonksLittleDetails.closeTimer = setInterval(function () {
+                MonksLittleDetails.closeCount++;
+                const tabApp = ui["combat"];
+                if (MonksLittleDetails.closeCount > 100 || tabApp._popout == undefined) {
+                    clearInterval(MonksLittleDetails.closeTimer);
+                    return;
+                }
 
+                const states = tabApp?._popout.constructor.RENDER_STATES;
+                if (![states.CLOSING, states.RENDERING].includes(tabApp?._popout._state)) {
+                    tabApp?._popout.close();
+                    clearInterval(MonksLittleDetails.closeTimer);
+                }
+            }, 100);
+        }
+    }
 });
 
 Hooks.on("updateCombat", function (data, delta) {
@@ -824,9 +887,9 @@ Hooks.on("updateCombat", function (data, delta) {
         MonksLittleDetails.tracker = false;   //delete this so that the next render will reposition the popout, changin between combats changes the height
     }
 
-    if (!game.user.isGM && volume() > 0 && game.settings.get("monks-little-details", "playroundsound") && !game.settings.get("monks-little-details", "disablesounds") && Object.keys(delta).some((k) => k === "round")) {
+    if (!game.user.isGM && volume() > 0 && !game.settings.get("monks-little-details", "disablesounds") && game.settings.get('monks-little-details', 'round-sound') && Object.keys(delta).some((k) => k === "round")) {
 		AudioHelper.play({
-            src: MonksLittleDetails.ROUND_SOUND,
+            src: game.settings.get('monks-little-details', 'round-sound'),
 		    volume: volume()
 		});
 	}
@@ -858,7 +921,7 @@ Hooks.on('renderTokenHUD', async (app, html, options) => {
         $('.col.left .control-icon.target', html).insertBefore($('#token-hud .col.left .control-icon.config'));
     }
 
-    if (app.object.actor.data.flags['monks-little-details'] != undefined) {
+    if (app.object.actor.data.flags['monks-little-details'] != undefined && game.settings.get("monks-little-details", "actor-sounds")) {
         $('.col.right', html).append(
             $('<div>').addClass('control-icon sound-effect')
                 .append('<img src="modules/monks-little-details/icons/volumeup.svg" width="36" height="36" title="Play Sound Effect">')
@@ -972,4 +1035,35 @@ Hooks.on("preUpdateWall", (scene, wall, update, options) => {
 Hooks.on("updateWall", (scene, wall, update, options) => {
     let thewall = scene.data.walls.find(w => w._id === wall._id);
     log('updatewall', thewall);
+});
+
+Hooks.on("renderSceneNavigation", (app, html, data) => {
+    if (game.settings.get("monks-little-details", "alter-scene-navigation"))
+        $(html).addClass('monks-little-details');
+    log('render scene navigation', data);
+});
+
+Hooks.on("renderSettingsConfig", (app, html, data) => {
+    let btn = $('<button>')
+        .addClass('file-picker')
+        .attr('type', 'button')
+        .attr('data-type', "imagevideo")
+        .attr('data-target', "img")
+        .attr('title', "Browse Files")
+        .attr('tabindex', "-1")
+        .html('<i class="fas fa-file-import fa-fw"></i>')
+        .click(function (event) {
+            const fp = new FilePicker({
+                type: "audio",
+                current: $(event.currentTarget).prev().val(),
+                callback: path => {
+                    $(event.currentTarget).prev().val(path);
+                }
+            });
+            return fp.browse();
+        });
+
+    btn.clone(true).insertAfter($('input[name="monks-little-details.next-sound"]', html));
+    btn.clone(true).insertAfter($('input[name="monks-little-details.turn-sound"]', html));
+    btn.clone(true).insertAfter($('input[name="monks-little-details.round-sound"]', html));
 });
