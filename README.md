@@ -54,7 +54,7 @@ Added the top 5 dominant colours of a scene so that you can choose a background 
 Added a toggle to the wall tools.  When selected, dragging a wall point to a new location will also move any other wall points that exactly overlapped the first one.  So instead of having to move both wall points to the new location it will maintain the connection between wall joints and move the second one after the first has been moved.  Saves me some time when editing lengths of wall.
 
 ### Character Sound Effects
-Added a button to load a sound file to associate with a character.  So if you ever wanted to make a dragon roar, or a banshee howl, you can upload the file, attach it to the character and play from the Token HUD.  From the NPC sheet, a button with a speaker icon should now be visible.  Clicking that will open the FilePicker so you can select an audio file.  Right clicking that let you preview the file.  And orange border will denote that I file has been loaded.
+Added a button to load a sound file to associate with a character.  So if you ever wanted to make a dragon roar, or a banshee howl, you can upload the file, attach it to the character and play from the Token HUD.  From the NPC sheet, a button with a speaker icon should now be visible.  Clicking that will open the FilePicker so you can select an audio file.  Right clicking will open a context menu with other options.  And orange border will denote that I file has been loaded.
 ![monks-little-details](/screenshots/AddSound.png)
 
 While playing, bringing up the Token HUD will show a speaker button under the combat button.  Clicking on the speaker button will play the sound effect using the current volume settings for Foundry.
