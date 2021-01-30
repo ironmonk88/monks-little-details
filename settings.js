@@ -164,8 +164,8 @@ export const registerSettings = function () {
 		name: "Scene Navigation changes",
 		hint: "Show the scene navigation on a single line instead of spreading across the screen.",
 		scope: "world",
-		config: true,
-		default: true,
+		config: false,
+		default: false,
 		type: Boolean,
 	});
 };
