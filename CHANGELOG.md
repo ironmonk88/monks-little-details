@@ -1,3 +1,6 @@
+# Version 1.0.7
+Added setting to change what key moves the tokens.
+
 # Version 1.0.6
 Added support to specify what audio file to play for the next, current, and round events.  Leave it blank to not play a sound.
 
