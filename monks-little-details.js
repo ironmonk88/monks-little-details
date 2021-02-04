@@ -377,7 +377,11 @@ export class MonksLittleDetails {
     }
 
     static async moveTokens(event) {
-        if (game.user.isGM && game.keyboard.isDown("m") && canvas.tokens.controlled.length > 0) {
+        let movechar = game.settings.get("monks-little-details", "movement-key");
+        if (movechar.length == 0) movechar = "m";
+        if (movechar.length > 1) movechar = movechar[0];
+
+        if (game.user.isGM && game.keyboard.isDown(movechar) && canvas.tokens.controlled.length > 0) {
             let pos = event.data.getLocalPosition(canvas.app.stage);
             let mid = {
                 x: canvas.tokens.controlled[0].data.x,
@@ -479,7 +483,7 @@ export class MonksLittleDetails {
         let sidebar = document.getElementById("sidebar");
         let players = document.getElementById("players");
 
-        let butHeight = (!game.user.isGM && !app.combat.getCombatantByToken(app.combat.current.tokenId).owner ? 40 : 0);
+        let butHeight = (!game.user.isGM && !app.combat.getCombatantByToken(app.combat.current.tokenId)?.owner ? 40 : 0);
 
         app.position.left = (combatposition().endsWith('left') ? 120 : (sidebar.offsetLeft - app.position.width));
         app.position.top = (combatposition().startsWith('top') ?
@@ -844,6 +848,11 @@ Hooks.on("addCombatant", function (context, parentId, data) {
  * Combat update hook
  */
 
+Hooks.on("createCombat", function (data, delta) {
+    if (game.user.isGM && ui.sidebar.activeTab !== "combat")
+        ui.sidebar.activateTab("combat");
+});
+
 Hooks.on("deleteCombat", function (combat) {
     MonksLittleDetails.tracker = false;   //if the combat gets deleted, make sure to clear this out so that the next time the combat popout gets rendered it repositions the dialog
 
@@ -872,8 +881,9 @@ Hooks.on("deleteCombat", function (combat) {
 Hooks.on("updateCombat", function (data, delta) {
     MonksLittleDetails.checkCombatTurn();
 
-	log("update combat", data);
-	if(game.settings.get("monks-little-details", "opencombat") && delta.round === 1 && data.turn === 0 && data.started === true){
+    log("update combat", data);
+    let opencombat = game.settings.get("monks-little-details", "opencombat");
+    if ((opencombat == "everyone" || (game.user.isGM && opencombat == "gmonly") || (!game.user.isGM && opencombat == "playersonly")) && delta.round === 1 && data.turn === 0 && data.started === true){
 		//new combat, pop it out
 		const tabApp = ui["combat"];
 		tabApp.renderPopout(tabApp);
@@ -884,7 +894,7 @@ Hooks.on("updateCombat", function (data, delta) {
 
     if (combatposition() !== '' && delta.active === true) {
         //+++ make sure if it's not this players turn and it's not the GM to add padding for the button at the bottom
-        MonksLittleDetails.tracker = false;   //delete this so that the next render will reposition the popout, changin between combats changes the height
+        MonksLittleDetails.tracker = false;   //delete this so that the next render will reposition the popout, changing between combats changes the height
     }
 
     if (!game.user.isGM && volume() > 0 && !game.settings.get("monks-little-details", "disablesounds") && game.settings.get('monks-little-details', 'round-sound') && Object.keys(delta).some((k) => k === "round")) {
@@ -1035,12 +1045,6 @@ Hooks.on("preUpdateWall", (scene, wall, update, options) => {
 Hooks.on("updateWall", (scene, wall, update, options) => {
     let thewall = scene.data.walls.find(w => w._id === wall._id);
     log('updatewall', thewall);
-});
-
-Hooks.on("renderSceneNavigation", (app, html, data) => {
-    if (game.settings.get("monks-little-details", "alter-scene-navigation"))
-        $(html).addClass('monks-little-details');
-    log('render scene navigation', data);
 });
 
 Hooks.on("renderSettingsConfig", (app, html, data) => {

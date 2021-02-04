@@ -8,7 +8,14 @@ export const registerSettings = function () {
 		'topright': 'Top Right',
 		'bottomleft': 'Bottom Left',
 		'bottomright': 'Bottom Right'
-	  };
+	};
+
+	let opencombatoptions = {
+		'nopen': 'Do not open combat window',
+		'everyone': 'Everyone',
+		'gmonly': 'GM Only',
+		'playersonly': 'Players only'
+	};
 	
 	game.settings.register(modulename, "shownextup", {
 		name: game.i18n.localize("MonksLittleDetails.ShowNextUp"),
@@ -85,8 +92,9 @@ export const registerSettings = function () {
 		hint: game.i18n.localize("MonksLittleDetails.PopoutCombatHint"),
 		scope: "world",
 		config: true,
-		default: true,
-		type: Boolean,
+		choices: opencombatoptions,
+		default: "everyone",
+		type: String,
 	});
 	game.settings.register(modulename, "close-combat-when-done", {
 		name: "Close Combat when done",
