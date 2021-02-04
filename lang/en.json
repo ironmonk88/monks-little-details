@@ -12,6 +12,8 @@
 	"MonksLittleDetails.PositionHint": "Where to place the combat dialog when it opens, rather than the middle of the screen",
 	"MonksLittleDetails.PopoutCombat": "Popout Combat Dialog",
 	"MonksLittleDetails.PopoutCombatHint": "When starting a combat, popout the dialog, and switch to the chat window",
+	"MonksLittleDetails.DisablePopoutCombat": "Disable the combat popout",
+	"MonksLittleDetails.DisablePopoutCombatHint": "If you'd rather the combat not popout when combat starts",
 	"MonksLittleDetails.DisableSounds": "Disable Sounds",
 	"MonksLittleDetails.DisableSoundsHint": "Disable all turn sound effects for all players",
 	"MonksLittleDetails.PlayRoundSound": "Play new round sound",

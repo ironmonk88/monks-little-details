@@ -883,7 +883,9 @@ Hooks.on("updateCombat", function (data, delta) {
 
     log("update combat", data);
     let opencombat = game.settings.get("monks-little-details", "opencombat");
-    if ((opencombat == "everyone" || (game.user.isGM && opencombat == "gmonly") || (!game.user.isGM && opencombat == "playersonly")) && delta.round === 1 && data.turn === 0 && data.started === true){
+    if ((opencombat == "everyone" || (game.user.isGM && opencombat == "gmonly") || (!game.user.isGM && opencombat == "playersonly"))
+        && !game.settings.get("monks-little-details", "disable-opencombat")
+        && delta.round === 1 && data.turn === 0 && data.started === true) {
 		//new combat, pop it out
 		const tabApp = ui["combat"];
 		tabApp.renderPopout(tabApp);

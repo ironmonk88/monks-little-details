@@ -94,7 +94,15 @@ export const registerSettings = function () {
 		config: true,
 		choices: opencombatoptions,
 		default: "everyone",
-		type: String,
+		type: String
+	});
+	game.settings.register(modulename, "disable-opencombat", {
+		name: game.i18n.localize("MonksLittleDetails.DisablePopoutCombat"),
+		hint: game.i18n.localize("MonksLittleDetails.DisablePopoutCombatHint"),
+		scope: "client",
+		config: true,
+		default: false,
+		type: Boolean
 	});
 	game.settings.register(modulename, "close-combat-when-done", {
 		name: "Close Combat when done",
