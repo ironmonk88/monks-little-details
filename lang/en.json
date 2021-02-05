@@ -19,6 +19,8 @@
 	"MonksLittleDetails.PlayRoundSound": "Play new round sound",
 	"MonksLittleDetails.PlayRoundSoundHint": "Play a sound when the next round starts",
 
+	"MonksLittleDetails.PreventTokenMessage": "Once in combat, a token cannot be removed except through the encounter interface.",
+
 	"MonksLittleDetails.StatusCharmed": "Charmed",
 	"MonksLittleDetails.StatusExhausted": "Exhausted",
 	"MonksLittleDetails.StatusGrappled": "Grappled",

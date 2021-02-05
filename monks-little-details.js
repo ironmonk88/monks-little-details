@@ -115,6 +115,18 @@ export class MonksLittleDetails {
                 return result;
             }
         }
+
+        if (game.settings.get("monks-little-details", "prevent-token-removal")) {
+            let oldToggleCombat = TokenHUD.prototype._onToggleCombat;
+            TokenHUD.prototype._onToggleCombat = function (event) {
+                if (this.object.inCombat) {
+                    ui.notifications.warn(i18n("MonksLittleDetails.PreventTokenMessage"));
+                    event.preventDefault();
+                    return false;
+                } else
+                    return oldToggleCombat.call(this, event);
+            }
+        }
     }
 
     static ready() {

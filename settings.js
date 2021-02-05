@@ -112,6 +112,14 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean,
 	});
+	game.settings.register(modulename, "prevent-token-removal", {
+		name: "Prevent token combat removal",
+		hint: "Prevent a token from being removed form combat via the Token HUD, restrict it to the Encounter interface only.",
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
 	game.settings.register(modulename, "show-combat-cr", {
 		name: "Show Encounter CR",
 		hint: "When creating a combat encounter, display the estimated CR for that encounter.",
