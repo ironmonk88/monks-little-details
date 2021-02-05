@@ -1,3 +1,6 @@
+# Version 1.0.8
+Prevent a token from being removed form combat via the TokenHUD.  Still allow it to happen through the Encounter interface.
+
 # Version 1.0.7
 Added setting to change what key moves the tokens.
 
