@@ -1057,8 +1057,8 @@ Hooks.on("getSceneControlButtons", (controls) => {
             name: "toggledragtogether",
             title: "Drag points together",
             icon: "fas fa-angle-double-right",
-            onClick: function () { MonksLittleDetails.dragtogether = !MonksLittleDetails.dragtogether; },
-            toggle: true
+            toggle: true,
+            active: true
         }];
         let wallTools = controls.find(control => control.name === "walls").tools;
         wallTools.splice(wallTools.findIndex(e => e.name === 'clone') + 1, 0, ...dragtogetherTools);
@@ -1066,27 +1066,33 @@ Hooks.on("getSceneControlButtons", (controls) => {
 });
 
 Hooks.on("preUpdateWall", (scene, wall, update, options) => {
-    if (MonksLittleDetails.dragtogether && options.ignore == undefined) {
+    let dragtogether = ui.controls.control.tools.find(t => { return t.name == "toggledragtogether" });
+    if (dragtogether != undefined && dragtogether.active && options.ignore == undefined) {
+        let updates = [];
         let oldcoord = ((wall.c[0] != update.c[0] || wall.c[1] != update.c[1]) && wall.c[2] == update.c[2] && wall.c[3] == update.c[3] ? [wall.c[0], wall.c[1], update.c[0], update.c[1]] :
             ((wall.c[2] != update.c[2] || wall.c[3] != update.c[3]) && wall.c[0] == update.c[0] && wall.c[1] == update.c[1] ? [wall.c[2], wall.c[3], update.c[2], update.c[3]] : null));
         if (oldcoord != null) {
             scene.data.walls.forEach(w => {
                 if (w._id != wall._id) {
                     if (w.c[0] == oldcoord[0] && w.c[1] == oldcoord[1])
-                        scene.updateEmbeddedEntity("Wall", { c: [oldcoord[2], oldcoord[3], w.c[2], w.c[3]], _id: w._id }, { ignore: true });
+                        //scene.updateEmbeddedEntity("Wall", { c: [oldcoord[2], oldcoord[3], w.c[2], w.c[3]], _id: w._id }, { ignore: true });
+                        updates.push({ c: [oldcoord[2], oldcoord[3], w.c[2], w.c[3]], _id: w._id });
                     else if (w.c[2] == oldcoord[0] && w.c[3] == oldcoord[1])
-                        scene.updateEmbeddedEntity("Wall", { c: [w.c[0], w.c[1], oldcoord[2], oldcoord[3]], _id: w._id }, { ignore: true });
+                        //scene.updateEmbeddedEntity("Wall", { c: [w.c[0], w.c[1], oldcoord[2], oldcoord[3]], _id: w._id }, { ignore: true });
+                        updates.push({ c: [w.c[0], w.c[1], oldcoord[2], oldcoord[3]], _id: w._id });
                 }
             });
         }
+        if(updates.length)
+            scene.updateEmbeddedEntity("Wall", updates, { ignore: true });
     }
-    let thewall = scene.data.walls.find(w => w._id === wall._id);
-    log('preupdatewall', thewall.c, wall.c, update);
+    //let thewall = scene.data.walls.find(w => w._id === wall._id);
+    //log('preupdatewall', thewall.c, wall.c, update);
 });
 
 Hooks.on("updateWall", (scene, wall, update, options) => {
-    let thewall = scene.data.walls.find(w => w._id === wall._id);
-    log('updatewall', thewall);
+    //let thewall = scene.data.walls.find(w => w._id === wall._id);
+    //log('updatewall', thewall);
 });
 
 Hooks.on("renderSettingsConfig", (app, html, data) => {
