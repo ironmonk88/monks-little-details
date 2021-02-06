@@ -194,4 +194,12 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean,
 	});
+	game.settings.register(modulename, "movement-key", {
+		name: "Movement Key",
+		hint: "Set the key to press to move tokens to a new location",
+		scope: "world",
+		config: true,
+		default: "m",
+		type: String,
+	});
 };

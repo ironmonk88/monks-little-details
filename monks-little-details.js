@@ -429,7 +429,8 @@ export class MonksLittleDetails {
             mid.x = (mid.x / canvas.tokens.controlled.length);
             mid.y = (mid.y / canvas.tokens.controlled.length);
 
-            let tokens = canvas.tokens.controlled.map(t => { return t.id; })
+            let tokens = canvas.tokens.controlled.map(t => { return t.id; });
+            let updates = [];
             for (let i = 0; i < tokens.length; i++) {
                 let t = canvas.tokens.get(tokens[i]);
                 let offsetx = mid.x - t.data.x;
@@ -437,8 +438,11 @@ export class MonksLittleDetails {
                 let gridPt = canvas.grid.grid.getGridPositionFromPixels(pos.x - offsetx, pos.y - offsety);
                 let px = canvas.grid.grid.getPixelsFromGridPosition(gridPt[0], gridPt[1]);
 
-                await t.update({ x: px[0], y: px[1] }, { animate: false });
+                //t.update({ x: px[0], y: px[1] }, { animate: false });
+                updates.push({ _id: t.id, x: px[0], y: px[1] });
             }
+            if(updates.length)
+                canvas.scene.updateEmbeddedEntity("Token", updates, { animate: false });
         }
     }
 
