@@ -1,4 +1,4 @@
-import { MonksLittleDetails } from "./monks-little-details";
+import { MonksLittleDetails } from "./monks-little-details.js";
 
 export const registerSettings = function () {
     // Register any custom module settings here
@@ -122,16 +122,14 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean,
 	});
-	if (MonksLittleDetails.canDo("show-combat-cr")) {
-		game.settings.register(modulename, "show-combat-cr", {
-			name: "Show Encounter CR",
-			hint: "When creating a combat encounter, display the estimated CR for that encounter.",
-			scope: "world",
-			config: true,
-			default: true,
-			type: Boolean,
-		});
-	}
+	game.settings.register(modulename, "show-combat-cr", {
+		name: "Show Encounter CR",
+		hint: "When creating a combat encounter, display the estimated CR for that encounter.",
+		scope: "world",
+		config: MonksLittleDetails.canDo("show-combat-cr"),
+		default: true,
+		type: Boolean,
+	});
 	game.settings.register(modulename, "swap-buttons", {
 		name: "Swap target and settings button on the Token HUD",
 		hint: "I think the settings button makes more sense on the bottom rather than in the middle.",
@@ -140,16 +138,14 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean,
 	});
-	if (MonksLittleDetails.canDo("alter-hud")) {
-		game.settings.register(modulename, "alter-hud", {
-			name: "Alter the Token HUD status effects",
-			hint: "Alter the Token HUD to show detailed status effects and allow to clear all effects.",
-			scope: "world",
-			config: true,
-			default: true,
-			type: Boolean,
-		});
-	}
+	game.settings.register(modulename, "alter-hud", {
+		name: "Alter the Token HUD status effects",
+		hint: "Alter the Token HUD to show detailed status effects and allow to clear all effects.",
+		scope: "world",
+		config: MonksLittleDetails.canDo("alter-hud"),
+		default: true,
+		type: Boolean,
+	});
 	game.settings.register(modulename, "add-extra-statuses", {
 		name: "Add DnD statuses",
 		hint: "Add a handful more status effects that get used in DnD.",
@@ -158,16 +154,14 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean,
 	});
-	if (MonksLittleDetails.canDo("change-invisible-image")) {
-		game.settings.register(modulename, "change-invisible-image", {
-			name: "Use DnD5e invisible icon",
-			hint: "Instead of using the Foundry masked man image, use and outlined image",
-			scope: "world",
-			config: true,
-			default: true,
-			type: Boolean,
-		});
-	}
+	game.settings.register(modulename, "change-invisible-image", {
+		name: "Use DnD5e invisible icon",
+		hint: "Instead of using the Foundry masked man image, use and outlined image",
+		scope: "world",
+		config: MonksLittleDetails.canDo("change-invisible-image"),
+		default: true,
+		type: Boolean,
+	});
 	game.settings.register(modulename, "actor-sounds", {
 		name: "Actor Sound Effects",
 		hint: "Add a button to the character sheet and the TokenHUD to play a sound effect.",
@@ -198,14 +192,6 @@ export const registerSettings = function () {
 		scope: "world",
 		config: true,
 		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "alter-scene-navigation", {
-		name: "Scene Navigation changes",
-		hint: "Show the scene navigation on a single line instead of spreading across the screen.",
-		scope: "world",
-		config: false,
-		default: false,
 		type: Boolean,
 	});
 };
