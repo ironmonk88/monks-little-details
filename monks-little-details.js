@@ -22,6 +22,15 @@ export let combatposition = () => {
 export class MonksLittleDetails {
     static tracker = false;
 
+    static canDo(setting) {
+        //needs to not be on the reject list, and if there is an only list, it needs to be on it.
+        if (MonksLittleDetails._rejectlist[setting] != undefined && MonksLittleDetails._rejectlist[setting].includes(game.world.system))
+            return false;
+        if (MonksLittleDetails._onlylist[setting] != undefined && !MonksLittleDetails._onlylist[setting].includes(game.world.system))
+            return false;
+        return true;
+    };
+
     static init() {
 	    log("initializing");
         // element statics
@@ -71,6 +80,14 @@ export class MonksLittleDetails {
             { cr: 30, xp: 155000 }
         ];
 
+        MonksLittleDetails._rejectlist = {
+            "alter-hud": ["pf2e"],
+            "change-invisible-image": ["pf2e"]
+        }
+        MonksLittleDetails._onlylist = {
+            "show-combat-cr": ["dnd5e"]
+        }
+
         // sound statics
         MonksLittleDetails.NEXT_SOUND = "modules/monks-little-details/sounds/next.wav";
         MonksLittleDetails.TURN_SOUND = "modules/monks-little-details/sounds/turn.wav";
@@ -80,10 +97,10 @@ export class MonksLittleDetails {
 
         MonksLittleDetails.injectCSS();
 
-        if (game.settings.get("monks-little-details", "change-invisible-image") && game.world.system === "dnd5e")
+        if (MonksLittleDetails.canDo("change-invisible-image") && game.settings.get("monks-little-details", "change-invisible-image"))
             CONFIG.controlIcons.visibility = "modules/monks-little-details/icons/invisible.svg";
 
-        if (game.settings.get("monks-little-details", "alter-hud")) {
+        if (MonksLittleDetails.canDo("add-extra-statuses") && game.settings.get("monks-little-details", "add-extra-statuses")) {
             CONFIG.statusEffects = CONFIG.statusEffects.concat(
                 [
                     { "id": "charmed", "label": "MonksLittleDetails.StatusCharmed", "icon": "modules/monks-little-details/icons/smitten.png" },
@@ -98,12 +115,15 @@ export class MonksLittleDetails {
                     { "id": "rage", "label": "MonksLittleDetails.StatusRage", "icon": "modules/monks-little-details/icons/enrage.png" },
                     { "id": "distracted", "label": "MonksLittleDetails.StatusDistracted", "icon": "modules/monks-little-details/icons/distraction.png" },
                     { "id": "dodging", "label": "MonksLittleDetails.StatusDodging", "icon": "modules/monks-little-details/icons/dodging.png" },
-                    { "id": "disengage", "label": "MonksLittleDetails.StatusDisengage", "icon": "modules/monks-little-details/icons/journey.png" }
+                    { "id": "disengage", "label": "MonksLittleDetails.StatusDisengage", "icon": "modules/monks-little-details/icons/journey.png" },
+                    { "id": "cover", "label": "MonksLittleDetails.StatusCover", "icon": "modules/monks-little-details/icons/push.png" }
                 ]
             );
+        }
 
+        if (game.settings.get("monks-little-details", "alter-hud")) {
             CONFIG.statusEffects = CONFIG.statusEffects.sort(function (a, b) {
-                return (a.id == undefined || a.id > b.id ? 1 : (a.id < b.id ? -1 : 0));
+                return (a.id == undefined || a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)); //(a.label == undefined || i18n(a.label) > i18n(b.label) ? 1 : (i18n(a.label) < i18n(b.label) ? -1 : 0));
             })
 
             let oldTokenHUDRender = TokenHUD.prototype._render;
@@ -185,7 +205,7 @@ export class MonksLittleDetails {
         if (game.modules.get("illandril-token-hud-scale") != undefined && game.modules.get("illandril-token-hud-scale").active && game.settings.get("illandril-token-hud-scale", "enableStatusSelectorScale"))
             iconWidth = '36';
 
-        if (game.world.system === "dnd5e" && game.settings.get("monks-little-details", "alter-hud")) {
+        if (MonksLittleDetails.canDo("alter-hud") && game.settings.get("monks-little-details", "alter-hud")) {
             innerHTML += `
 #token-hud .status-effects {
     top: -56px !important;
@@ -274,69 +294,72 @@ export class MonksLittleDetails {
     }
 
     static injectSoundCtrls() {
-        let npcSheetNames = Object.values(CONFIG.Actor.sheetClasses.npc)
-            .map((sheetClass) => sheetClass.cls)
-            .map((sheet) => sheet.name);
+        let npcObject = (CONFIG.Actor.sheetClasses.npc || CONFIG.Actor.sheetClasses.minion);
+        if (npcObject != undefined) {
+            let npcSheetNames = Object.values(npcObject)
+                .map((sheetClass) => sheetClass.cls)
+                .map((sheet) => sheet.name);
 
-        npcSheetNames.forEach((sheetName) => {
-            Hooks.on("render" + sheetName, (app, html, data) => {
-                // only for GMs or the owner of this npc
-                if (!data.owner || !data.actor) return;
+            npcSheetNames.forEach((sheetName) => {
+                Hooks.on("render" + sheetName, (app, html, data) => {
+                    // only for GMs or the owner of this npc
+                    if (!data.owner || !data.actor) return;
 
-                // don't add the button multiple times
-                if ($(html).find("#mldCharacterSound").length > 0) return;
+                    // don't add the button multiple times
+                    if ($(html).find("#mldCharacterSound").length > 0) return;
 
-                let hasSound = (app.entity.getFlag('monks-little-details', 'sound-effect') != undefined);
+                    let hasSound = (app.entity.getFlag('monks-little-details', 'sound-effect') != undefined);
 
-                let button = $('<button>')
-                    .attr('type', "button")
-                    .attr('id', "mldCharacterSound")
-                    .toggleClass('loaded', hasSound)
-                    .html('<i class="fas fa-volume-up"></i>')
-                    .click($.proxy(MonksLittleDetails.findSoundEffect, app));
+                    let button = $('<button>')
+                        .attr('type', "button")
+                        .attr('id', "mldCharacterSound")
+                        .toggleClass('loaded', hasSound)
+                        .html('<i class="fas fa-volume-up"></i>')
+                        .click($.proxy(MonksLittleDetails.findSoundEffect, app));
                     //.contextmenu($.proxy(MonksLittleDetails.loadSoundEffect, app));
 
-                if (app.soundcontext == undefined) {
-                    app.soundcontext = new ContextMenu(html, "#mldCharacterSound", [
-                        {
-                            name: "Select Sound",
-                            icon: '<i class="fas fa-file-import"></i>',
-                            callback: li => {
-                                MonksLittleDetails.findSoundEffect.call(app);
+                    if (app.soundcontext == undefined) {
+                        app.soundcontext = new ContextMenu(html, "#mldCharacterSound", [
+                            {
+                                name: "Select Sound",
+                                icon: '<i class="fas fa-file-import"></i>',
+                                callback: li => {
+                                    MonksLittleDetails.findSoundEffect.call(app);
+                                }
+                            },
+                            {
+                                name: "Play Sound",
+                                icon: '<i class="fas fa-play"></i>',
+                                condition: $.proxy(function () {
+                                    return this.entity.getFlag('monks-little-details', 'sound-effect');
+                                }, app),
+                                callback: li => {
+                                    MonksLittleDetails.loadSoundEffect.call(app);
+                                }
+                            },
+                            {
+                                name: "Delete Sound",
+                                icon: '<i class="fas fa-trash-alt"></i>',
+                                condition: $.proxy(function () {
+                                    return this.entity.getFlag('monks-little-details', 'sound-effect');
+                                }, app),
+                                callback: li => {
+                                    MonksLittleDetails.clearSoundEffect.call(app);
+                                }
                             }
-                        },
-                        {
-                            name: "Play Sound",
-                            icon: '<i class="fas fa-play"></i>',
-                            condition: $.proxy(function () {
-                                return this.entity.getFlag('monks-little-details', 'sound-effect');
-                            }, app),
-                            callback: li => {
-                                MonksLittleDetails.loadSoundEffect.call(app);
-                            }
-                        },
-                        {
-                            name: "Delete Sound",
-                            icon: '<i class="fas fa-trash-alt"></i>',
-                            condition: $.proxy(function () {
-                                return this.entity.getFlag('monks-little-details', 'sound-effect');
-                            }, app),
-                            callback: li => {
-                                MonksLittleDetails.clearSoundEffect.call(app);
-                            }
-                        }
-                    ]);
-                }
+                        ]);
+                    }
 
-                let wrap = $('<div class="mldCharacterName"></div>');
-                $(html).find("input[name='name']").wrap(wrap);
-                $(html).find("input[name='name']").parent().prepend(button);
-            });
+                    let wrap = $('<div class="mldCharacterName"></div>');
+                    $(html).find("input[name='name']").wrap(wrap);
+                    $(html).find("input[name='name']").parent().prepend(button);
+                });
 
-            Hooks.on("close" + sheetName, (app, html, data) => {
-                delete app.soundcontext;
+                Hooks.on("close" + sheetName, (app, html, data) => {
+                    delete app.soundcontext;
+                });
             });
-        });
+        }
     }
 
     static findSoundEffect(event) {
@@ -505,26 +528,27 @@ export class MonksLittleDetails {
     }
 
     static alterHUD(html) {
-        $('.col.right .control-icon.effects .status-effects img', html).each(function () {
-            let div = $('<div>')
-                .addClass('effect-control')
-                .toggleClass('active', $(this).hasClass('active'))
-                .attr('title', $(this).attr('title'))
-                .attr('data-status-id', $(this).attr('data-status-id'))
-                .attr('src', $(this).attr('src'))
-                .insertAfter(this)
-                .append($(this).removeClass('effect-control'))
-                .append($('<div>').html($(this).attr('title')).click(function (event) {
-                    $(this).prev().click();
-                    if (event.stopPropagation) event.stopPropagation();
-                    if (event.preventDefault) event.preventDefault();
-                    event.cancelBubble = true;
-                    event.returnValue = false;
-                    return false;
-                }));
-            div[0].src = $(this).attr('src');
-        });
-        if (game.world.system === "dnd5e") {
+        if (MonksLittleDetails.canDo("alter-hud") && game.settings.get("monks-little-details", "alter-hud")) {
+            $('.col.right .control-icon.effects .status-effects img', html).each(function () {
+                let div = $('<div>')
+                    .addClass('effect-control')
+                    .toggleClass('active', $(this).hasClass('active'))
+                    .attr('title', $(this).attr('title'))
+                    .attr('data-status-id', $(this).attr('data-status-id'))
+                    .attr('src', $(this).attr('src'))
+                    .insertAfter(this)
+                    .append($(this).removeClass('effect-control'))
+                    .append($('<div>').html($(this).attr('title')).click(function (event) {
+                        $(this).prev().click();
+                        if (event.stopPropagation) event.stopPropagation();
+                        if (event.preventDefault) event.preventDefault();
+                        event.cancelBubble = true;
+                        event.returnValue = false;
+                        return false;
+                    }));
+                div[0].src = $(this).attr('src');
+            });
+
             $('.col.right .control-icon.effects .status-effects', html).append(
                 $('<div>').addClass('clear-all').html('<i class="fas fa-times-circle"></i> clear all').click($.proxy(MonksLittleDetails.clearAll, this))
             );
@@ -954,7 +978,7 @@ Hooks.on('renderTokenHUD', async (app, html, options) => {
 });
 
 Hooks.on('renderCombatTracker', async (app, html, options) => {
-    if (game.user.isGM && game.combat && !game.combat.started && game.settings.get("monks-little-details", 'show-combat-cr') && game.world.system === "dnd5e") {
+    if (game.user.isGM && game.combat && !game.combat.started && game.settings.get("monks-little-details", 'show-combat-cr') && MonksLittleDetails.canDo('show-combat-cr')) {
         //calculate CR
         let data = MonksLittleDetails.getCR(game.combat);
 
