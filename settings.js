@@ -202,4 +202,12 @@ export const registerSettings = function () {
 		default: "m",
 		type: String,
 	});
+	game.settings.register(modulename, "show-notify", {
+		name: "Retain Notify",
+		hint: "Leave the chat notify icon on if you're on a different tab and a message arrives.",
+		scope: "client",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
 };

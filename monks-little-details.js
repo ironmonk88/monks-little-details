@@ -147,6 +147,26 @@ export class MonksLittleDetails {
                     return oldToggleCombat.call(this, event);
             }
         }
+
+        if (game.settings.get("monks-little-details", "show-notify")) {
+            let oldChatLogNotify = ChatLog.prototype.notify;
+            ChatLog.prototype.notify = function (message) {
+                this._lastMessageTime = new Date();
+                if (!this.rendered) return;
+
+                // Display the chat notification icon and remove it 3 seconds later
+                let icon = $('#chat-notification');
+                if (icon.is(":hidden")) icon.fadeIn(100);
+                if (ui.sidebar.activeTab == 'chat') {
+                    setTimeout(() => {
+                        if (new Date() - this._lastMessageTime > 3000 && icon.is(":visible")) icon.fadeOut(100);
+                    }, 3001);
+                }
+
+                // Play a notification sound effect
+                if (message.data.sound) AudioHelper.play({ src: message.data.sound });
+            }
+        }
     }
 
     static ready() {
@@ -157,7 +177,12 @@ export class MonksLittleDetails {
 
         game.socket.on('module.monks-little-details', MonksLittleDetails.onMessage);
 
-        canvas.stage.on("mousedown", MonksLittleDetails.moveTokens);    //move all tokens while holding down m
+        
+
+        $('#sidebar-tabs a[data-tab="chat"]').on('click.monks-little-details', function (event) {
+            let icon = $('#chat-notification');
+            if(icon.is(":visible")) icon.fadeOut(100);
+        });
     }
 
     static injectCSS() {
@@ -951,6 +976,10 @@ Hooks.on("updateCombat", function (data, delta) {
  * Ready hook
  */
 Hooks.on("ready", MonksLittleDetails.ready);
+
+Hooks.on("canvasReady", () => {
+    canvas.stage.on("mousedown", MonksLittleDetails.moveTokens);    //move all tokens while holding down m
+});
 
 Hooks.on('renderCombatTracker', async (app, html, options) => {
     if (!MonksLittleDetails.tracker && app.options.id == "combat-popout"){
