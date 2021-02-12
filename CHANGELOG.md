@@ -1,9 +1,9 @@
-#Version 1.0.9
+# Version 1.0.9
 Adding retain notify options.  If you're not on the chat sidebar the notification will stay there until you go back to the chat bar.
 
 Also adding debug to try and figure out issues with the round notification.
 
-#Version 1.0.7
+# Version 1.0.7
 Added option to change which key moves tokens
 
 Updated the code that moves the characters to move them as a batch, rather than individually
