@@ -143,8 +143,9 @@ export class MonksLittleDetails {
                     ui.notifications.warn(i18n("MonksLittleDetails.PreventTokenMessage"));
                     event.preventDefault();
                     return false;
-                } else
+                } else {
                     return oldToggleCombat.call(this, event);
+                }
             }
         }
 
@@ -532,6 +533,8 @@ export class MonksLittleDetails {
             if (entry !== undefined && !game.user.isGM) {
                 let isActive = entry.actor?.owner;
                 let isNext = nxtentry.actor?.owner; //_id === game.users.current.character?._id;
+
+                log('Check combat turn', entry.name, entry, isActive, isNext);
 
                 if (isActive) {
                     MonksLittleDetails.doDisplayTurn();
