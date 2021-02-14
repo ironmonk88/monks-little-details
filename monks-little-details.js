@@ -12,6 +12,9 @@ export let error = (...args) => console.error("monks-little-details | ", ...args
 export let i18n = key => {
     return game.i18n.localize(key);
 };
+export let setting = key => {
+    return game.settings.get("monks-little-details", key);
+};
 export let volume = () => {
     return game.settings.get("monks-little-details", "volume") / 100.0;
 };
@@ -43,6 +46,7 @@ export class MonksLittleDetails {
 
         MonksLittleDetails.READY = true;
 
+        /*
         MonksLittleDetails.xpchart = [
             { cr: 0, xp: 10 },
             { cr: 0.13, xp: 25 },
@@ -78,6 +82,20 @@ export class MonksLittleDetails {
             { cr: 28, xp: 120000 },
             { cr: 29, xp: 135000 },
             { cr: 30, xp: 155000 }
+        ];*/
+
+        if (game.world.system == 'dnd5e')
+            MonksLittleDetails.xpchart = CONFIG.DND5E.CR_EXP_LEVELS;
+        else if (game.world.system == 'pf2e') {
+            MonksLittleDetails.xpchart = [50, 400, 600,800,1200,1600, 2400, 3200, 4800, 6400, 9600, 12800, 19200, 25600, 38400, 51200, 76800, 102400, 153600, 204800, 307200, 409600, 614400, 819200, 1228800, 1638400, 2457600, 3276800, 4915200, 6553600, 9830400 ];
+        }
+
+        MonksLittleDetails.crChallenge = [
+            { text: "MonksLittleDetails.easy", rating: 'easy' },
+            { text: "MonksLittleDetails.average", rating: 'average' },
+            { text: "MonksLittleDetails.challenging", rating: 'challenging' },
+            { text: "MonksLittleDetails.hard", rating: 'hard' },
+            { text: "MonksLittleDetails.epic", rating: 'epic' }
         ];
 
         MonksLittleDetails._rejectlist = {
@@ -85,13 +103,13 @@ export class MonksLittleDetails {
             "change-invisible-image": ["pf2e"]
         }
         MonksLittleDetails._onlylist = {
-            "show-combat-cr": ["dnd5e"]
+            "show-combat-cr": ["dnd5e", "pf2e"]
         }
 
         // sound statics
-        MonksLittleDetails.NEXT_SOUND = "modules/monks-little-details/sounds/next.wav";
-        MonksLittleDetails.TURN_SOUND = "modules/monks-little-details/sounds/turn.wav";
-        MonksLittleDetails.ROUND_SOUND = "modules/monks-little-details/sounds/round.wav";
+        //MonksLittleDetails.NEXT_SOUND = "modules/monks-little-details/sounds/next.wav";
+        //MonksLittleDetails.TURN_SOUND = "modules/monks-little-details/sounds/turn.wav";
+        //MonksLittleDetails.ROUND_SOUND = "modules/monks-little-details/sounds/round.wav";
 
         registerSettings();
 
@@ -177,8 +195,6 @@ export class MonksLittleDetails {
         MonksLittleDetails.checkCombatTurn();
 
         game.socket.on('module.monks-little-details', MonksLittleDetails.onMessage);
-
-        
 
         $('#sidebar-tabs a[data-tab="chat"]').on('click.monks-little-details', function (event) {
             let icon = $('#chat-notification');
@@ -637,6 +653,7 @@ export class MonksLittleDetails {
         }
     }
 
+    /*
     static getCRChallenge (data) {
         if (data.cr < data.apl) return 'easy';
         else if (data.cr === data.apl) return 'average';
@@ -653,7 +670,7 @@ export class MonksLittleDetails {
         else if (data.cr === data.apl + 2) return i18n("MonksLittleDetails.hard");
         else if (data.cr >= data.apl + 3) return i18n("MonksLittleDetails.epic");
         else return '';
-    }
+    }*/
 
     static getCR(combat) {
         var apl = { count: 0, levels: 0 };
@@ -664,9 +681,9 @@ export class MonksLittleDetails {
             if (combatant.actor != undefined) {
                 if (combatant.token.disposition == 1) {
                     apl.count = apl.count + 1;
-                    apl.levels = apl.levels + combatant.actor.data.data.details.level;
+                    apl.levels = apl.levels + (combatant.actor.data.data.details.level.value || combatant.actor.data.data.details.level);
                 } else {
-                    xp += (combatant?.actor.data.data.details?.xp?.value || 0);
+                    xp += (combatant?.actor.data.data.details?.xp?.value || MonksLittleDetails.xpchart[Math.clamped(parseInt(combatant?.actor.data.data.details?.level?.value), 0, MonksLittleDetails.xpchart.length - 1)] || 0);
                 }
             }
         });
@@ -676,11 +693,7 @@ export class MonksLittleDetails {
             calcAPL = Math.round(apl.levels / apl.count) + (apl.count < 4 ? -1 : (apl.count > 5 ? 1 : 0));
 
         //get the CR of any unfriendly/neutral
-        var cr = 999;
-        $(MonksLittleDetails.xpchart).each(function () {
-            if (this.xp >= xp)
-                cr = Math.min(cr, this.cr);
-        });
+        let cr = Math.clamped(MonksLittleDetails.xpchart.findIndex(cr => cr >= xp), 0, 29);
 
         return { cr: cr, apl: calcAPL };
     }
@@ -1038,14 +1051,16 @@ Hooks.on('renderTokenHUD', async (app, html, options) => {
 });
 
 Hooks.on('renderCombatTracker', async (app, html, options) => {
-    if (game.user.isGM && game.combat && !game.combat.started && game.settings.get("monks-little-details", 'show-combat-cr') && MonksLittleDetails.canDo('show-combat-cr')) {
+    if (game.user.isGM && game.combat && !game.combat.started && game.settings.get("monks-little-details", 'show-combat-cr') && MonksLittleDetails.canDo('show-combat-cr') && MonksLittleDetails.xpchart != undefined) {
         //calculate CR
         let data = MonksLittleDetails.getCR(game.combat);
 
         if ($('#combat-round .encounter-cr-row').length == 0 && game.combat.data.combatants.length > 0) {
+            let crChallenge = MonksLittleDetails.crChallenge[Math.clamped(data.cr - data.apl, -1, 3) + 1];
+            let epicness = Math.clamped((data.cr - data.apl - 3), 0, 5);
             $('<nav>').addClass('encounters flexrow encounter-cr-row')
                 .append($('<h3>').html('CR: ' + MonksLittleDetails.getCRText(data.cr)))
-                .append($('<div>').addClass('encounter-cr').attr('rating', MonksLittleDetails.getCRChallenge(data)).html(MonksLittleDetails.getCRChallengeName(data)))
+                .append($('<div>').addClass('encounter-cr').attr('rating', crChallenge.rating).html(i18n(crChallenge.text) + "!".repeat(epicness)))
                 .insertAfter($('#combat-round .encounters:last'));
         }
     }
