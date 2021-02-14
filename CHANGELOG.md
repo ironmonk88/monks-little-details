@@ -1,3 +1,6 @@
+# Version 1.0.10
+Added Combat Rating for Pathfinder
+
 # Version 1.0.9
 Adding retain notify options.  If you're not on the chat sidebar the notification will stay there until you go back to the chat bar.
 
