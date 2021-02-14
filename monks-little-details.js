@@ -518,24 +518,48 @@ export class MonksLittleDetails {
 
         if (curCombat && curCombat.started) {
             let entry = curCombat.combatant;
+
+            /*
             // next combatant
             let nxtturn = (curCombat.turn || 0) + 1;
             if (nxtturn > curCombat.turns.length - 1) nxtturn = 0;
-            let nxtentry = curCombat.turns[nxtturn];
 
             //find the next one that hasn't been defeated
+            let nxtentry = curCombat.turns[nxtturn];
             while (nxtentry.defeated && nxtturn != curCombat.turn) {
                 nxtturn++;
                 if (nxtturn > curCombat.turns.length - 1) nxtturn = 0;
                 nxtentry = curCombat.turns[nxtturn];
+            }*/
+
+            let findNext = function (from) {
+                let next = null;
+                if (skip) {
+                    for (let [i, t] of curCombat.turns.entries()) {
+                        if (i <= from) continue;
+                        if (t.defeated) continue;
+                        if (t.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId)) continue;
+                        next = i;
+                        break;
+                    }
+                }
+                else next = from + 1;
+
+                return next;
             }
 
+            // Determine the next turn number
+            let skip = curCombat.settings.skipDefeated;
+            let next = findNext(curCombat.turn);
+            if (next > curCombat.turns.length || next == undefined)
+                next = findNext(0);
+
+            let nxtentry = curCombat.turns[next];
+            let isActive = entry.actor?.owner;
+            let isNext = nxtentry.actor?.owner; //_id === game.users.current.character?._id;
+
+            log('Check combat turn', entry.name, nxtentry.name, !game.user.isGM, isActive, isNext, entry, nxtentry);
             if (entry !== undefined && !game.user.isGM) {
-                let isActive = entry.actor?.owner;
-                let isNext = nxtentry.actor?.owner; //_id === game.users.current.character?._id;
-
-                log('Check combat turn', entry.name, entry, isActive, isNext);
-
                 if (isActive) {
                     MonksLittleDetails.doDisplayTurn();
                 } else if (isNext) {
