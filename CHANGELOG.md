@@ -1,3 +1,6 @@
+# Version 1.0.11
+Adding option to show bloodsplat when character dies.
+
 # Version 1.0.10
 Added Combat Rating for Pathfinder
 
