@@ -46,6 +46,8 @@ export class MonksLittleDetails {
 
         MonksLittleDetails.READY = true;
 
+        MonksLittleDetails.availableGlyphs = '!"#$%&\'()*+,-./01234568:;<=>?@ABDEFGHIKMNOPQRSTUVWX[\\]^_`acdfhoquvx|}~¢£¥§©ª«¬®°±¶·º¿ÀÁÂÄÅÆÈÉÊËÌÏÑÒÓÔÖØÙÚÜßàáâåæçéêëìíîïñòõ÷øùûüÿiœŸƒπ';
+
         /*
         MonksLittleDetails.xpchart = [
             { cr: 0, xp: 10 },
@@ -163,6 +165,71 @@ export class MonksLittleDetails {
                     return false;
                 } else {
                     return oldToggleCombat.call(this, event);
+                }
+            }
+        }
+
+        if (setting("show-bloodsplat")) {
+            MonksLittleDetails.splatfont = new FontFace('WC Rhesus A Bta', "url('modules/monks-little-details/fonts/WCRhesusABta.woff2'), url('modules/monks-little-details/fonts/WCRhesusABta.woff')");
+            MonksLittleDetails.splatfont.load().then(() => {
+                document.fonts.add(MonksLittleDetails.splatfont);
+            });
+
+            let oldTokenRefresh = Token.prototype.refresh;
+            Token.prototype.refresh = function () {
+                oldTokenRefresh.call(this);
+
+                if ((this.defeated || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId))) {
+                    this.bars.visible = false;
+                    for (let effect of this.effects.children) {
+                        effect.alpha = 0;
+                    }
+                    if (this.actor?.getFlag("core", "sheetClass") != 'dnd5e.LootSheet5eNPC') {
+                        if (this.data._id != undefined) {
+                            this.icon.alpha = (game.user.isGM ? 0.2 : 0);
+                            if (this.bloodsplat == undefined) {
+                                let glyph = this.getFlag('monks-little-details', 'glyph');
+                                if (glyph == undefined) {
+                                    glyph = MonksLittleDetails.availableGlyphs.charAt(Math.floor(Math.random() * MonksLittleDetails.availableGlyphs.length));
+                                    this.setFlag('monks-little-details', 'glyph', glyph);
+                                }
+                                this.bloodsplat = new PIXI.Text(' ' + glyph + ' ', { fontFamily: 'WC Rhesus A Bta', fontSize: this.height, fill: 0xff0000, align: 'center' });
+                                this.bloodsplat.alpha = 0.7;
+                                this.bloodsplat.blendMode = PIXI.BLEND_MODES.OVERLAY;
+                                this.bloodsplat.anchor.set(0.5, 0.5);
+                                this.bloodsplat.x = this.width / 2;
+                                this.bloodsplat.y = this.height / 2;
+                                this.addChild(this.bloodsplat);
+                            }
+                        }
+                    } else {
+                        this.icon.alpha = 0.5;
+                        if (this.bloodsplat) {
+                            this.removeChild(this.bloodsplat);
+                            delete this.bloodsplat;
+                        }
+                        if (this.tresurechest == undefined) {
+                            loadTexture("icons/svg/chest.svg").then((tex) => { //"modules/monks-little-details/img/chest.png"
+                                const icon = new PIXI.Sprite(tex);
+                                const size = Math.min(canvas.grid.grid.w, canvas.grid.grid.h);
+                                icon.width = icon.height = size;
+                                icon.position.set((this.w - size) / 2, (this.h - size) / 2);
+                                icon.alpha = 0.8;
+                                this.tresurechest = icon;
+                                this.addChild(this.tresurechest);
+                            });
+                        } else
+                            this.tresurechest.alpha = (this._hover ? 1 : 0.8);
+                    }
+                } else {
+                    if (this.bloodsplat) {
+                        this.removeChild(this.bloodsplat);
+                        delete this.bloodsplat;
+                    }
+                    if (this.tresurechest) {
+                        this.removeChild(this.tresurechest);
+                        delete this.tresurechest;
+                    }
                 }
             }
         }
@@ -532,6 +599,7 @@ export class MonksLittleDetails {
     static checkCombatTurn() {
         let curCombat = game.combats.active;
 
+        log('checking combat started', curCombat, curCombat?.started);
         if (curCombat && curCombat.started) {
             let entry = curCombat.combatant;
 
@@ -570,11 +638,16 @@ export class MonksLittleDetails {
             if (next > curCombat.turns.length || next == undefined)
                 next = findNext(0);
 
-            let nxtentry = curCombat.turns[next];
             let isActive = entry.actor?.owner;
-            let isNext = nxtentry.actor?.owner; //_id === game.users.current.character?._id;
+            let nxtentry = null;
+            let isNext = false;
 
-            log('Check combat turn', entry.name, nxtentry.name, !game.user.isGM, isActive, isNext, entry, nxtentry);
+            if (next != null) {
+                nxtentry = curCombat.turns[next];
+                isNext = nxtentry.actor?.owner; //_id === game.users.current.character?._id;
+            }
+
+            log('Check combat turn', entry.name, nxtentry?.name, !game.user.isGM, isActive, isNext, entry, nxtentry);
             if (entry !== undefined && !game.user.isGM) {
                 if (isActive) {
                     MonksLittleDetails.doDisplayTurn();
@@ -1058,6 +1131,7 @@ Hooks.on('renderCombatTracker', async (app, html, options) => {
         if ($('#combat-round .encounter-cr-row').length == 0 && game.combat.data.combatants.length > 0) {
             let crChallenge = MonksLittleDetails.crChallenge[Math.clamped(data.cr - data.apl, -1, 3) + 1];
             let epicness = Math.clamped((data.cr - data.apl - 3), 0, 5);
+
             $('<nav>').addClass('encounters flexrow encounter-cr-row')
                 .append($('<h3>').html('CR: ' + MonksLittleDetails.getCRText(data.cr)))
                 .append($('<div>').addClass('encounter-cr').attr('rating', crChallenge.rating).html(i18n(crChallenge.text) + "!".repeat(epicness)))

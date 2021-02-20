@@ -210,4 +210,12 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean,
 	});
+	game.settings.register(modulename, "show-bloodsplat", {
+		name: "Show Bloodsplat",
+		hint: "When a monster dies, display it as a blood splat, hiding the image and bars and effects.  It is dead after all.",
+		scope: "world",
+		config: true,
+		default: false,
+		type: Boolean,
+	});
 };
