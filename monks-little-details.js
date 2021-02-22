@@ -179,7 +179,7 @@ export class MonksLittleDetails {
             Token.prototype.refresh = function () {
                 oldTokenRefresh.call(this);
 
-                if ((this.defeated || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId))) {
+                if ((this.defeated || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId)) && this.actor?.data.type !== 'character') {
                     this.bars.visible = false;
                     for (let effect of this.effects.children) {
                         effect.alpha = 0;
@@ -635,8 +635,9 @@ export class MonksLittleDetails {
             // Determine the next turn number
             let skip = curCombat.settings.skipDefeated;
             let next = findNext(curCombat.turn);
-            if (next > curCombat.turns.length || next == undefined)
-                next = findNext(0);
+            //if there wasn't one next after the current player, then start back at the beginning and try to find the next one
+            if (next == undefined || next > curCombat.turns.length)
+                next = findNext(-1);
 
             let isActive = entry.actor?.owner;
             let nxtentry = null;
