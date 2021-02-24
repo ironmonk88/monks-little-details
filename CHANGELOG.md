@@ -1,3 +1,6 @@
+# Version 1.0.12 - In development
+Added Japanese translations (Thank you touge)
+
 # Version 1.0.11
 Adding option to show bloodsplat when character dies.
 
