@@ -1,4 +1,4 @@
-{
+﻿{
 	"name": "monks-little-details",
 	"title": "Monks Little Details",
 	"description": "Things to tidy up the interface and flow",
@@ -10,6 +10,11 @@
 			"lang": "en",
 			"name": "English",
 			"path": "lang/en.json"
+		},
+		{
+			"lang": "ja",
+			"name": "日本語",
+			"path": "lang/ja.json"
 		}
 	],
 	"esmodules": [
