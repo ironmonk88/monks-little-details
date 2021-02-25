@@ -1,6 +1,8 @@
 # Version 1.0.14 - In Development -
 Possibly fixed cross origin issues with getting the palette on images from Forge or S3 bucket.
 
+Fixed issue with the next up notification.  Wasn't getting the correct combat to pull information from.
+
 # Version 1.0.12
 Added Japanese translations (Thank you touge)
 
