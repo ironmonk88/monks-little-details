@@ -1,4 +1,4 @@
-# Monks Little Details
+# Monk's Little Details
 Add-On Module for Foundry VTT
 It's just a bunch of little things to make the program run a little smoother and look a little better.  But a lot are based on personal preference.
 
