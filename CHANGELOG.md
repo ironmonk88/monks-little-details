@@ -1,4 +1,4 @@
-# Version 1.0.12 - In development
+# Version 1.0.12
 Added Japanese translations (Thank you touge)
 
 # Version 1.0.11
