@@ -24,6 +24,7 @@ export let combatposition = () => {
 
 export class MonksLittleDetails {
     static tracker = false;
+    static turnMarkerAnim = {};
 
     static canDo(setting) {
         //needs to not be on the reject list, and if there is an only list, it needs to be on it.
@@ -259,7 +260,7 @@ export class MonksLittleDetails {
         if(game.settings.get("monks-little-details", "actor-sounds"))
             MonksLittleDetails.injectSoundCtrls();
 
-        MonksLittleDetails.checkCombatTurn();
+        MonksLittleDetails.checkCombatTurn(game.combats.active);
 
         game.socket.on('module.monks-little-details', MonksLittleDetails.onMessage);
 
@@ -596,12 +597,10 @@ export class MonksLittleDetails {
     /**
     * Check if the current combatant needs to be updated
     */
-    static checkCombatTurn() {
-        let curCombat = game.combats.active;
-
-        log('checking combat started', curCombat, curCombat?.started);
-        if (curCombat && curCombat.started) {
-            let entry = curCombat.combatant;
+    static checkCombatTurn(combat) {
+        log('checking combat started', combat, combat?.started);
+        if (combat && combat.started) {
+            let entry = combat.combatant;
 
             /*
             // next combatant
@@ -619,7 +618,7 @@ export class MonksLittleDetails {
             let findNext = function (from) {
                 let next = null;
                 if (skip) {
-                    for (let [i, t] of curCombat.turns.entries()) {
+                    for (let [i, t] of combat.turns.entries()) {
                         if (i <= from) continue;
                         if (t.defeated) continue;
                         if (t.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId)) continue;
@@ -633,10 +632,10 @@ export class MonksLittleDetails {
             }
 
             // Determine the next turn number
-            let skip = curCombat.settings.skipDefeated;
-            let next = findNext(curCombat.turn);
+            let skip = combat.settings.skipDefeated;
+            let next = findNext(combat.turn);
             //if there wasn't one next after the current player, then start back at the beginning and try to find the next one
-            if (next == undefined || next > curCombat.turns.length)
+            if (next == undefined || next > combat.turns.length)
                 next = findNext(-1);
 
             let isActive = entry.actor?.owner;
@@ -644,7 +643,7 @@ export class MonksLittleDetails {
             let isNext = false;
 
             if (next != null) {
-                nxtentry = curCombat.turns[next];
+                nxtentry = combat.turns[next];
                 isNext = nxtentry.actor?.owner; //_id === game.users.current.character?._id;
             }
 
@@ -820,6 +819,9 @@ export class MonksLittleDetails {
             let context = canvas.getContext('2d');
             let width = canvas.width = MonksLittleDetails.canvasImage.naturalWidth;
             let height = canvas.height = MonksLittleDetails.canvasImage.naturalHeight;
+            if (width == 0 || height == 0)
+                return;
+
             context.drawImage(MonksLittleDetails.canvasImage, 0, 0, width, height);
 
             const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
@@ -844,7 +846,8 @@ export class MonksLittleDetails {
 
             //const dominantColor = palette[0];
         });
-        MonksLittleDetails.canvasImage.src = url;
+        MonksLittleDetails.canvasImage.src = url + '?' + new Date().getTime();
+        MonksLittleDetails.canvasImage.setAttribute('crossOrigin', '');
     };
     /*
     static async createThumbnail(img) {
@@ -978,6 +981,62 @@ export class MonksLittleDetails {
             }
         });
     }
+
+    static toggleTurnMarker(token, visible) {
+        if (token) {
+            if (token.turnmarker == undefined) {
+                loadTexture("modules/monks-little-details/icons/turnmarker.png").then((tex) => { //"modules/monks-little-details/img/chest.png"
+                    if (token.turnmarker == undefined) {
+                        const icon = new PIXI.Sprite(tex);
+                        icon.pivot.set(icon.width / 2, icon.height / 2);//.set(-(token.w / 2), -(token.h / 2));
+                        const size = Math.max(token.w, token.h) * 1.5;
+                        icon.width = icon.height = size;
+                        icon.position.set(token.w / 2, token.h / 2);
+                        icon.alpha = 0.8;
+                        token.turnmarker = icon;
+                        token.addChildAt(token.turnmarker, 0);
+                    }
+                    token.turnmarker.visible = visible;
+                });
+            } else
+                token.turnmarker.visible = visible;
+
+            if (visible)
+                MonksLittleDetails.turnMarkerAnim[token.id] = token;
+            else
+                delete MonksLittleDetails.turnMarkerAnim[token.id];
+
+            if (!MonksLittleDetails._animate && Object.keys(MonksLittleDetails.turnMarkerAnim).length != 0) {
+                MonksLittleDetails._animate = MonksLittleDetails.animateMarkers.bind(this);
+                canvas.app.ticker.add(MonksLittleDetails._animate);
+            } else if (MonksLittleDetails._animate != undefined && Object.keys(MonksLittleDetails.turnMarkerAnim).length == 0) {
+                canvas.app.ticker.remove(MonksLittleDetails._animate);
+                delete MonksLittleDetails._animate;
+            }
+        }
+    }
+
+    static removeTurnMarker(token) {
+        if (token?.turnmarker) {
+            token.removeChild(token.turnmarker);
+            delete token.turnmarker;
+        }
+        delete MonksLittleDetails.turnMarkerAnim[token.id];
+    }
+
+    static animateMarkers(dt) {
+        let interval = 500;
+        for (const [key, token] of Object.entries(MonksLittleDetails.turnMarkerAnim)) {
+            if (token && token.turnmarker) {
+                let delta = interval / 10000;
+                try {
+                    token.turnmarker.rotation += (delta * dt);
+                } catch (err) {
+                    // skip lost frames if the tile is being updated by the server
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -991,6 +1050,73 @@ Hooks.once('init', async function () {
     // Assign custom classes and constants here
     // Register custom module settings
     MonksLittleDetails.init();
+
+    if (setting("token-combat-highlight")) {
+        Hooks.on("updateCombatant", function (context, parentId, data) {
+            const combat = game.combats.get(parentId);
+            if (combat) {
+                const combatant = combat.data.combatants.find((o) => o.id === data.id);
+                let token = canvas.tokens.get(combatant.token._id);
+                MonksLittleDetails.toggleTurnMarker(token, token.id == combat.current.tokenId);
+            }
+        });
+
+        /**
+         * Handle combatant delete
+         */
+        Hooks.on("deleteCombatant", function (context, parentId, data) {
+            let combat = game.combats.get(parentId);
+            if (combat) {
+                const combatant = combat.data.combatants.find((o) => o.id === data.id);
+                let token = canvas.tokens.get(combatant.token._id);
+                MonksLittleDetails.removeTurnMarker(token);
+            }
+        });
+
+        /**
+         * Handle combatant added
+         */
+        Hooks.on("addCombatant", function (context, parentId, data) {
+            let combat = game.combats.get(parentId);
+            if (combat) {
+                let combatant = combat.data.combatants.find((o) => o.id === data.id);
+                let token = canvas.tokens.get(combatant.token._id);
+                MonksLittleDetails.toggleTurnMarker(token, token.id == combat.current.tokenId);
+            }
+        });
+
+        Hooks.on("updateToken", function (scene, tkn, data, options, userid) {
+            let token = canvas.tokens.get(tkn._id);
+            if (data.img != undefined) {
+                let activeCombats = game.combats.filter(c => {
+                    return c?.scene?.id == game.scenes.viewed.id && c.started;
+                });
+                let activeTokens = activeCombats.map(c => { return c.current.tokenId });
+
+                if (activeTokens.includes(token.id)) {
+                    setTimeout(function () {
+                        MonksLittleDetails.removeTurnMarker(token);
+                        MonksLittleDetails.toggleTurnMarker(token, true);
+                    }, 100);
+                }
+            }
+        });
+
+        Hooks.on("updateScene", function (scene, data, options, userid) {
+            if (scene.isView) {
+                let activeCombats = game.combats.filter(c => {
+                    return c?.scene?.id == scene.id && c.started;
+                });
+
+                if (activeCombats.length) {
+                    for (let combat of activeCombats) {
+                        let token = canvas.tokens.get(combat.current.tokenId);
+                        MonksLittleDetails.toggleTurnMarker(token, true);
+                    }
+                }
+            }
+        });
+    }
 });
 /**
  * Handle combatant update
@@ -1000,7 +1126,8 @@ Hooks.on("updateCombatant", function (context, parentId, data) {
     if (combat) {
         const combatant = combat.data.combatants.find((o) => o.id === data.id);
 
-        if (combatant.actor.owner) MonksLittleDetails.checkCombatTurn();
+        if (combatant.actor.owner)
+            MonksLittleDetails.checkCombatTurn(combat);
     }
 });
 
@@ -1008,8 +1135,8 @@ Hooks.on("updateCombatant", function (context, parentId, data) {
  * Handle combatant delete
  */
 Hooks.on("deleteCombatant", function (context, parentId, data) {
-  //let combat = game.combats.get(parentId);
-    MonksLittleDetails.checkCombatTurn();
+    let combat = game.combats.get(parentId);
+    MonksLittleDetails.checkCombatTurn(combat);
 });
 
 /**
@@ -1020,7 +1147,7 @@ Hooks.on("addCombatant", function (context, parentId, data) {
     let combatant = combat.data.combatants.find((o) => o.id === data.id);
 
     if (combatant.actor.owner) 
-        MonksLittleDetails.checkCombatTurn();
+        MonksLittleDetails.checkCombatTurn(combat);
 });
 
 /**
@@ -1055,16 +1182,25 @@ Hooks.on("deleteCombat", function (combat) {
             }, 100);
         }
     }
+
+    if (combat.started == true) {
+        if (setting("token-combat-highlight")) {
+            for (let combatant of combat.combatants) {
+                let token = canvas.tokens.get(combatant.token._id);
+                MonksLittleDetails.removeTurnMarker(token);
+            }
+        }
+    }
 });
 
-Hooks.on("updateCombat", function (data, delta) {
-    MonksLittleDetails.checkCombatTurn();
+Hooks.on("updateCombat", function (combat, delta) {
+    MonksLittleDetails.checkCombatTurn(combat);
 
-    log("update combat", data);
+    log("update combat", combat);
     let opencombat = game.settings.get("monks-little-details", "opencombat");
     if ((opencombat == "everyone" || (game.user.isGM && opencombat == "gmonly") || (!game.user.isGM && opencombat == "playersonly"))
         && !game.settings.get("monks-little-details", "disable-opencombat")
-        && delta.round === 1 && data.turn === 0 && data.started === true) {
+        && delta.round === 1 && combat.turn === 0 && combat.started === true) {
 		//new combat, pop it out
 		const tabApp = ui["combat"];
 		tabApp.renderPopout(tabApp);
@@ -1083,7 +1219,17 @@ Hooks.on("updateCombat", function (data, delta) {
             src: game.settings.get('monks-little-details', 'round-sound'),
 		    volume: volume()
 		});
-	}
+    }
+
+    if (setting("token-combat-highlight")) {
+        for (let combatant of combat.combatants) {
+            let token = canvas.tokens.get(combatant.token._id);
+            MonksLittleDetails.toggleTurnMarker(token, token.id == combat?.current?.tokenId);
+        }
+        //let token = canvas?.tokens.get(combat?.current?.tokenId);
+        //MonksLittleDetails.removeTurnMarker(token);
+        //MonksLittleDetails.toggleTurnMarker(token, true);
+    }
 });
 
 /**

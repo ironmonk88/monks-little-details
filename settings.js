@@ -1,4 +1,4 @@
-import { MonksLittleDetails } from "./monks-little-details.js";
+import { MonksLittleDetails, i18n } from "./monks-little-details.js";
 
 export const registerSettings = function () {
     // Register any custom module settings here
@@ -13,55 +13,55 @@ export const registerSettings = function () {
 	};
 
 	let opencombatoptions = {
-		'nopen': 'Do not open combat window',
-		'everyone': 'Everyone',
-		'gmonly': 'GM Only',
-		'playersonly': 'Players only'
+		'none': i18n("MonksLittleDetails.combatopen.none"),
+		'everyone': i18n("MonksLittleDetails.combatopen.everyone"),
+		'gmonly': i18n("MonksLittleDetails.combatopen.gm"),
+		'playersonly': i18n("MonksLittleDetails.combatopen.players")
 	};
 	
 	game.settings.register(modulename, "shownextup", {
-		name: game.i18n.localize("MonksLittleDetails.ShowNextUp"),
-		hint: game.i18n.localize("MonksLittleDetails.ShowNextUpHint"),
+		name: i18n("MonksLittleDetails.shownextup.name"),
+		hint: i18n("MonksLittleDetails.shownextup.hint"),
 		scope: "world",
 		config: true,
 		default: true,
 		type: Boolean,
 	});
 	game.settings.register(modulename, "next-sound", {
-		name: "Next Sound",
-		hint: "Audio effect to play when a players turn is up next, leave blank to not play any sound",
+		name: i18n("MonksLittleDetails.next-sound.name"),
+		hint: i18n("MonksLittleDetails.next-sound.hint"),
 		scope: "world",
 		config: true,
 		default: "modules/monks-little-details/sounds/next.wav",
 		type: String,
 	});
 	game.settings.register(modulename, "showcurrentup", {
-		name: game.i18n.localize("MonksLittleDetails.ShowCurrentUp"),
-		hint: game.i18n.localize("MonksLittleDetails.ShowCurrentUpHint"),
+		name: i18n("MonksLittleDetails.showcurrentup.name"),
+		hint: i18n("MonksLittleDetails.showcurrentup.hint"),
 		scope: "world",
 		config: true,
 		default: true,
 		type: Boolean,
 	});
 	game.settings.register(modulename, "turn-sound", {
-		name: "Current Turn Sound",
-		hint: "Audio effect to play at the beginning of a players turn, leave blank to not play any sound",
+		name: i18n("MonksLittleDetails.turn-sound.name"),
+		hint: i18n("MonksLittleDetails.turn-sound.hint"),
 		scope: "world",
 		config: true,
 		default: "modules/monks-little-details/sounds/turn.wav",
 		type: String,
 	});
 	game.settings.register(modulename, "round-sound", {
-		name: "Next Round Sound",
-		hint: "Audio effect to play at the start of a new round, leave blank to not play any sound",
+		name: i18n("MonksLittleDetails.round-sound.name"),
+		hint: i18n("MonksLittleDetails.round-sound.hint"),
 		scope: "world",
 		config: true,
 		default: "modules/monks-little-details/sounds/round.wav",
 		type: String,
 	});
 	game.settings.register(modulename, "volume", {
-		name: game.i18n.localize("MonksLittleDetails.Volume"),
-		hint: game.i18n.localize("MonksLittleDetails.VolumeHint"),
+		name: i18n("MonksLittleDetails.volume.name"),
+		hint: i18n("MonksLittleDetails.volume.hint"),
 		scope: "client",
 		config: true,
 		range: {
@@ -73,16 +73,16 @@ export const registerSettings = function () {
 		type: Number,
 	});
 	game.settings.register(modulename, "disablesounds", {
-		name: game.i18n.localize("MonksLittleDetails.DisableSounds"),
-		hint: game.i18n.localize("MonksLittleDetails.DisableSoundsHint"),
+		name: i18n("MonksLittleDetails.disablesounds.name"),
+		hint: i18n("MonksLittleDetails.disablesounds.hint"),
 		scope: "world",
 		config: true,
 		default: false,
 		type: Boolean,
 	});
 	game.settings.register(modulename, "combat-position", {
-		name: game.i18n.localize("MonksLittleDetails.Position"),
-		hint: game.i18n.localize("MonksLittleDetails.PositionHint"),
+		name: i18n("MonksLittleDetails.combat-position.name"),
+		hint: i18n("MonksLittleDetails.combat-position.hint"),
         scope: "world",
         default: null,
         type: String,
@@ -90,8 +90,8 @@ export const registerSettings = function () {
         config: true
     });
 	game.settings.register(modulename, "opencombat", {
-		name: game.i18n.localize("MonksLittleDetails.PopoutCombat"),
-		hint: game.i18n.localize("MonksLittleDetails.PopoutCombatHint"),
+		name: i18n("MonksLittleDetails.opencombat.name"),
+		hint: i18n("MonksLittleDetails.opencombat.hint"),
 		scope: "world",
 		config: true,
 		choices: opencombatoptions,
@@ -99,123 +99,131 @@ export const registerSettings = function () {
 		type: String
 	});
 	game.settings.register(modulename, "disable-opencombat", {
-		name: game.i18n.localize("MonksLittleDetails.DisablePopoutCombat"),
-		hint: game.i18n.localize("MonksLittleDetails.DisablePopoutCombatHint"),
+		name: i18n("MonksLittleDetails.disable-opencombat.name"),
+		hint: i18n("MonksLittleDetails.disable-opencombat.hint"),
 		scope: "client",
 		config: true,
 		default: false,
 		type: Boolean
 	});
 	game.settings.register(modulename, "close-combat-when-done", {
-		name: "Close Combat when done",
-		hint: "Close the combat popout, when you've done a combat encounter, if there are no other combats active.",
+		name: i18n("MonksLittleDetails.close-combat-when-done.name"),
+		hint: i18n("MonksLittleDetails.close-combat-when-done.hint"),
 		scope: "world",
 		config: true,
 		default: true,
 		type: Boolean,
 	});
 	game.settings.register(modulename, "prevent-token-removal", {
-		name: "Prevent token combat removal",
-		hint: "Prevent a token from being removed form combat via the Token HUD, restrict it to the Encounter interface only.",
+		name: i18n("MonksLittleDetails.prevent-token-removal.name"),
+		hint: i18n("MonksLittleDetails.prevent-token-removal.hint"),
 		scope: "world",
 		config: true,
 		default: true,
 		type: Boolean,
 	});
 	game.settings.register(modulename, "show-combat-cr", {
-		name: "Show Encounter CR",
-		hint: "When creating a combat encounter, display the estimated CR for that encounter.",
+		name: i18n("MonksLittleDetails.show-combat-cr.name"),
+		hint: i18n("MonksLittleDetails.show-combat-cr.hint"),
 		scope: "world",
 		config: MonksLittleDetails.canDo("show-combat-cr"),
 		default: true,
 		type: Boolean,
 	});
 	game.settings.register(modulename, "swap-buttons", {
-		name: "Swap target and settings button on the Token HUD",
-		hint: "I think the settings button makes more sense on the bottom rather than in the middle.",
+		name: i18n("MonksLittleDetails.swap-buttons.name"),
+		hint: i18n("MonksLittleDetails.swap-buttons.hint"),
 		scope: "world",
 		config: true,
 		default: true,
 		type: Boolean,
 	});
 	game.settings.register(modulename, "alter-hud", {
-		name: "Alter the Token HUD status effects",
-		hint: "Alter the Token HUD to show detailed status effects and allow to clear all effects.",
+		name: i18n("MonksLittleDetails.alter-hud.name"),
+		hint: i18n("MonksLittleDetails.alter-hud.hint"),
 		scope: "world",
 		config: MonksLittleDetails.canDo("alter-hud"),
 		default: true,
 		type: Boolean,
 	});
 	game.settings.register(modulename, "add-extra-statuses", {
-		name: "Add DnD statuses",
-		hint: "Add a handful more status effects that get used in DnD.",
+		name: i18n("MonksLittleDetails.add-extra-statuses.name"),
+		hint: i18n("MonksLittleDetails.add-extra-statuses.hint"),
 		scope: "world",
 		config: true,
 		default: true,
 		type: Boolean,
 	});
 	game.settings.register(modulename, "change-invisible-image", {
-		name: "Use DnD5e invisible icon",
-		hint: "Instead of using the Foundry masked man image, use and outlined image",
+		name: i18n("MonksLittleDetails.change-invisible-image.name"),
+		hint: i18n("MonksLittleDetails.change-invisible-image.hint"),
 		scope: "world",
 		config: MonksLittleDetails.canDo("change-invisible-image"),
 		default: true,
 		type: Boolean,
 	});
 	game.settings.register(modulename, "actor-sounds", {
-		name: "Actor Sound Effects",
-		hint: "Add a button to the character sheet and the TokenHUD to play a sound effect.",
+		name: i18n("MonksLittleDetails.actor-sounds.name"),
+		hint: i18n("MonksLittleDetails.actor-sounds.hint"),
 		scope: "world",
 		config: true,
 		default: true,
 		type: Boolean,
 	});
 	game.settings.register(modulename, "scene-palette", {
-		name: "Show Scene Palette",
-		hint: "Show the top 5 dominant colours of a scene just in case you want to set the background colour to a similar colour.",
+		name: i18n("MonksLittleDetails.scene-palette.name"),
+		hint: i18n("MonksLittleDetails.scene-palette.hint"),
 		scope: "world",
 		config: true,
 		default: true,
 		type: Boolean,
 	});
 	game.settings.register(modulename, "core-css-changes", {
-		name: "Change Core CSS",
-		hint: "Update some of the core css to display things a little better",
+		name: i18n("MonksLittleDetails.core-css-changes.name"),
+		hint: i18n("MonksLittleDetails.core-css-changes.hint"),
 		scope: "world",
 		config: true,
 		default: true,
 		type: Boolean,
 	});
 	game.settings.register(modulename, "show-drag-points-together", {
-		name: "Show Drag Points Together",
-		hint: "Show a toggle button on the wall tools that will drag points together if they overlap exactly",
+		name: i18n("MonksLittleDetails.show-drag-points-together.name"),
+		hint: i18n("MonksLittleDetails.show-drag-points-together.hint"),
 		scope: "world",
 		config: true,
 		default: true,
 		type: Boolean,
 	});
 	game.settings.register(modulename, "movement-key", {
-		name: "Movement Key",
-		hint: "Set the key to press to move tokens to a new location",
+		name: i18n("MonksLittleDetails.movement-key.name"),
+		hint: i18n("MonksLittleDetails.movement-key.hint"),
 		scope: "world",
 		config: true,
 		default: "m",
 		type: String,
 	});
 	game.settings.register(modulename, "show-notify", {
-		name: "Retain Notify",
-		hint: "Leave the chat notify icon on if you're on a different tab and a message arrives.",
+		name: i18n("MonksLittleDetails.show-notify.name"),
+		hint: i18n("MonksLittleDetails.show-notify.hint"),
 		scope: "client",
 		config: true,
 		default: true,
 		type: Boolean,
 	});
 	game.settings.register(modulename, "show-bloodsplat", {
-		name: "Show Bloodsplat",
-		hint: "When a monster dies, display it as a blood splat, hiding the image and bars and effects.  It is dead after all.",
+		name: i18n("MonksLittleDetails.show-bloodsplat.name"),
+		hint: i18n("MonksLittleDetails.show-bloodsplat.hint"),
 		scope: "world",
 		config: true,
 		default: false,
 		type: Boolean,
+	});
+	game.settings.register(modulename, "token-combat-highlight", {
+		name: i18n("MonksLittleDetails.token-combat-highlight.name"),
+		hint: i18n("MonksLittleDetails.token-combat-highlight.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean
 	});
 };

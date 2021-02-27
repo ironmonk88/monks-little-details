@@ -2,22 +2,59 @@
 	"MonksLittleDetails.Turn": "あなたのターンです。どうする？",
 	"MonksLittleDetails.Next": "次があなたのターンです。準備して！",
 
-	"MonksLittleDetails.ShowNextUp": "ターン直前の通知",
-	"MonksLittleDetails.ShowNextUpHint": "次が自分のターンであることをプレイヤーに通知を表示します。",
-	"MonksLittleDetails.ShowCurrentUp": "ターン開始の通知",
-	"MonksLittleDetails.ShowCurrentUpHint": "自分のターンが来たプレイヤーに通知を表示します。",
-	"MonksLittleDetails.Volume": "ボリューム",
-	"MonksLittleDetails.VolumeHint": "モジュール全体の音声ボリュームを設定します。",
-	"MonksLittleDetails.Position": "戦闘ダイアログの位置",
-	"MonksLittleDetails.PositionHint": "戦闘の開始時に戦闘ダイアログを画面中央から見てどこに配置するかを設定します。",
-	"MonksLittleDetails.PopoutCombat": "戦闘ダイアログのポップアウト",
-	"MonksLittleDetails.PopoutCombatHint": "戦闘開始時にダイアログをポップアウトし、表示をチャットログに切り替えます。",
-	"MonksLittleDetails.DisablePopoutCombat": "戦闘時のポップアップを無効にする",
-	"MonksLittleDetails.DisablePopoutCombatHint": " 戦闘開始時にポップアップしたくない場合に有効にしてください。",
-	"MonksLittleDetails.DisableSounds": "サウンドの無効化",
-	"MonksLittleDetails.DisableSoundsHint": "すべてのプレイヤーのすべてのターン効果音を無効にします。",
-	"MonksLittleDetails.PlayRoundSound": "新しいラウンド音を再生する",
-	"MonksLittleDetails.PlayRoundSoundHint": "次のラウンド開始時に音を鳴らす。",
+	"MonksLittleDetails.shownextup.name": "ターン直前の通知",
+	"MonksLittleDetails.shownextup.hint": "次が自分のターンであることをプレイヤーに通知を表示します。",
+
+
+	"MonksLittleDetails.showcurrentup.name": "ターン開始の通知",
+	"MonksLittleDetails.showcurrentup.hint": "自分のターンが来たプレイヤーに通知を表示します。",
+
+
+	"MonksLittleDetails.round-sound.name": "新しいラウンド音を再生する",
+	"MonksLittleDetails.round-sound.hint": "次のラウンド開始時に音を鳴らす。",
+	"MonksLittleDetails.volume.name": "ボリューム",
+	"MonksLittleDetails.volume.hint": "モジュール全体の音声ボリュームを設定します。",
+	"MonksLittleDetails.disablesounds.name": "サウンドの無効化",
+	"MonksLittleDetails.disablesounds.hint": "すべてのプレイヤーのすべてのターン効果音を無効にします。",
+	"MonksLittleDetails.combat-position.name": "戦闘ダイアログの位置",
+	"MonksLittleDetails.combat-position.hint": "戦闘の開始時に戦闘ダイアログを画面中央から見てどこに配置するかを設定します。",
+	"MonksLittleDetails.opencombat.name": "戦闘ダイアログのポップアウト",
+	"MonksLittleDetails.opencombat.hint": "戦闘開始時にダイアログをポップアウトし、表示をチャットログに切り替えます。",
+	"MonksLittleDetails.disable-opencombat.name": "戦闘時のポップアップを無効にする",
+	"MonksLittleDetails.disable-opencombat.hint": " 戦闘開始時にポップアップしたくない場合に有効にしてください。",
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	"MonksLittleDetails.PreventTokenMessage": "一度戦闘状態になると、遭遇時のインターフェイスを経由しない限り、トークンを取り除くことはできません。",
 
@@ -41,4 +78,9 @@
 	"MonksLittleDetails.challenging": "困難",
 	"MonksLittleDetails.hard": "死地",
 	"MonksLittleDetails.epic": "英雄的"
+
+
+
+
+
 }

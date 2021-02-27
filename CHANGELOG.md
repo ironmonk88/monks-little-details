@@ -1,7 +1,9 @@
-# Version 1.0.14 - In Development -
+# Version 1.0.14
 Possibly fixed cross origin issues with getting the palette on images from Forge or S3 bucket.
 
 Fixed issue with the next up notification.  Wasn't getting the correct combat to pull information from.
+
+Added indicator to show which token has the current turn in combat
 
 # Version 1.0.12
 Added Japanese translations (Thank you touge)
