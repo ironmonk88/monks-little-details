@@ -1,3 +1,14 @@
+# Version 1.0.15 - In Development -
+Altered the combat tracker so that enemies aren't visible to players when setting up the combat.
+
+Updated the dominanat colour palette to get colours from animated maps
+
+Added option to set the animation speed of the combat tracking highlight
+
+Fixed issue where combat tracking highlight shows on tokens for a combat that hasn't started yet.
+
+Letting PF2 change the invisible man icon
+
 # Version 1.0.14
 Possibly fixed cross origin issues with getting the palette on images from Forge or S3 bucket.
 

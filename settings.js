@@ -226,4 +226,25 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean
 	});
+	game.settings.register(modulename, "token-highlight-animate", {
+		name: i18n("MonksLittleDetails.token-highlight-animate.name"),
+		hint: i18n("MonksLittleDetails.token-highlight-animate.hint"),
+		scope: "world",
+		config: true,
+		default: 100,
+		type: Number,
+		range: {
+			min: 0,
+			max: 1000,
+			step: 10
+		}
+	});
+	game.settings.register(modulename, "hide-enemies", {
+		name: i18n("MonksLittleDetails.hide-enemies.name"),
+		hint: i18n("MonksLittleDetails.hide-enemies.hint"),
+		scope: "world",
+		config: true,
+		default: false,
+		type: Boolean,
+	});
 };

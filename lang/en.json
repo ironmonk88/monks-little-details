@@ -52,6 +52,10 @@
 	"MonksLittleDetails.show-bloodsplat.hint": "When a monster dies, display it as a blood splat, hiding the image and bars and effects.  It is dead after all.",
 	"MonksLittleDetails.token-combat-highlight.name": "Show Token Highlight",
 	"MonksLittleDetails.token-combat-highlight.hint": "Show a highlight under the token that is currently active in combat",
+	"MonksLittleDetails.token-highlight-animate.name": "Animate combat highlight",
+	"MonksLittleDetails.token-highlight-animate.hint": "Animate the token combat highlight, set to 0 for no animation",
+	"MonksLittleDetails.hide-enemies.name": "Hide enemies",
+	"MonksLittleDetails.hide-enemies.hint": "Hide enemies from players when creating an encounter until encounter starts",
 
 	"MonksLittleDetails.PlayRoundSound": "Play new round sound",
 	"MonksLittleDetails.PlayRoundSoundHint": "Play a sound when the next round starts",

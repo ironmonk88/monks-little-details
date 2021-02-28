@@ -1,5 +1,6 @@
 ﻿import { registerSettings } from "./settings.js";
 import { MMCQ } from "./quantize.js";
+import { WithMonksCombatTracker } from "./apps/combattracker.js"
 
 export let debug = (...args) => {
     if (debugEnabled > 1) console.log("DEBUG: monks-little-details | ", ...args);
@@ -102,8 +103,7 @@ export class MonksLittleDetails {
         ];
 
         MonksLittleDetails._rejectlist = {
-            "alter-hud": ["pf2e"],
-            "change-invisible-image": ["pf2e"]
+            "alter-hud": ["pf2e"]
         }
         MonksLittleDetails._onlylist = {
             "show-combat-cr": ["dnd5e", "pf2e"]
@@ -169,6 +169,9 @@ export class MonksLittleDetails {
                 }
             }
         }
+
+        if (setting('hide-enemies'))
+            CONFIG.ui.combat = WithMonksCombatTracker(CONFIG.ui.combat);
 
         if (setting("show-bloodsplat")) {
             MonksLittleDetails.splatfont = new FontFace('WC Rhesus A Bta', "url('modules/monks-little-details/fonts/WCRhesusABta.woff2'), url('modules/monks-little-details/fonts/WCRhesusABta.woff')");
@@ -811,44 +814,78 @@ export class MonksLittleDetails {
         return pixelArray;
     }
 
-    static getPalette(url) {
+    static getPalette(src) {
         // Create custom CanvasImage object
-        MonksLittleDetails.canvasImage = new Image();
-        MonksLittleDetails.canvasImage.addEventListener('load', () => {
-            let canvas = document.createElement('canvas');
-            let context = canvas.getContext('2d');
-            let width = canvas.width = MonksLittleDetails.canvasImage.naturalWidth;
-            let height = canvas.height = MonksLittleDetails.canvasImage.naturalHeight;
-            if (width == 0 || height == 0)
-                return;
+        //if (VideoHelper.hasVideoExtension(url)) {
+        if (src != undefined) {
+            loadTexture(src).then((texture) => {
+                if (texture != undefined) {
+                    let sprite = new PIXI.Sprite(texture);
+                    let pixels = canvas.app.renderer.plugins.extract.pixels(sprite);
+                    const pixelCount = texture.width * texture.height;
 
-            context.drawImage(MonksLittleDetails.canvasImage, 0, 0, width, height);
+                    const pixelArray = MonksLittleDetails.createPixelArray(pixels, pixelCount, 10);
 
-            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-            const pixelCount = MonksLittleDetails.canvasImage.width * MonksLittleDetails.canvasImage.height;
+                    sprite.destroy();
 
-            const pixelArray = MonksLittleDetails.createPixelArray(imageData.data, pixelCount, 10);
+                    // Send array to quantize function which clusters values
+                    // using median cut algorithm
+                    const cmap = MMCQ.quantize(pixelArray, 5);
+                    const palette = cmap ? cmap.palette() : null;
 
-            canvas.remove();
+                    let element = $('.palette-fields');
 
-            // Send array to quantize function which clusters values
-            // using median cut algorithm
-            const cmap = MMCQ.quantize(pixelArray, 5);
-            const palette = cmap ? cmap.palette() : null;
-
-            let element = $('.palette-fields');
-
-            $(element).empty();
-            for (let i = 0; i < palette.length; i++) {
-                var hexCode = MonksLittleDetails.rgbToHex(palette[i][0], palette[i][1], palette[i][2]);
-                $(element).append($('<div>').addClass('background-palette').attr('title', hexCode).css({ backgroundColor: hexCode }).on('click', $.proxy(MonksLittleDetails.updateSceneBackground, MonksLittleDetails, hexCode)));
-            }
-
-            //const dominantColor = palette[0];
-        });
-        MonksLittleDetails.canvasImage.src = url + '?' + new Date().getTime();
-        MonksLittleDetails.canvasImage.setAttribute('crossOrigin', '');
+                    $(element).empty();
+                    for (let i = 0; i < palette.length; i++) {
+                        var hexCode = MonksLittleDetails.rgbToHex(palette[i][0], palette[i][1], palette[i][2]);
+                        $(element).append($('<div>').addClass('background-palette').attr('title', hexCode).css({ backgroundColor: hexCode }).on('click', $.proxy(MonksLittleDetails.updateSceneBackground, MonksLittleDetails, hexCode)));
+                    }
+                }
+            })
+        }
+        /*} else {
+            MonksLittleDetails.canvasImage = new Image();
+            MonksLittleDetails.canvasImage.addEventListener('load', () => {
+                MonksLittleDetails.processPalette();
+            });
+            MonksLittleDetails.canvasImage.src = url + '?' + new Date().getTime();
+            MonksLittleDetails.canvasImage.setAttribute('crossOrigin', '');
+        }*/
     };
+
+    /*
+    static processPalette() {
+        let canvas = document.createElement('canvas');
+        let context = canvas.getContext('2d');
+        let width = canvas.width = MonksLittleDetails.canvasImage.naturalWidth;
+        let height = canvas.height = MonksLittleDetails.canvasImage.naturalHeight;
+        if (width == 0 || height == 0)
+            return;
+
+        context.drawImage(MonksLittleDetails.canvasImage, 0, 0, width, height);
+
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const pixelCount = MonksLittleDetails.canvasImage.width * MonksLittleDetails.canvasImage.height;
+
+        const pixelArray = MonksLittleDetails.createPixelArray(imageData.data, pixelCount, 10);
+
+        canvas.remove();
+
+        // Send array to quantize function which clusters values
+        // using median cut algorithm
+        const cmap = MMCQ.quantize(pixelArray, 5);
+        const palette = cmap ? cmap.palette() : null;
+
+        let element = $('.palette-fields');
+
+        $(element).empty();
+        for (let i = 0; i < palette.length; i++) {
+            var hexCode = MonksLittleDetails.rgbToHex(palette[i][0], palette[i][1], palette[i][2]);
+            $(element).append($('<div>').addClass('background-palette').attr('title', hexCode).css({ backgroundColor: hexCode }).on('click', $.proxy(MonksLittleDetails.updateSceneBackground, MonksLittleDetails, hexCode)));
+        }
+
+        //const dominantColor = palette[0];
+    }*/
     /*
     static async createThumbnail(img) {
         const newImage = img !== undefined;
@@ -1006,12 +1043,14 @@ export class MonksLittleDetails {
             else
                 delete MonksLittleDetails.turnMarkerAnim[token.id];
 
-            if (!MonksLittleDetails._animate && Object.keys(MonksLittleDetails.turnMarkerAnim).length != 0) {
-                MonksLittleDetails._animate = MonksLittleDetails.animateMarkers.bind(this);
-                canvas.app.ticker.add(MonksLittleDetails._animate);
-            } else if (MonksLittleDetails._animate != undefined && Object.keys(MonksLittleDetails.turnMarkerAnim).length == 0) {
-                canvas.app.ticker.remove(MonksLittleDetails._animate);
-                delete MonksLittleDetails._animate;
+            if (setting('token-highlight-animate') > 0) {
+                if (!MonksLittleDetails._animate && Object.keys(MonksLittleDetails.turnMarkerAnim).length != 0) {
+                    MonksLittleDetails._animate = MonksLittleDetails.animateMarkers.bind(this);
+                    canvas.app.ticker.add(MonksLittleDetails._animate);
+                } else if (MonksLittleDetails._animate != undefined && Object.keys(MonksLittleDetails.turnMarkerAnim).length == 0) {
+                    canvas.app.ticker.remove(MonksLittleDetails._animate);
+                    delete MonksLittleDetails._animate;
+                }
             }
         }
     }
@@ -1025,7 +1064,7 @@ export class MonksLittleDetails {
     }
 
     static animateMarkers(dt) {
-        let interval = 500;
+        let interval = setting('token-highlight-animate');
         for (const [key, token] of Object.entries(MonksLittleDetails.turnMarkerAnim)) {
             if (token && token.turnmarker) {
                 let delta = interval / 10000;
@@ -1054,7 +1093,7 @@ Hooks.once('init', async function () {
     if (setting("token-combat-highlight")) {
         Hooks.on("updateCombatant", function (context, parentId, data) {
             const combat = game.combats.get(parentId);
-            if (combat) {
+            if (combat && combat.started) {
                 const combatant = combat.data.combatants.find((o) => o.id === data.id);
                 let token = canvas.tokens.get(combatant.token._id);
                 MonksLittleDetails.toggleTurnMarker(token, token.id == combat.current.tokenId);
@@ -1066,7 +1105,7 @@ Hooks.once('init', async function () {
          */
         Hooks.on("deleteCombatant", function (context, parentId, data) {
             let combat = game.combats.get(parentId);
-            if (combat) {
+            if (combat && combat.started) {
                 const combatant = combat.data.combatants.find((o) => o.id === data.id);
                 let token = canvas.tokens.get(combatant.token._id);
                 MonksLittleDetails.removeTurnMarker(token);
@@ -1078,7 +1117,7 @@ Hooks.once('init', async function () {
          */
         Hooks.on("addCombatant", function (context, parentId, data) {
             let combat = game.combats.get(parentId);
-            if (combat) {
+            if (combat && combat.started) {
                 let combatant = combat.data.combatants.find((o) => o.id === data.id);
                 let token = canvas.tokens.get(combatant.token._id);
                 MonksLittleDetails.toggleTurnMarker(token, token.id == combat.current.tokenId);
@@ -1221,7 +1260,7 @@ Hooks.on("updateCombat", function (combat, delta) {
 		});
     }
 
-    if (setting("token-combat-highlight")) {
+    if (setting("token-combat-highlight") && combat.started) {
         for (let combatant of combat.combatants) {
             let token = canvas.tokens.get(combatant.token._id);
             MonksLittleDetails.toggleTurnMarker(token, token.id == combat?.current?.tokenId);
