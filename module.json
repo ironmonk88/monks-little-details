@@ -25,7 +25,7 @@
 	"packs": [],
 	"url" : "https://github.com/ironmonk88/monks-little-details",
 	"download" : "https://github.com/ironmonk88/monks-little-details/archive/1.0.14.zip",
-	"manifest" : "https://github.com/ironmonk88/monks-little-details/releases/download/1.0.14/module.json",
+	"manifest" : "https://github.com/ironmonk88/monks-tokenbar/releases/latest/download/module.json",
 	"minimumCoreVersion": "0.7.0",
   	"compatibleCoreVersion": "0.7.9"
 }
