@@ -161,6 +161,9 @@ export const registerSettings = function () {
 		config: MonksLittleDetails.canDo("change-invisible-image"),
 		default: true,
 		type: Boolean,
+		onChange: () => {
+			location.reload();
+		}
 	});
 	game.settings.register(modulename, "actor-sounds", {
 		name: i18n("MonksLittleDetails.actor-sounds.name"),
@@ -185,6 +188,9 @@ export const registerSettings = function () {
 		config: true,
 		default: true,
 		type: Boolean,
+		onChange: () => {
+			location.reload();
+		}
 	});
 	game.settings.register(modulename, "show-drag-points-together", {
 		name: i18n("MonksLittleDetails.show-drag-points-together.name"),
@@ -217,6 +223,9 @@ export const registerSettings = function () {
 		config: true,
 		default: false,
 		type: Boolean,
+		onChange: () => {
+			location.reload();
+		}
 	});
 	game.settings.register(modulename, "token-combat-highlight", {
 		name: i18n("MonksLittleDetails.token-combat-highlight.name"),
@@ -237,6 +246,33 @@ export const registerSettings = function () {
 			min: 0,
 			max: 1000,
 			step: 10
+		}
+	});
+	game.settings.register(modulename, "token-highlight-picture", {
+		name: i18n("MonksLittleDetails.token-highlight-picture.name"),
+		hint: i18n("MonksLittleDetails.token-highlight-picture.hint"),
+		scope: "world",
+		config: true,
+		default: "modules/monks-little-details/icons/turnmarker.png",
+		type: String,
+		onChange: () => {
+			location.reload();
+		}
+	});
+	game.settings.register(modulename, "token-highlight-scale", {
+		name: i18n("MonksLittleDetails.token-highlight-scale.name"),
+		hint: i18n("MonksLittleDetails.token-highlight-scale.hint"),
+		scope: "world",
+		config: true,
+		default: 1.5,
+		type: Number,
+		range: {
+			min: 1,
+			max: 2,
+			step: 0.1
+		},
+		onChange: () => {
+			location.reload();
 		}
 	});
 	game.settings.register(modulename, "hide-enemies", {

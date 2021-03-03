@@ -5,6 +5,10 @@ Updated the dominanat colour palette to get colours from animated maps
 
 Added option to set the animation speed of the combat tracking highlight
 
+Added option for combat highlight size
+
+Added option to change combat highlight image
+
 Fixed issue where combat tracking highlight shows on tokens for a combat that hasn't started yet.
 
 Letting PF2 change the invisible man icon

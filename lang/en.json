@@ -54,6 +54,10 @@
 	"MonksLittleDetails.token-combat-highlight.hint": "Show a highlight under the token that is currently active in combat",
 	"MonksLittleDetails.token-highlight-animate.name": "Animate combat highlight",
 	"MonksLittleDetails.token-highlight-animate.hint": "Animate the token combat highlight, set to 0 for no animation",
+	"MonksLittleDetails.token-highlight-picture.name": "Combat Highlight Image",
+	"MonksLittleDetails.token-highlight-picture.hint": "Image to use as the animated image for combat tracking",
+	"MonksLittleDetails.token-highlight-scale.name": "Highlight size",
+	"MonksLittleDetails.token-highlight-scale.hint": "Size of the Highlight image in relation to the token",
 	"MonksLittleDetails.hide-enemies.name": "Hide enemies",
 	"MonksLittleDetails.hide-enemies.hint": "Hide enemies from players when creating an encounter until encounter starts",
 

@@ -103,7 +103,7 @@ export class MonksLittleDetails {
         ];
 
         MonksLittleDetails._rejectlist = {
-            "alter-hud": ["pf2e"]
+            //"alter-hud": ["pf2e"]
         }
         MonksLittleDetails._onlylist = {
             "show-combat-cr": ["dnd5e", "pf2e"]
@@ -183,7 +183,16 @@ export class MonksLittleDetails {
             Token.prototype.refresh = function () {
                 oldTokenRefresh.call(this);
 
-                if ((this.defeated || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId)) && this.actor?.data.type !== 'character') {
+                //find defeated state
+                let combatant;
+                game.combats.find(c => {
+                    if (c.data.active)
+                        combatant = c.turns.find(t => {
+                            return t.tokenId == this.id;
+                        });
+                    return c.active && combatant != undefined;
+                });
+                if (((combatant && combatant.defeated) || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId)) && this.actor?.data.type !== 'character') {
                     this.bars.visible = false;
                     for (let effect of this.effects.children) {
                         effect.alpha = 0;
@@ -315,7 +324,7 @@ export class MonksLittleDetails {
         }
 
         let iconWidth = '24';
-        if (game.modules.get("illandril-token-hud-scale") != undefined && game.modules.get("illandril-token-hud-scale").active && game.settings.get("illandril-token-hud-scale", "enableStatusSelectorScale"))
+        if (game.world.system == 'pf2e' || (game.modules.get("illandril-token-hud-scale") != undefined && game.modules.get("illandril-token-hud-scale").active && game.settings.get("illandril-token-hud-scale", "enableStatusSelectorScale")))
             iconWidth = '36';
 
         if (MonksLittleDetails.canDo("alter-hud") && game.settings.get("monks-little-details", "alter-hud")) {
@@ -346,7 +355,7 @@ export class MonksLittleDetails {
     color: #d2d1d0;
 }
 
-#token-hud .status-effects div.effect-control {
+#token-hud .status-effects div.effect-control{
     width: 100% !important;
     height: ${iconWidth}px !important;
     color: #ccc;
@@ -356,20 +365,37 @@ export class MonksLittleDetails {
     border: 1px solid transparent;
 }
 
+#token-hud .status-effects div.pf2e-effect-img-container{
+    height: ${iconWidth}px !important;
+    text-align:left;
+    padding-left:1px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    opacity:0.4;
+    color: #ccc;
+}
+
 #token-hud .status-effects div.effect-control:hover {
     color: #d2d1d0 !important;
 }
 
-#token-hud .status-effects div.effect-control.active {
+#token-hud .status-effects div.pf2e-effect-img-container:hover{
+    opacity:0.75;
+}
+
+#token-hud .status-effects div.effect-control.active,
+#token-hud .status-effects div.pf2e-effect-img-container.active{
     color: #ff6400;
     border: 1px solid #ff6400;
+    opacity:1;
 }
 
 #token-hud .status-effects div.effect-control.active:hover {
     color: #ffc163 !important;
 }
 
-#token-hud .status-effects .effect-control img {
+#token-hud .status-effects .effect-control img,
+#token-hud .status-effects .pf2e-effect-img-container img{
     width: ${iconWidth}px;
     height: ${iconWidth}px;
     margin: 0;
@@ -384,12 +410,14 @@ export class MonksLittleDetails {
     opacity: 0.8;
 }
 
-#token-hud .status-effects .effect-control.active img {
+#token-hud .status-effects .effect-control.active img,
+#token-hud .status-effects .pf2e-effect-img-container.active img{
     opacity: 1;
     filter: sepia(100%) saturate(2000%) hue-rotate(-50deg);
 }
 
-#token-hud .status-effects div.effect-control div {
+#token-hud .status-effects div.effect-control div.effect-name,
+#token-hud .status-effects div.pf2e-effect-img-container div.effect-name{
     vertical-align: top;
     padding-left: 4px;
     overflow: hidden;
@@ -638,7 +666,7 @@ export class MonksLittleDetails {
             let skip = combat.settings.skipDefeated;
             let next = findNext(combat.turn);
             //if there wasn't one next after the current player, then start back at the beginning and try to find the next one
-            if (next == undefined || next > combat.turns.length)
+            if (next == undefined || next >= combat.turns.length)
                 next = findNext(-1);
 
             let isActive = entry.actor?.owner;
@@ -677,24 +705,42 @@ export class MonksLittleDetails {
 
     static alterHUD(html) {
         if (MonksLittleDetails.canDo("alter-hud") && game.settings.get("monks-little-details", "alter-hud")) {
-            $('.col.right .control-icon.effects .status-effects img', html).each(function () {
-                let div = $('<div>')
-                    .addClass('effect-control')
-                    .toggleClass('active', $(this).hasClass('active'))
-                    .attr('title', $(this).attr('title'))
-                    .attr('data-status-id', $(this).attr('data-status-id'))
-                    .attr('src', $(this).attr('src'))
-                    .insertAfter(this)
-                    .append($(this).removeClass('effect-control'))
-                    .append($('<div>').html($(this).attr('title')).click(function (event) {
-                        $(this).prev().click();
+            $('.col.right .control-icon.effects .status-effects > img,.col.right .control-icon.effects .status-effects > div.pf2e-effect-img-container', html).each(function () {
+                if ($(this).hasClass('pf2e-effect-img-container')) {
+                    let title = $('img', this).attr('data-condition');
+                    let div = $('<div>').addClass('effect-name').attr('title', title).html(title).click(function (event) {
+                        $(this).prev().prev().click();
                         if (event.stopPropagation) event.stopPropagation();
                         if (event.preventDefault) event.preventDefault();
                         event.cancelBubble = true;
                         event.returnValue = false;
                         return false;
-                    }));
-                div[0].src = $(this).attr('src');
+                    });
+                    $(this).append(div);
+                    $(this).attr('src', $('img', this).attr('src')).toggleClass('active', $('img', this).hasClass('active'));
+                } else {
+                    let title = $(this).attr('title') || $(this).attr('data-condition');
+                    let div = $('<div>')
+                        .addClass($(this).attr('class'))
+                        .toggleClass('active', $(this).hasClass('active'))
+                        .attr('title', title)
+                        .attr('src', $(this).attr('src'))
+                        .insertAfter(this)
+                        .append($(this).removeClass('effect-control'))
+                        .append($('<div>').addClass('effect-name').html(title).click(function (event) {
+                            $(this).prev().click();
+                            if (event.stopPropagation) event.stopPropagation();
+                            if (event.preventDefault) event.preventDefault();
+                            event.cancelBubble = true;
+                            event.returnValue = false;
+                            return false;
+                        }));
+                    if ($(this).attr('data-status-id'))
+                        div.attr('data-status-id', $(this).attr('data-status-id'));
+                    if ($(this).attr('data-effect'))
+                        div.attr('data-effect', $(this).attr('data-effect'));
+                    div[0].src = $(this).attr('src');
+                }
             });
 
             $('.col.right .control-icon.effects .status-effects', html).append(
@@ -1022,11 +1068,11 @@ export class MonksLittleDetails {
     static toggleTurnMarker(token, visible) {
         if (token) {
             if (token.turnmarker == undefined) {
-                loadTexture("modules/monks-little-details/icons/turnmarker.png").then((tex) => { //"modules/monks-little-details/img/chest.png"
+                loadTexture(setting("token-highlight-picture")).then((tex) => { //"modules/monks-little-details/img/chest.png"
                     if (token.turnmarker == undefined) {
                         const icon = new PIXI.Sprite(tex);
                         icon.pivot.set(icon.width / 2, icon.height / 2);//.set(-(token.w / 2), -(token.h / 2));
-                        const size = Math.max(token.w, token.h) * 1.5;
+                        const size = Math.max(token.w, token.h) * setting("token-highlight-scale");
                         icon.width = icon.height = size;
                         icon.position.set(token.w / 2, token.h / 2);
                         icon.alpha = 0.8;
@@ -1449,4 +1495,25 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
     btn.clone(true).insertAfter($('input[name="monks-little-details.next-sound"]', html));
     btn.clone(true).insertAfter($('input[name="monks-little-details.turn-sound"]', html));
     btn.clone(true).insertAfter($('input[name="monks-little-details.round-sound"]', html));
+
+    let btn2 = $('<button>')
+        .addClass('file-picker')
+        .attr('type', 'button')
+        .attr('data-type', "imagevideo")
+        .attr('data-target', "img")
+        .attr('title', "Browse Files")
+        .attr('tabindex', "-1")
+        .html('<i class="fas fa-file-import fa-fw"></i>')
+        .click(function (event) {
+            const fp = new FilePicker({
+                type: "image",
+                current: $(event.currentTarget).prev().val(),
+                callback: path => {
+                    $(event.currentTarget).prev().val(path);
+                }
+            });
+            return fp.browse();
+        });
+
+    btn2.clone(true).insertAfter($('input[name="monks-little-details.token-highlight-picture"]', html));
 });
