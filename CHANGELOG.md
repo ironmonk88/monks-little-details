@@ -1,4 +1,4 @@
-# Version 1.0.15 - In Development -
+# Version 1.0.15
 Altered the combat tracker so that enemies aren't visible to players when setting up the combat.
 
 Updated the dominanat colour palette to get colours from animated maps
