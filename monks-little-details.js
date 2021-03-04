@@ -26,6 +26,7 @@ export let combatposition = () => {
 export class MonksLittleDetails {
     static tracker = false;
     static turnMarkerAnim = {};
+    static tokenHUDimages = {};
 
     static canDo(setting) {
         //needs to not be on the reject list, and if there is an only list, it needs to be on it.
@@ -150,10 +151,19 @@ export class MonksLittleDetails {
             let oldTokenHUDRender = TokenHUD.prototype._render;
             TokenHUD.prototype._render = function (force = false, options = {}) {
                 let result = oldTokenHUDRender.call(this, force, options).then((a, b) => {
-                    MonksLittleDetails.alterHUD(MonksLittleDetails.element);
+                    MonksLittleDetails.alterHUD.call(this, MonksLittleDetails.element);
                 });
 
                 return result;
+            }
+            TokenHUD.prototype.refreshStatusIcons = function() {
+                const effects = this.element.find(".status-effects")[0];
+                const statuses = this._getStatusEffectChoices();
+                for (let img of $('[src]', effects)) {
+                    const status = statuses[img.getAttribute("src")] || {};
+                    img.classList.toggle("overlay", !!status.isOverlay);
+                    img.classList.toggle("active", !!status.isActive);
+                }
             }
         }
 
@@ -327,6 +337,7 @@ export class MonksLittleDetails {
         if (game.world.system == 'pf2e' || (game.modules.get("illandril-token-hud-scale") != undefined && game.modules.get("illandril-token-hud-scale").active && game.settings.get("illandril-token-hud-scale", "enableStatusSelectorScale")))
             iconWidth = '36';
 
+        /*
         if (MonksLittleDetails.canDo("alter-hud") && game.settings.get("monks-little-details", "alter-hud")) {
             innerHTML += `
 #token-hud .status-effects {
@@ -363,6 +374,7 @@ export class MonksLittleDetails {
     border-radius: 4px;
     padding: 1px;
     border: 1px solid transparent;
+    position:relative;
 }
 
 #token-hud .status-effects div.pf2e-effect-img-container{
@@ -383,24 +395,25 @@ export class MonksLittleDetails {
     opacity:0.75;
 }
 
-#token-hud .status-effects div.effect-control.active,
-#token-hud .status-effects div.pf2e-effect-img-container.active{
+#token-hud .status-effects .effect-control.active,
+#token-hud .status-effects .pf2e-effect-img-container.active{
     color: #ff6400;
     border: 1px solid #ff6400;
     opacity:1;
 }
 
-#token-hud .status-effects div.effect-control.active:hover {
+#token-hud .status-effects .effect-control.active:hover {
     color: #ffc163 !important;
 }
 
 #token-hud .status-effects .effect-control img,
 #token-hud .status-effects .pf2e-effect-img-container img{
-    width: ${iconWidth}px;
+    width: 100%;
     height: ${iconWidth}px;
     margin: 0;
     margin-top:-1px;
     padding: 0;
+    padding-right: calc(100% - ${iconWidth}px);
     border: none;
     opacity: 0.5;
     display: inline-block;
@@ -425,9 +438,13 @@ export class MonksLittleDetails {
     white-space: nowrap;
     max-width: calc(100% - ${iconWidth}px);
     display: inline-block;
+    pointer-events:none;
+    position: absolute;
+    top: 0px;
+    left: ${iconWidth}px;
 }
 `;
-        }
+        }*/
 
         style.innerHTML = innerHTML;
         if (innerHTML != '')
@@ -703,54 +720,53 @@ export class MonksLittleDetails {
         $(app._element).css({ top: app.position.top, left: app.position.left });
     }
 
-    static alterHUD(html) {
+    static async alterHUD(html) {
         if (MonksLittleDetails.canDo("alter-hud") && game.settings.get("monks-little-details", "alter-hud")) {
-            $('.col.right .control-icon.effects .status-effects > img,.col.right .control-icon.effects .status-effects > div.pf2e-effect-img-container', html).each(function () {
-                if ($(this).hasClass('pf2e-effect-img-container')) {
-                    let title = $('img', this).attr('data-condition');
-                    let div = $('<div>').addClass('effect-name').attr('title', title).html(title).click(function (event) {
-                        $(this).prev().prev().click();
-                        if (event.stopPropagation) event.stopPropagation();
-                        if (event.preventDefault) event.preventDefault();
-                        event.cancelBubble = true;
-                        event.returnValue = false;
-                        return false;
-                    });
-                    $(this).append(div);
-                    $(this).attr('src', $('img', this).attr('src')).toggleClass('active', $('img', this).hasClass('active'));
-                } else {
-                    let title = $(this).attr('title') || $(this).attr('data-condition');
-                    let div = $('<div>')
-                        .addClass($(this).attr('class'))
-                        .toggleClass('active', $(this).hasClass('active'))
-                        .attr('title', title)
-                        .attr('src', $(this).attr('src'))
-                        .insertAfter(this)
-                        .append($(this).removeClass('effect-control'))
-                        .append($('<div>').addClass('effect-name').html(title).click(function (event) {
-                            $(this).prev().click();
-                            if (event.stopPropagation) event.stopPropagation();
-                            if (event.preventDefault) event.preventDefault();
-                            event.cancelBubble = true;
-                            event.returnValue = false;
-                            return false;
-                        }));
-                    if ($(this).attr('data-status-id'))
-                        div.attr('data-status-id', $(this).attr('data-status-id'));
-                    if ($(this).attr('data-effect'))
-                        div.attr('data-effect', $(this).attr('data-effect'));
-                    div[0].src = $(this).attr('src');
-                }
+            $('#token-hud').addClass('monks-little-details');
+            const statuses = this._getStatusEffectChoices();
+
+            for (let img of $('.col.right .control-icon.effects .status-effects > img')) {
+                const status = statuses[img.getAttribute("src")] || {};
+                let title = $(img).attr('title') || $(img).attr('data-condition');
+                let div = $('<div>')
+                    .addClass('effect-container')//$(img).attr('class'))
+                    //.toggleClass('active', !!status.isActive)
+                    .attr('title', title)
+                    //.attr('src', $(img).attr('src'))
+                    .insertAfter(img)
+                    .append(img)//.removeClass('effect-control'))
+                    .append($('<div>').addClass('effect-name').html(title)
+                );
+            };
+
+            $('.col.right .control-icon.effects .status-effects > div.pf2e-effect-img-container', html).each(function () {
+                let img = $('img', this);
+                let title = img.attr('data-condition');
+                let div = $('<div>').addClass('effect-name').attr('title', title).html(title).insertAfter(img);
+                //$(this).append(div);
+                const status = statuses[img.attr('src')] || {};
+                //$(this).attr('src', img.attr('src')).toggleClass('active', !!status.isActive);
             });
 
-            $('.col.right .control-icon.effects .status-effects', html).append(
-                $('<div>').addClass('clear-all').html('<i class="fas fa-times-circle"></i> clear all').click($.proxy(MonksLittleDetails.clearAll, this))
-            );
+            if (game.world.system !== 'pf2e') {
+                $('.col.right .control-icon.effects .status-effects', html).append(
+                    $('<div>').addClass('clear-all').html('<i class="fas fa-times-circle"></i> clear all').click($.proxy(MonksLittleDetails.clearAll, this))
+                );
+            }
         }
     }
 
     static async clearAll() {
         //find the tokenhud, get the TokenHUD.object  ...assuming it's a token?
+        const statuses = this._getStatusEffectChoices();
+
+        for (const [k, status] of Object.entries(statuses)) {
+            if (status.isActive) {
+                await this.object.toggleEffect({ id: status.id, icon: status.src });
+            }
+        }
+
+        /*
         let selectedEffects = $('#token-hud .col.right .control-icon.effects .status-effects .effect-control.active');
         for (let ctrl of selectedEffects) {
             let img = $('img', ctrl).get(0);
@@ -761,7 +777,7 @@ export class MonksLittleDetails {
 
                 await MonksLittleDetails.tokenHUD.object.toggleEffect(effect);
             }
-        };
+        };*/
     }
 
     static getCRText (cr) {

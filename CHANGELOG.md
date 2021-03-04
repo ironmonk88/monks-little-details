@@ -13,6 +13,8 @@ Fixed issue where combat tracking highlight shows on tokens for a combat that ha
 
 Letting PF2 change the invisible man icon
 
+Got the altered Token HUD working in PF2
+
 # Version 1.0.14
 Possibly fixed cross origin issues with getting the palette on images from Forge or S3 bucket.
 

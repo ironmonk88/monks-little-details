@@ -145,3 +145,126 @@
     font-style: normal;
     font-display: swap;
 }
+
+#token-hud.monks-little-details .status-effects {
+    top: -56px !important;
+    width: unset !important;
+    grid-template-columns: 130px 130px 130px 130px !important;
+    font-size: 16px;
+    line-height: 24px;
+    text-align: left;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+body.system-pf2e #token-hud.monks-little-details .status-effects,
+body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details .status-effects {
+    line-height: 36px;
+}
+
+#token-hud.monks-little-details .status-effects .clear-all {
+    position: absolute;
+    bottom: 100%;
+    right: 5px;
+    cursor: pointer;
+    color: #ccc;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    background: #333;
+    padding: 4px 8px;
+    line-height:24px;
+}
+
+#token-hud.monks-little-details .status-effects .clear-all:hover {
+    color: #d2d1d0;
+}
+
+#token-hud.monks-little-details .status-effects .effect-container {
+    cursor: pointer;
+    color: #ccc;
+    position: relative;
+    padding: 1px;
+}
+
+#token-hud.monks-little-details .status-effects .effect-container:hover {
+    color: #d2d1d0;
+}
+
+#token-hud.monks-little-details .status-effects .effect-control,
+#token-hud.monks-little-details .status-effects .pf2e-effect-control {
+    width: 100%;
+    height: 24px;
+    margin: 0;
+    margin-top: -1px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    padding: 0;
+    opacity: 0.5;
+    padding-right: calc(100% - 24px);
+}
+
+body.system-pf2e #token-hud.monks-little-details .status-effects .effect-control,
+body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details .status-effects .effect-control,
+body.system-pf2e #token-hud.monks-little-details .status-effects .pf2e-effect-control {
+    height: 36px;
+    padding-right: calc(100% - 36px);
+}
+
+body.system-pf2e #token-hud.monks-little-details .status-effects .pf2e-effect-control {
+    margin-top: 0px;
+    width: calc(100% - 2px);
+    margin-left: 1px;
+}
+
+#token-hud.monks-little-details .status-effects .effect-container:hover .effect-control,
+#token-hud.monks-little-details .status-effects .pf2e-effect-img-container:hover .pf2e-effect-control {
+    opacity: 1;
+}
+
+#token-hud.monks-little-details .status-effects .effect-control.active,
+#token-hud.monks-little-details .status-effects .pf2e-effect-control.active {
+    border: 1px solid #fff;
+    opacity: 0.7;
+    filter: sepia(100%) saturate(2000%) hue-rotate(-50deg);
+}
+
+#token-hud.monks-little-details .status-effects .effect-container:hover .effect-control.active,
+#token-hud.monks-little-details .status-effects .pf2e-effect-container:hover .pf2e-effect-control.active {
+    color: #ffc163 !important;
+}
+
+#token-hud.monks-little-details .status-effects .effect-name {
+    vertical-align: top;
+    padding-left: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: calc(100% - 24px);
+    display: inline-block;
+    pointer-events: none;
+    position: absolute;
+    top: 0px;
+    left: 24px;
+    opacity:0.6;
+}
+
+body.system-pf2e #token-hud.monks-little-details .status-effects .effect-name,
+body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details .status-effects .effect-name {
+    max-width: calc(100% - 36px);
+    left: 36px;
+}
+
+#token-hud.monks-little-details .status-effects .effect-container:hover .effect-name,
+#token-hud.monks-little-details .status-effects .pf2e-effect-container:hover .effect-name {
+    opacity: 1;
+}
+
+#token-hud.monks-little-details .status-effects .effect-control.active + .effect-name,
+#token-hud.monks-little-details .status-effects .pf2e-effect-control.active + .effect-name {
+    color: #ff6400;
+    opacity: 0.8;
+}
+
+#token-hud.monks-little-details .status-effects .effect-container:hover .effect-control.active + .effect-name,
+#token-hud.monks-little-details .status-effects .pf2e-effect-img-container:hover .pf2e-effect-control.active + .effect-name {
+    opacity: 1;
+}
