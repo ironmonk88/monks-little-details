@@ -120,6 +120,22 @@
     align-items: center;
 }
 
+#sidebar.collapsed #sidebar-tabs a:first-child{
+    margin-top:27px;
+}
+
+#sidebar.collapsed #sidebar-tabs a.collapse {
+    position: absolute;
+    top: 0px;
+    left: 10px;
+}
+
+#context-menu li.context-item {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 /*
 .background-size {
     position: absolute;
@@ -180,7 +196,6 @@ body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details
 
 #token-hud.monks-little-details .status-effects .effect-container {
     cursor: pointer;
-    color: #ccc;
     position: relative;
     padding: 1px;
 }
@@ -211,7 +226,7 @@ body.system-pf2e #token-hud.monks-little-details .status-effects .pf2e-effect-co
 
 body.system-pf2e #token-hud.monks-little-details .status-effects .pf2e-effect-control {
     margin-top: 0px;
-    width: calc(100% - 2px);
+    /*width: calc(100% - 2px);*/
     margin-left: 1px;
 }
 
@@ -222,13 +237,18 @@ body.system-pf2e #token-hud.monks-little-details .status-effects .pf2e-effect-co
 
 #token-hud.monks-little-details .status-effects .effect-control.active,
 #token-hud.monks-little-details .status-effects .pf2e-effect-control.active {
-    border: 1px solid #fff;
+    border: 1px solid #ff6400;
     opacity: 0.7;
+}
+
+#token-hud.monks-little-details.highlight-image .status-effects .effect-control.active,
+#token-hud.monks-little-details.highlight-image .status-effects .pf2e-effect-control.active {
+    border: 1px solid #fff;
     filter: sepia(100%) saturate(2000%) hue-rotate(-50deg);
 }
 
 #token-hud.monks-little-details .status-effects .effect-container:hover .effect-control.active,
-#token-hud.monks-little-details .status-effects .pf2e-effect-container:hover .pf2e-effect-control.active {
+#token-hud.monks-little-details .status-effects .pf2e-effect-img-container:hover .pf2e-effect-control.active {
     color: #ffc163 !important;
 }
 
@@ -244,7 +264,8 @@ body.system-pf2e #token-hud.monks-little-details .status-effects .pf2e-effect-co
     position: absolute;
     top: 0px;
     left: 24px;
-    opacity:0.6;
+    opacity: 0.6;
+    color: #ccc;
 }
 
 body.system-pf2e #token-hud.monks-little-details .status-effects .effect-name,
@@ -254,12 +275,12 @@ body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details
 }
 
 #token-hud.monks-little-details .status-effects .effect-container:hover .effect-name,
-#token-hud.monks-little-details .status-effects .pf2e-effect-container:hover .effect-name {
+#token-hud.monks-little-details .status-effects .pf2e-effect-img-container:hover .effect-name {
     opacity: 1;
 }
 
 #token-hud.monks-little-details .status-effects .effect-control.active + .effect-name,
-#token-hud.monks-little-details .status-effects .pf2e-effect-control.active + .effect-name {
+#token-hud.monks-little-details .status-effects .pf2e-effect-img-container.active + .effect-name {
     color: #ff6400;
     opacity: 0.8;
 }

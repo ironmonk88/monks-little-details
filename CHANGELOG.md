@@ -1,3 +1,9 @@
+#Version 1.0.17
+Adding option to not highlight the image in the Token HUD.  If the system uses full colour images, then highlighting it just distorts the image.
+
+# Version 1.0.16
+Fixing issues with PF2E styling of Token HUD items.  The stackable items weren't getting the right styles.
+
 # Version 1.0.15
 Altered the combat tracker so that enemies aren't visible to players when setting up the combat.
 

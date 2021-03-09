@@ -32,6 +32,8 @@
 	"MonksLittleDetails.swap-buttons.hint": "I think the settings button makes more sense on the bottom rather than in the middle.",
 	"MonksLittleDetails.alter-hud.name": "Alter the Token HUD status effects",
 	"MonksLittleDetails.alter-hud.hint": "Alter the Token HUD to show detailed status effects and allow to clear all effects.",
+	"MonksLittleDetails.alter-hud-colour.name": "Highlight Token HUD status effects",
+	"MonksLittleDetails.alter-hud-colour.hint": "When a status is selected in Token HUD change the colour to highlight it.  Disable if you use coloured images.",
 	"MonksLittleDetails.add-extra-statuses.name": "Add DnD statuses",
 	"MonksLittleDetails.add-extra-statuses.hint": "Add a handful more status effects that get used in DnD.",
 	"MonksLittleDetails.change-invisible-image.name": "Use DnD5e invisible icon",

@@ -721,8 +721,8 @@ export class MonksLittleDetails {
     }
 
     static async alterHUD(html) {
-        if (MonksLittleDetails.canDo("alter-hud") && game.settings.get("monks-little-details", "alter-hud")) {
-            $('#token-hud').addClass('monks-little-details');
+        if (MonksLittleDetails.canDo("alter-hud") && setting("alter-hud")) {
+            $('#token-hud').addClass('monks-little-details').toggleClass('highlight-image', setting('alter-hud-colour'));
             const statuses = this._getStatusEffectChoices();
 
             for (let img of $('.col.right .control-icon.effects .status-effects > img')) {

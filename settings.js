@@ -146,6 +146,14 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean,
 	});
+	game.settings.register(modulename, "alter-hud-colour", {
+		name: i18n("MonksLittleDetails.alter-hud-colour.name"),
+		hint: i18n("MonksLittleDetails.alter-hud-colour.hint"),
+		scope: "world",
+		config: MonksLittleDetails.canDo("alter-hud"),
+		default: true,
+		type: Boolean,
+	});
 	game.settings.register(modulename, "add-extra-statuses", {
 		name: i18n("MonksLittleDetails.add-extra-statuses.name"),
 		hint: i18n("MonksLittleDetails.add-extra-statuses.hint"),
