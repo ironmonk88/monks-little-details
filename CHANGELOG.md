@@ -1,7 +1,14 @@
-#Version 1.0.17
+# Version 1.0.16
 Adding option to not highlight the image in the Token HUD.  If the system uses full colour images, then highlighting it just distorts the image.
 
-# Version 1.0.16
+Updated the background palette so that it only loads after clicking a button.  Saves on refresh speed.
+
+Added context menu to view scene artwork in a compendium.  Always found it difficult to select a map if I wasn't sure what I was looking at.  This should allow you to see the whole map before importing it.
+
+Automatically set the defeated status to an NPC that's in combat and drops to 0 HP.
+
+Allow the monster sound effect to be stopped if you press the speaker a second time while it's playing.
+
 Fixing issues with PF2E styling of Token HUD items.  The stackable items weren't getting the right styles.
 
 # Version 1.0.15
