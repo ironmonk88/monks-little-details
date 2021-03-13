@@ -62,6 +62,10 @@
 	"MonksLittleDetails.token-highlight-scale.hint": "Size of the Highlight image in relation to the token",
 	"MonksLittleDetails.hide-enemies.name": "Hide enemies",
 	"MonksLittleDetails.hide-enemies.hint": "Hide enemies from players when creating an encounter until encounter starts",
+	"MonksLittleDetails.context-view-artwork.name": "Compendium Scene context menu",
+	"MonksLittleDetails.context-view-artwork.hint": "Update the scene context menu in the compendium to view the artwork",
+	"MonksLittleDetails.auto-defeated.name": "Automatically set defeated",
+	"MonksLittleDetails.auto-defeated.hint": "When an NPC reaches 0 HP in combat, set it to defeated automatically.",
 
 	"MonksLittleDetails.PlayRoundSound": "Play new round sound",
 	"MonksLittleDetails.PlayRoundSoundHint": "Play a sound when the next round starts",

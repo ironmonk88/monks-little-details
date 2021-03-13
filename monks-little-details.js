@@ -143,6 +143,64 @@ export class MonksLittleDetails {
             );
         }
 
+        if (setting('context-view-artwork')) {
+            //let oldContextMenuOptions = Compendium.prototype._getContextMenuOptions;
+            Compendium.prototype._contextMenu = function (html) {
+                let compendium = this;
+                new ContextMenu(html, ".directory-item", [
+                    {
+                        name: "View Scene Artwork",
+                        icon: '<i class="fas fa-image fa-fw"></i>',
+                        condition: li => compendium.entity == 'Scene',
+                        callback: li => {
+                            let entryId = li.attr('data-entry-id');
+                            this.getEntity(entryId).then(entry => {
+                                let img = entry.data.img;
+                                if (VideoHelper.hasVideoExtension(img))
+                                    ImageHelper.createThumbnail(img, { width: entry.data.width, height: entry.data.height }).then(img => {
+                                        new ImagePopout(img.thumb, {
+                                            title: entry.name,
+                                            shareable: true,
+                                            uuid: entry.uuid
+                                        }).render(true);
+                                    });
+                                else {
+                                    new ImagePopout(img, {
+                                        title: entry.name,
+                                        shareable: true,
+                                        uuid: entry.uuid
+                                    }).render(true);
+                                }
+                            });
+                        }
+                    },
+                    {
+                        name: "COMPENDIUM.ImportEntry",
+                        icon: '<i class="fas fa-download"></i>',
+                        callback: li => {
+                            const entryId = li.attr('data-entry-id');
+                            const entities = this.cls.collection;
+                            return entities.importFromCollection(this.collection, entryId, {}, { renderSheet: true });
+                        }
+                    },
+                    {
+                        name: "COMPENDIUM.DeleteEntry",
+                        icon: '<i class="fas fa-trash"></i>',
+                        callback: li => {
+                            let entryId = li.attr('data-entry-id');
+                            this.getEntity(entryId).then(entry => {
+                                return Dialog.confirm({
+                                    title: `${game.i18n.localize("COMPENDIUM.DeleteEntry")} ${entry.name}`,
+                                    content: game.i18n.localize("COMPENDIUM.DeleteConfirm"),
+                                    yes: () => this.deleteEntity(entryId),
+                                });
+                            });
+                        }
+                    }
+                ]);
+            }
+        }
+
         if (game.settings.get("monks-little-details", "alter-hud")) {
             CONFIG.statusEffects = CONFIG.statusEffects.sort(function (a, b) {
                 return (a.id == undefined || a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)); //(a.label == undefined || i18n(a.label) > i18n(b.label) ? 1 : (i18n(a.label) < i18n(b.label) ? -1 : 0));
@@ -196,11 +254,11 @@ export class MonksLittleDetails {
                 //find defeated state
                 let combatant;
                 game.combats.find(c => {
-                    if (c.data.active)
-                        combatant = c.turns.find(t => {
+                    if (c.started)
+                        combatant = c.combatants.find(t => {
                             return t.tokenId == this.id;
                         });
-                    return c.active && combatant != undefined;
+                    return c.started && combatant != undefined;
                 });
                 if (((combatant && combatant.defeated) || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId)) && this.actor?.data.type !== 'character') {
                     this.bars.visible = false;
@@ -539,8 +597,25 @@ export class MonksLittleDetails {
     static loadSoundEffect(event) {
         const audiofile = this.actor.getFlag('monks-little-details', 'sound-effect');
         if (audiofile != undefined) {
-            MonksLittleDetails.playSoundEffect(audiofile);
             if (this instanceof Token) {
+                let token = this;
+                if (this.soundeffect == undefined) {
+                    let volume = game.settings.get("core", 'globalInterfaceVolume');
+                    token.soundeffect = AudioHelper.play({ src: audiofile, volume: volume }, true);
+                    token.soundeffect.on("end", () => {
+                        log('Finished playing', audiofile);
+                        delete token.soundeffect;
+                    });
+
+                } else {
+                    token.soundeffect.stop();
+                    game.socket.emit("stopAudio", {src: audiofile});
+                    delete token.soundeffect;
+                }
+
+                //this.soundeffect = MonksLittleDetails.playSoundEffect(audiofile);
+                //this.soundeffect._onend
+                /*
                 game.socket.emit(
                     MonksLittleDetails.SOCKET,
                     {
@@ -550,19 +625,21 @@ export class MonksLittleDetails {
                         audiofile: audiofile
                     },
                     (resp) => { }
-                );
-            }
+                );*/
+            } //else
+                //MonksLittleDetails.playSoundEffect(audiofile);
         }
         if(event != undefined)
             event.preventDefault;
     }
 
+    /*
     static playSoundEffect(audiofile) {
         if (audiofile != undefined) {
             let volume = game.settings.get("core", 'globalInterfaceVolume');
-            AudioHelper.play({ src: audiofile, volume: volume });
+            return AudioHelper.play({ src: audiofile, volume: volume }, true);
         }
-    }
+    }*/
 
     static clearSoundEffect(event) {
         log('Clear Sound effect');
@@ -604,13 +681,14 @@ export class MonksLittleDetails {
         }
     }
 
+    /*
     static onMessage(data) {
         switch (data.msgtype) {
             case 'playsoundeffect': {
                 MonksLittleDetails.playSoundEffect(data.audiofile);
             } break;
         }
-    }
+    }*/
 
     static doDisplayTurn() {
         if (!game.settings.get("monks-little-details", "showcurrentup")) {
@@ -876,7 +954,7 @@ export class MonksLittleDetails {
         return pixelArray;
     }
 
-    static getPalette(src) {
+    static getPalette(src, element) {
         // Create custom CanvasImage object
         //if (VideoHelper.hasVideoExtension(url)) {
         if (src != undefined) {
@@ -894,8 +972,6 @@ export class MonksLittleDetails {
                     // using median cut algorithm
                     const cmap = MMCQ.quantize(pixelArray, 5);
                     const palette = cmap ? cmap.palette() : null;
-
-                    let element = $('.palette-fields');
 
                     $(element).empty();
                     for (let i = 0; i < palette.length; i++) {
@@ -986,6 +1062,7 @@ export class MonksLittleDetails {
     }*/
 
     static async updateSceneBackground(hexCode) {
+        $('.background-palette-container').remove();
         await MonksLittleDetails.currentScene.update({ backgroundColor: hexCode });
     }
 
@@ -1401,6 +1478,20 @@ Hooks.on('renderSceneConfig', async (app, html, options) => {
     if (game.settings.get("monks-little-details", 'scene-palette')) {
         MonksLittleDetails.currentScene = app.object;
 
+        let backgroundColor = $('input[data-edit="backgroundColor"]');
+        backgroundColor.parents('.form-group:first').css({ position: 'relative' });
+        $('<button>').attr('type', 'button').html('<i class="fas fa-palette"></i>').on('click', function (e) {
+            let element = $(this).siblings('.background-palette-container');
+            if (element.length == 0) {
+                element = $('<div>').addClass('background-palette-container flexrow').insertAfter(this);
+                MonksLittleDetails.getPalette(MonksLittleDetails.currentScene.img, element);
+            } else {
+                element.remove();
+            }
+            e.preventDefault();
+        }).insertAfter(backgroundColor);
+
+        /*
         if (MonksLittleDetails.currentScene.img != undefined) {
             let backgroundColor = $('input[name="backgroundColor"]').parents('.form-group:first');
 
@@ -1411,15 +1502,7 @@ Hooks.on('renderSceneConfig', async (app, html, options) => {
                 .insertAfter(backgroundColor);
 
             MonksLittleDetails.getPalette(MonksLittleDetails.currentScene.img);
-            //get dimensions
-            /*
-            loadTexture(MonksLittleDetails.currentScene.img).then((bg) => {
-                if (bg != undefined) {
-                    $('.background-size.width').html(bg.width);
-                    $('.background-size.height').html(bg.height);
-                }
-            });*/
-        }
+        }*/
 
         /*
         $('<div>')
@@ -1430,17 +1513,11 @@ Hooks.on('renderSceneConfig', async (app, html, options) => {
             .insertAfter($('input[name="height"]'));
             */
 
+        /*
         $('input.image[name="img"]').on('change', function () {
             let img = $(this).val();
             MonksLittleDetails.getPalette(img);
-            /*
-            loadTexture(img).then((bg) => {
-                if (bg != undefined) {
-                    $('.background-size.width').html(bg.width);
-                    $('.background-size.height').html(bg.height);
-                }
-            });*/
-        })
+        })*/
     }
 });
 
@@ -1533,3 +1610,36 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
 
     btn2.clone(true).insertAfter($('input[name="monks-little-details.token-highlight-picture"]', html));
 });
+
+Hooks.on("updateToken", function (scene, tkn, data, options, userid) {
+    //actorData.data.attributes.hp
+    if (setting('auto-defeated')) {
+        let token = canvas.tokens.get(tkn._id);
+        let hp = getProperty(data, 'actorData.data.attributes.hp');
+        if (hp != undefined && token.data.disposition != 1) {
+            let combatant;
+            let combat = game.combats.find(c => {
+                if (c.started)
+                    combatant = c.combatants.find(t => {
+                        return t.tokenId == token.id;
+                    });
+                return c.started && combatant != undefined;
+            });
+
+            let defeated = (hp.value == 0);
+            if (combatant != undefined && combatant.defeated != defeated) {
+                combat.updateCombatant({ _id: combatant._id, defeated: defeated }).then(() => {
+                    token.refresh();
+                });
+                //combatant.update({ defeated: defeated });
+            }
+        }
+    }
+});
+
+/*
+Hooks.on("renderCompendium", (compendium, html, data) => {
+    if (compendium.entity == 'Scene') {
+
+    }
+});*/

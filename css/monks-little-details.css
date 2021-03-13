@@ -91,12 +91,24 @@
     text-align: center;
 }
 
+.background-palette-container {
+    position: absolute;
+    width: 395px;
+    height: 30px;
+    top: 30px;
+    border-radius: 4px;
+    border: 1px solid #7a7971;
+    background: url(../../../ui/parchment.jpg) repeat;
+    padding-top: 4px;
+}
+
 .background-palette {
     height: 20px;
     border-radius: 4px;
     display: inline-block;
     border: 1px solid #7a7971;
     cursor: pointer;
+    margin: 0px 2px;
 }
 
 #mldCharacterSound {

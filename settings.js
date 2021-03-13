@@ -291,4 +291,20 @@ export const registerSettings = function () {
 		default: false,
 		type: Boolean,
 	});
+	game.settings.register(modulename, "auto-defeated", {
+		name: i18n("MonksLittleDetails.auto-defeated.name"),
+		hint: i18n("MonksLittleDetails.auto-defeated.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "context-view-artwork", {
+		name: game.i18n.localize("MonksLittleDetails.context-view-artwork.name"),
+		hint: game.i18n.localize("MonksLittleDetails.context-view-artwork.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
 };
