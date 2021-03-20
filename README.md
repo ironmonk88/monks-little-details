@@ -76,6 +76,9 @@ While playing, bringing up the Token HUD will show a speaker button under the co
 ### GM Move characters
 If you select characters, hold down the M Key and click on another map location, the tokens will instantly move there.  I found dragging them there has unfortunate side effects of showing spaces they shouldn't see while they're moving.  Teleporting them there preserves the fog of war between the two spots.  Handy for when you're using a map that has multiple levels on one image.  You can teleport from one area to the other quickly.
 
+### BloodSplats
+When an Monster is killed, show it as a blood splat rather than the icon.  I find this eliminates a bit of clutter on the screen and makes it easier to see what's going on.  Player characters still show with the skull.
+
 ### Swap tools by holding down a key
 New to 1.0.17 Monks Little Details will let you briefly activate another tool by holding down a key.  Pressing Shift+key will change the tool.  This allows you to switch briefly to other layers such as the Tiles layer to update a tile to visible before releasing the key and switching back to whatever layer you were on before.  Current keys are r-tokens, t-tiles, y-lighting, u-sounds, i-terrain(If you have the TerrainLayer module installed).
 
