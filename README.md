@@ -29,13 +29,24 @@ Scene Navigation changes
 ### Turn notifications
 Added turn notification for the player.  During combat the player will receive an alert notification when their turn is up next, and another one when it's their turn to move.  Either message or accompanying sound effects can be toggled.
 
-### Combat Encounter
-When a combat is started, it will popout the Encounter Dialog and switch to the Chat Tab.  I find this is something I always do and automating it just makes life easier.  The popup will also close when the encounter has been finished.
+### Combat Encounter Automation
+When a combat is started, it will popout the Encounter Dialog and switch to the Chat Tab.
+
+The popup will also close when the encounter has been finished.
+
+1.0.15 When creating an encounter, enemy tokens are kept hidden from players until the combat is started, thereby giving the GM a chance to hide the tokens.
+
+1.0.16 Automatically sets the defeated status when an NPC token reaches 0 HP.
+
+1.0.17 Reveal initiative when changing a token from invisible to visible.
 
 ### Show Combat CR
 Display the calculated CR of the Encounter.  This should give you a clue if the encounter might be scaled too hard for the current party.  Not 100% accurate but enough for a good idea.
 
 ![monks-little-details](/screenshots/ShowCombatCR.PNG)
+
+### Combat tracker 1.0.14
+Display an animated disc behind the token that currently has a turn in the encounter.
 
 ### Altered Status Effects
 I can never remember what the icons stand for.  I'm displaying the names beside the icons aswell as sorting the statuses alphabetically.  Makes finding them a lot easier.  Also added a clear all button in case you want to get rid of all the statuses quickly.  And I've highlighted each item in bold orange so it's easier at a glance to see what's been selected.  And added some more of the standard statuses you might encounter in a 5e game.
