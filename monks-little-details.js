@@ -1,7 +1,7 @@
 ﻿import { registerSettings } from "./settings.js";
 import { MMCQ } from "./quantize.js";
 import { WithMonksCombatTracker } from "./apps/combattracker.js"
-import { MonksPlaylistConfig } from "./apps/monksplaylistconfig.js"
+//import { MonksPlaylistConfig } from "./apps/monksplaylistconfig.js"
 
 export let debug = (...args) => {
     if (debugEnabled > 1) console.log("DEBUG: monks-little-details | ", ...args);
