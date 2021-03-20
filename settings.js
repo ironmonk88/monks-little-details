@@ -299,9 +299,25 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean,
 	});
-	game.settings.register(modulename, "context-view-artwork", {
-		name: game.i18n.localize("MonksLittleDetails.context-view-artwork.name"),
-		hint: game.i18n.localize("MonksLittleDetails.context-view-artwork.hint"),
+	game.settings.register(modulename, "auto-reveal", {
+		name: i18n("MonksLittleDetails.auto-reveal.name"),
+		hint: i18n("MonksLittleDetails.auto-reveal.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "key-swap-tool", {
+		name: i18n("MonksLittleDetails.key-swap-tool.name"),
+		hint: i18n("MonksLittleDetails.key-swap-tool.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "compendium-view-artwork", {
+		name: game.i18n.localize("MonksLittleDetails.compendium-view-artwork.name"),
+		hint: game.i18n.localize("MonksLittleDetails.compendium-view-artwork.hint"),
 		scope: "world",
 		config: true,
 		default: true,

@@ -1,6 +1,7 @@
 ﻿import { registerSettings } from "./settings.js";
 import { MMCQ } from "./quantize.js";
 import { WithMonksCombatTracker } from "./apps/combattracker.js"
+import { MonksPlaylistConfig } from "./apps/monksplaylistconfig.js"
 
 export let debug = (...args) => {
     if (debugEnabled > 1) console.log("DEBUG: monks-little-details | ", ...args);
@@ -38,9 +39,11 @@ export class MonksLittleDetails {
     };
 
     static init() {
-	    log("initializing");
+        log("initializing");
         // element statics
-       // CONFIG.debug.hooks = true;
+        // CONFIG.debug.hooks = true;
+
+        //CONFIG.Playlist.sheetClass = MonksPlaylistConfig;
 
         if (game.MonksLittleDetails == undefined)
             game.MonksLittleDetails = MonksLittleDetails;
@@ -92,7 +95,7 @@ export class MonksLittleDetails {
         if (game.world.system == 'dnd5e')
             MonksLittleDetails.xpchart = CONFIG.DND5E.CR_EXP_LEVELS;
         else if (game.world.system == 'pf2e') {
-            MonksLittleDetails.xpchart = [50, 400, 600,800,1200,1600, 2400, 3200, 4800, 6400, 9600, 12800, 19200, 25600, 38400, 51200, 76800, 102400, 153600, 204800, 307200, 409600, 614400, 819200, 1228800, 1638400, 2457600, 3276800, 4915200, 6553600, 9830400 ];
+            MonksLittleDetails.xpchart = [50, 400, 600, 800, 1200, 1600, 2400, 3200, 4800, 6400, 9600, 12800, 19200, 25600, 38400, 51200, 76800, 102400, 153600, 204800, 307200, 409600, 614400, 819200, 1228800, 1638400, 2457600, 3276800, 4915200, 6553600, 9830400];
         }
 
         MonksLittleDetails.crChallenge = [
@@ -108,6 +111,14 @@ export class MonksLittleDetails {
         }
         MonksLittleDetails._onlylist = {
             "show-combat-cr": ["dnd5e", "pf2e"]
+        }
+
+        MonksLittleDetails.swapTool = {
+            'r': 'token',
+            't': 'tiles',
+            'y': 'lighting',
+            'u': 'sounds',
+            'i': 'terrain'
         }
 
         // sound statics
@@ -143,9 +154,10 @@ export class MonksLittleDetails {
             );
         }
 
-        if (setting('context-view-artwork')) {
-            //let oldContextMenuOptions = Compendium.prototype._getContextMenuOptions;
+        /*if (setting('context-view-artwork')) {
+            let oldContextMenuOptions = Compendium.prototype._getContextMenuOptions;
             Compendium.prototype._contextMenu = function (html) {
+
                 let compendium = this;
                 new ContextMenu(html, ".directory-item", [
                     {
@@ -199,7 +211,7 @@ export class MonksLittleDetails {
                     }
                 ]);
             }
-        }
+        }*/
 
         if (game.settings.get("monks-little-details", "alter-hud")) {
             CONFIG.statusEffects = CONFIG.statusEffects.sort(function (a, b) {
@@ -214,7 +226,7 @@ export class MonksLittleDetails {
 
                 return result;
             }
-            TokenHUD.prototype.refreshStatusIcons = function() {
+            TokenHUD.prototype.refreshStatusIcons = function () {
                 const effects = this.element.find(".status-effects")[0];
                 const statuses = this._getStatusEffectChoices();
                 for (let img of $('[src]', effects)) {
@@ -333,6 +345,38 @@ export class MonksLittleDetails {
                 // Play a notification sound effect
                 if (message.data.sound) AudioHelper.play({ src: message.data.sound });
             }
+        }
+
+        if (game.settings.get("monks-little-details", "key-swap-tool")) {
+            window.addEventListener('keydown', (e) => {
+                if (MonksLittleDetails.canvasfocus && document.activeElement.tagName == 'BODY') {
+                    if (Object.keys(MonksLittleDetails.swapTool).includes(e.key.toLowerCase())) {
+                        let controlName = MonksLittleDetails.swapTool[e.key.toLowerCase()];
+                        let control = ui.controls.control;
+                        if (control.name != controlName && MonksLittleDetails.switchTool == undefined) {
+                            if (!e.shiftKey)
+                                MonksLittleDetails.switchTool = { control: control, tool: control.activeTool };
+                            let newcontrol = ui.controls.controls.find(c => { return c.name == controlName; });
+                            if (newcontrol != undefined) {
+                                ui.controls.activeControl = newcontrol.name;
+                                if (newcontrol && newcontrol.layer)
+                                    canvas.getLayer(newcontrol.layer).activate();
+                            }
+                        }
+                    }
+                }
+            })
+
+            window.addEventListener('keyup', (e) => {
+                if (Object.keys(MonksLittleDetails.swapTool).includes(e.key.toLowerCase()) && MonksLittleDetails.switchTool != undefined) {
+                    if (MonksLittleDetails.switchTool.control) {
+                        if (MonksLittleDetails.switchTool.control.layer)
+                            canvas.getLayer(MonksLittleDetails.switchTool.control.layer).activate();
+                        ui.controls.activeControl = MonksLittleDetails.switchTool.control.name;
+                    }
+                    delete MonksLittleDetails.switchTool;
+                }
+            })
         }
     }
 
@@ -1417,6 +1461,14 @@ Hooks.on("ready", MonksLittleDetails.ready);
 
 Hooks.on("canvasReady", () => {
     canvas.stage.on("mousedown", MonksLittleDetails.moveTokens);    //move all tokens while holding down m
+
+    canvas.stage.on('mouseover', (e) => {
+        MonksLittleDetails.canvasfocus = true;
+    });
+
+    canvas.stage.on('mouseout', (e) => {
+        MonksLittleDetails.canvasfocus = false;
+    });
 });
 
 Hooks.on('renderCombatTracker', async (app, html, options) => {
@@ -1613,7 +1665,7 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
 
 Hooks.on("updateToken", function (scene, tkn, data, options, userid) {
     //actorData.data.attributes.hp
-    if (setting('auto-defeated')) {
+    if (setting('auto-defeated') && game.user.isGM) {
         let token = canvas.tokens.get(tkn._id);
         let hp = getProperty(data, 'actorData.data.attributes.hp');
         if (hp != undefined && token.data.disposition != 1) {
@@ -1635,11 +1687,109 @@ Hooks.on("updateToken", function (scene, tkn, data, options, userid) {
             }
         }
     }
+
+    if (setting('auto-reveal') && game.user.isGM && data.hidden === false) {
+        let token = canvas.tokens.get(tkn._id);
+        let combatant;
+        let combat = game.combats.find(c => {
+            if (c.started)
+                combatant = c.combatants.find(t => {
+                    return t.tokenId == token.id;
+                });
+            return c.started && combatant != undefined;
+        });
+
+        if (combatant?.hidden === true) {
+            combat.updateCombatant({ _id: combatant._id, hidden: false }).then(() => {
+                token.refresh();
+            });
+        }
+    }
 });
 
-/*
 Hooks.on("renderCompendium", (compendium, html, data) => {
-    if (compendium.entity == 'Scene') {
-
+    if (setting('compendium-view-artwork')) {
+        if (compendium.entity == 'Scene') {
+            html.find('li.directory-item h4 a').click(ev => {
+                ev.preventDefault();
+                ev.cancelBubble = true;
+                if (ev.stopPropagation)
+                    ev.stopPropagation();
+                let entryId = $(ev.currentTarget).parents('li:first').attr('data-entry-id');
+                compendium.getEntity(entryId).then(entry => {
+                    let img = entry.data.img;
+                    if (VideoHelper.hasVideoExtension(img))
+                        ImageHelper.createThumbnail(img, { width: entry.data.width, height: entry.data.height }).then(img => {
+                            new ImagePopout(img.thumb, {
+                                title: entry.name,
+                                shareable: true,
+                                uuid: entry.uuid
+                            }).render(true);
+                        });
+                    else {
+                        new ImagePopout(img, {
+                            title: entry.name,
+                            shareable: true,
+                            uuid: entry.uuid
+                        }).render(true);
+                    }
+                });
+            });
+        }
     }
-});*/
+    /*
+    if (compendium.entity == 'Playlist') {
+        compendium._onEntry = async (entryId) => {
+            //for the playlist I want to expand the directory structure
+            let li = $('li[data-entry-id="' + entryId + '"]', compendium.element);
+            let dir = $('.play-list-sounds', li);
+            if (dir.length == 0) {
+                dir = $('<ol>').addClass('play-list-sounds').appendTo(li);
+                const entity = await compendium.getEntity(entryId);
+                $(entity.sounds).each(function () {
+                    let sound = this;
+                    $('<li>').addClass('play-sound').html(this.name).appendTo(dir).on('click', $.proxy((sound, entity, li, ev)=>{
+                        if (sound != undefined) {
+                            //let path = li.attr('data-sound-path');
+                            if (compendium.currentsound != undefined) {
+                                if (compendium.currentsound.sound.playing) {
+                                    compendium.currentsound.sound.playing = false;
+                                    compendium.currentsound.audio.stop();
+                                }
+                            }
+                            if (compendium.currentsound == undefined || compendium.currentsound.sound.path != sound.path) {
+                                sound.playing = true;
+                                let audio = AudioHelper.play({ src: sound.path });
+                                compendium.currentsound = {
+                                    sound: sound,
+                                    audio: audio
+                                };
+                            }
+                        }
+                    }, compendium, sound, entity, li));
+                });
+
+                new DragDrop({
+                    dragSelector: ".play-list-sounds .play-sound",
+                    dropSelector: "#playlists .directory-list .directory-item.playlist",
+                    callbacks: {
+                        dragstart: (ev) => {
+                            ev.preventDefault();
+                            log('play sound drag start', ev);
+                             },
+                        dragover: (ev) => {
+                            ev.preventDefault();
+                            log('play sound drag over', ev);
+                             },
+                        drop: (ev) => {
+                            ev.preventDefault();
+                            log('play sound drag drop', ev);
+                             }
+                    }
+                }).bind(dir[0]);
+            }
+            dir.hide().slideDown(200);
+        }
+    }*/
+});
+

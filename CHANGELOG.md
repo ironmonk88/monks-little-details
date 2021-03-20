@@ -1,3 +1,10 @@
+# Version 1.0.17
+Fixing styling with the token HUD in Pathfinder.
+
+Changing the location of stacked condition indicator in PF2
+
+Adding the option to briefly switch between layers by holding down a key and pressing Shift+key will change the layer.  This should let you switch briefly to another layer such as the Tiles layer to hide or show a tile before releasing the key and going back tot he token layer.  Current keys are assigned as r=tokens, t-tiles, y-lighting, u-sounds, i-terrain (if you have the Terrain Layer module installed)
+
 # Version 1.0.16
 Adding option to not highlight the image in the Token HUD.  If the system uses full colour images, then highlighting it just distorts the image.
 
