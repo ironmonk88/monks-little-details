@@ -112,14 +112,14 @@ export class MonksLittleDetails {
         MonksLittleDetails._onlylist = {
             "show-combat-cr": ["dnd5e", "pf2e"]
         }
-
+        /*
         MonksLittleDetails.swapTool = {
             'r': 'token',
             't': 'tiles',
             'y': 'lighting',
             'u': 'sounds',
             'i': 'terrain'
-        }
+        }*/
 
         // sound statics
         //MonksLittleDetails.NEXT_SOUND = "modules/monks-little-details/sounds/next.wav";
@@ -346,38 +346,6 @@ export class MonksLittleDetails {
                 if (message.data.sound) AudioHelper.play({ src: message.data.sound });
             }
         }
-
-        if (game.settings.get("monks-little-details", "key-swap-tool")) {
-            window.addEventListener('keydown', (e) => {
-                if (MonksLittleDetails.canvasfocus && document.activeElement.tagName == 'BODY') {
-                    if (Object.keys(MonksLittleDetails.swapTool).includes(e.key.toLowerCase())) {
-                        let controlName = MonksLittleDetails.swapTool[e.key.toLowerCase()];
-                        let control = ui.controls.control;
-                        if (control.name != controlName && MonksLittleDetails.switchTool == undefined) {
-                            if (!e.shiftKey)
-                                MonksLittleDetails.switchTool = { control: control, tool: control.activeTool };
-                            let newcontrol = ui.controls.controls.find(c => { return c.name == controlName; });
-                            if (newcontrol != undefined) {
-                                ui.controls.activeControl = newcontrol.name;
-                                if (newcontrol && newcontrol.layer)
-                                    canvas.getLayer(newcontrol.layer).activate();
-                            }
-                        }
-                    }
-                }
-            })
-
-            window.addEventListener('keyup', (e) => {
-                if (Object.keys(MonksLittleDetails.swapTool).includes(e.key.toLowerCase()) && MonksLittleDetails.switchTool != undefined) {
-                    if (MonksLittleDetails.switchTool.control) {
-                        if (MonksLittleDetails.switchTool.control.layer)
-                            canvas.getLayer(MonksLittleDetails.switchTool.control.layer).activate();
-                        ui.controls.activeControl = MonksLittleDetails.switchTool.control.name;
-                    }
-                    delete MonksLittleDetails.switchTool;
-                }
-            })
-        }
     }
 
     static ready() {
@@ -392,6 +360,108 @@ export class MonksLittleDetails {
             let icon = $('#chat-notification');
             if(icon.is(":visible")) icon.fadeOut(100);
         });
+
+        if (game.settings.get("monks-little-details", "key-swap-tool")) {
+            if (!game.modules.get('lib-df-hotkeys')?.active) {
+                if (game.user.isGM)
+                    ui.notifications.error(i18n("MonksLittleDetails.HotKeysWarning"));
+            } else {
+                MonksLittleDetails.registerHotKeys();
+            }
+        }
+    }
+
+    static registerHotKeys() {
+        /*
+        window.addEventListener('keydown', (e) => {
+            if (MonksLittleDetails.canvasfocus && document.activeElement.tagName == 'BODY') {
+                if (Object.keys(MonksLittleDetails.swapTool).includes(e.key.toLowerCase())) {
+                    let controlName = MonksLittleDetails.swapTool[e.key.toLowerCase()];
+                    let control = ui.controls.control;
+                    if (control.name != controlName && MonksLittleDetails.switchTool == undefined) {
+                        if (!e.shiftKey)
+                            MonksLittleDetails.switchTool = { control: control, tool: control.activeTool };
+                        let newcontrol = ui.controls.controls.find(c => { return c.name == controlName; });
+                        if (newcontrol != undefined) {
+                            ui.controls.activeControl = newcontrol.name;
+                            if (newcontrol && newcontrol.layer)
+                                canvas.getLayer(newcontrol.layer).activate();
+                        }
+                    }
+                }
+            }
+        })
+
+        window.addEventListener('keyup', (e) => {
+            if (Object.keys(MonksLittleDetails.swapTool).includes(e.key.toLowerCase()) && MonksLittleDetails.switchTool != undefined) {
+                if (MonksLittleDetails.switchTool.control) {
+                    if (MonksLittleDetails.switchTool.control.layer)
+                        canvas.getLayer(MonksLittleDetails.switchTool.control.layer).activate();
+                    ui.controls.activeControl = MonksLittleDetails.switchTool.control.name;
+                }
+                delete MonksLittleDetails.switchTool;
+            }
+        })*/
+
+        Hotkeys.registerGroup({
+            name: 'monks-little-details.tool-swap',
+            label: 'Monks Litle Details, Tool Swap',
+            description: 'Use these keys to swap between tools'
+        });
+
+        [
+            { name: i18n("MonksLittleDetails.TokenLayer"), tool: 'token', def: Hotkeys.keys.Numpad7 },
+            { name: i18n("MonksLittleDetails.MeasureLayer"), tool: 'measure', def: Hotkeys.keys.Numpad8 },
+            { name: i18n("MonksLittleDetails.TileLayer"), tool: 'tiles', def: Hotkeys.keys.Numpad9 },
+            { name: i18n("MonksLittleDetails.DrawingLayer"), tool: 'drawings', def: Hotkeys.keys.Numpad4 },
+            { name: i18n("MonksLittleDetails.WallLayer"), tool: 'walls', def: Hotkeys.keys.Numpad5 },
+            { name: i18n("MonksLittleDetails.LightingLayer"), tool: 'lighting', def: Hotkeys.keys.Numpad6 },
+            { name: i18n("MonksLittleDetails.SoundLayer"), tool: 'sounds', def: Hotkeys.keys.Numpad1 },
+            { name: i18n("MonksLittleDetails.NoteLayer"), tool: 'notes', def: Hotkeys.keys.Numpad2 },
+            { name: i18n("MonksLittleDetails.TerrainLayer"), tool: 'terrain', def: Hotkeys.keys.Numpad3 }
+        ].map(l => {
+            Hotkeys.registerShortcut({
+                name: `monks-little-details.swap-${l.tool}-control`,
+                label: `${i18n("MonksLittleDetails.QuickShow")} ${l.name}`,
+                group: 'monks-little-details.tool-swap',
+                default: () => { return { key: l.def, alt: false, ctrl: false, shift: false }; },
+                onKeyDown: (e) => { MonksLittleDetails.swapTool(l.tool, true); },
+                onKeyUp: (e) => { MonksLittleDetails.releaseTool(); }
+            });
+            Hotkeys.registerShortcut({
+                name: `monks-little-details.change-${l.tool}-control`,
+                label: `${i18n("MonksLittleDetails.ChangeTo")} ${l.name}`,
+                group: 'monks-little-details.tool-swap',
+                default: () => { return { key: l.def, alt: false, ctrl: false, shift: true }; },
+                onKeyDown: (e) => { MonksLittleDetails.swapTool(l.tool, false); }
+            });
+        });
+        
+    }
+
+    static swapTool(controlName, quick = true) {
+        let control = ui.controls.control;
+        if (control.name != controlName && MonksLittleDetails.switchTool == undefined) {
+            if (quick !== false) //e?.shiftKey
+                MonksLittleDetails.switchTool = { control: control, tool: control.activeTool };
+            let newcontrol = ui.controls.controls.find(c => { return c.name == controlName; });
+            if (newcontrol != undefined) {
+                ui.controls.activeControl = newcontrol.name;
+                if (newcontrol && newcontrol.layer)
+                    canvas.getLayer(newcontrol.layer).activate();
+            }
+        }
+    }
+
+    static releaseTool() {
+        if (MonksLittleDetails.switchTool != undefined) {
+            if (MonksLittleDetails.switchTool.control) {
+                if (MonksLittleDetails.switchTool.control.layer)
+                    canvas.getLayer(MonksLittleDetails.switchTool.control.layer).activate();
+                ui.controls.activeControl = MonksLittleDetails.switchTool.control.name;
+            }
+            delete MonksLittleDetails.switchTool;
+        }
     }
 
     static injectCSS() {
@@ -1589,7 +1659,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
 
 Hooks.on("preUpdateWall", (scene, wall, update, options) => {
     let dragtogether = ui.controls.control.tools.find(t => { return t.name == "toggledragtogether" });
-    if (dragtogether != undefined && dragtogether.active && options.ignore == undefined) {
+    if (dragtogether != undefined && dragtogether.active && options.ignore == undefined && update.c != undefined) {
         let updates = [];
         let oldcoord = ((wall.c[0] != update.c[0] || wall.c[1] != update.c[1]) && wall.c[2] == update.c[2] && wall.c[3] == update.c[3] ? [wall.c[0], wall.c[1], update.c[0], update.c[1]] :
             ((wall.c[2] != update.c[2] || wall.c[3] != update.c[3]) && wall.c[0] == update.c[0] && wall.c[1] == update.c[1] ? [wall.c[2], wall.c[3], update.c[2], update.c[3]] : null));
@@ -1661,6 +1731,12 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
         });
 
     btn2.clone(true).insertAfter($('input[name="monks-little-details.token-highlight-picture"]', html));
+
+    $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.SystemChanges")).insertBefore($('[name="monks-little-details.swap-buttons"]').parents('div.form-group:first'));
+    $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.CombatTracker")).insertBefore($('[name="monks-little-details.show-combat-cr"]').parents('div.form-group:first'));
+    $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.CombatTurn")).insertBefore($('[name="monks-little-details.shownextup"]').parents('div.form-group:first'));
+    $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.CombatTokenHighlight")).insertBefore($('[name="monks-little-details.token-combat-highlight"]').parents('div.form-group:first'));
+    $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.AddedFeatures")).insertBefore($('[name="monks-little-details.actor-sounds"]').parents('div.form-group:first'));
 });
 
 Hooks.on("updateToken", function (scene, tkn, data, options, userid) {

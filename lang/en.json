@@ -69,12 +69,32 @@
 	"MonksLittleDetails.auto-reveal.name": "Automatically reveal combat tracker character",
 	"MonksLittleDetails.auto-reveal.hint": "Automatically reveal characters on the combat tracker when they become visible, saving you fram having to do it twice.",
 	"MonksLittleDetails.key-swap-tool.name": "Use keys to swap tools",
-	"MonksLittleDetails.key-swap-tool.hint": "Allow the swapping between tools by holding down keys r through i",
+	"MonksLittleDetails.key-swap-tool.hint": "Allow the swapping between tools by pressing a key.  Requires the module 'Library: DF Hotkeys' to work",
 
 	"MonksLittleDetails.PlayRoundSound": "Play new round sound",
 	"MonksLittleDetails.PlayRoundSoundHint": "Play a sound when the next round starts",
 
 	"MonksLittleDetails.PreventTokenMessage": "Once in combat, a token cannot be removed except through the encounter interface.",
+	"MonksLittleDetails.HotKeysWarning": "Monks Little Details makes use of the 'Library: DF Hotkeys' module to shift focus to other tools.  It's not necessary for the module to function, but necessary for this functionality.",
+
+	"MonksLittleDetails.SystemChanges": "System Changes",
+	"MonksLittleDetails.CombatTracker": "Combat Tracker",
+	"MonksLittleDetails.CombatTurn": "CombatTurn",
+	"MonksLittleDetails.CombatTokenHighlight": "Combat Token Highlight",
+	"MonksLittleDetails.AddedFeatures": "Added Features",
+
+	"MonksLittleDetails.QuickShow": "Quick show",
+	"MonksLittleDetails.ChangeTo": "Change to",
+
+	"MonksLittleDetails.TokenLayer": "Token Layer",
+	"MonksLittleDetails.MeasureLayer": "Measure Layer",
+	"MonksLittleDetails.TileLayer": "Tile Layer",
+	"MonksLittleDetails.DrawingLayer": "Drawing Layer",
+	"MonksLittleDetails.WallLayer": "Wall Layer",
+	"MonksLittleDetails.LightingLayer": "Lighting Layer",
+	"MonksLittleDetails.SoundLayer": "Sound Layer",
+	"MonksLittleDetails.NoteLayer": "Note Layer",
+	"MonksLittleDetails.TerrainLayer": "Terrain Layer",
 
 	"MonksLittleDetails.StatusCharmed": "Charmed",
 	"MonksLittleDetails.StatusExhausted": "Exhausted",

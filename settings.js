@@ -18,7 +18,148 @@ export const registerSettings = function () {
 		'gmonly': i18n("MonksLittleDetails.combatopen.gm"),
 		'playersonly': i18n("MonksLittleDetails.combatopen.players")
 	};
-	
+
+	//System changes
+	game.settings.register(modulename, "swap-buttons", {
+		name: i18n("MonksLittleDetails.swap-buttons.name"),
+		hint: i18n("MonksLittleDetails.swap-buttons.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "alter-hud", {
+		name: i18n("MonksLittleDetails.alter-hud.name"),
+		hint: i18n("MonksLittleDetails.alter-hud.hint"),
+		scope: "world",
+		config: MonksLittleDetails.canDo("alter-hud"),
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "alter-hud-colour", {
+		name: i18n("MonksLittleDetails.alter-hud-colour.name"),
+		hint: i18n("MonksLittleDetails.alter-hud-colour.hint"),
+		scope: "world",
+		config: MonksLittleDetails.canDo("alter-hud"),
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "add-extra-statuses", {
+		name: i18n("MonksLittleDetails.add-extra-statuses.name"),
+		hint: i18n("MonksLittleDetails.add-extra-statuses.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "change-invisible-image", {
+		name: i18n("MonksLittleDetails.change-invisible-image.name"),
+		hint: i18n("MonksLittleDetails.change-invisible-image.hint"),
+		scope: "world",
+		config: MonksLittleDetails.canDo("change-invisible-image"),
+		default: true,
+		type: Boolean,
+		onChange: () => {
+			location.reload();
+		}
+	});
+	game.settings.register(modulename, "core-css-changes", {
+		name: i18n("MonksLittleDetails.core-css-changes.name"),
+		hint: i18n("MonksLittleDetails.core-css-changes.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+		onChange: () => {
+			location.reload();
+		}
+	});
+	game.settings.register(modulename, "compendium-view-artwork", {
+		name: game.i18n.localize("MonksLittleDetails.compendium-view-artwork.name"),
+		hint: game.i18n.localize("MonksLittleDetails.compendium-view-artwork.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+
+	//combat tracker
+	game.settings.register(modulename, "show-combat-cr", {
+		name: i18n("MonksLittleDetails.show-combat-cr.name"),
+		hint: i18n("MonksLittleDetails.show-combat-cr.hint"),
+		scope: "world",
+		config: MonksLittleDetails.canDo("show-combat-cr"),
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "hide-enemies", {
+		name: i18n("MonksLittleDetails.hide-enemies.name"),
+		hint: i18n("MonksLittleDetails.hide-enemies.hint"),
+		scope: "world",
+		config: true,
+		default: false,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "opencombat", {
+		name: i18n("MonksLittleDetails.opencombat.name"),
+		hint: i18n("MonksLittleDetails.opencombat.hint"),
+		scope: "world",
+		config: true,
+		choices: opencombatoptions,
+		default: "everyone",
+		type: String
+	});
+	game.settings.register(modulename, "disable-opencombat", {
+		name: i18n("MonksLittleDetails.disable-opencombat.name"),
+		hint: i18n("MonksLittleDetails.disable-opencombat.hint"),
+		scope: "client",
+		config: true,
+		default: false,
+		type: Boolean
+	});
+	game.settings.register(modulename, "combat-position", {
+		name: i18n("MonksLittleDetails.combat-position.name"),
+		hint: i18n("MonksLittleDetails.combat-position.hint"),
+		scope: "world",
+		default: null,
+		type: String,
+		choices: dialogpositions,
+		config: true
+	});
+	game.settings.register(modulename, "close-combat-when-done", {
+		name: i18n("MonksLittleDetails.close-combat-when-done.name"),
+		hint: i18n("MonksLittleDetails.close-combat-when-done.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "prevent-token-removal", {
+		name: i18n("MonksLittleDetails.prevent-token-removal.name"),
+		hint: i18n("MonksLittleDetails.prevent-token-removal.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "auto-defeated", {
+		name: i18n("MonksLittleDetails.auto-defeated.name"),
+		hint: i18n("MonksLittleDetails.auto-defeated.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "auto-reveal", {
+		name: i18n("MonksLittleDetails.auto-reveal.name"),
+		hint: i18n("MonksLittleDetails.auto-reveal.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+
+	//Combat Turn
 	game.settings.register(modulename, "shownextup", {
 		name: i18n("MonksLittleDetails.shownextup.name"),
 		hint: i18n("MonksLittleDetails.shownextup.hint"),
@@ -80,161 +221,8 @@ export const registerSettings = function () {
 		default: false,
 		type: Boolean,
 	});
-	game.settings.register(modulename, "combat-position", {
-		name: i18n("MonksLittleDetails.combat-position.name"),
-		hint: i18n("MonksLittleDetails.combat-position.hint"),
-        scope: "world",
-        default: null,
-        type: String,
-        choices: dialogpositions,
-        config: true
-    });
-	game.settings.register(modulename, "opencombat", {
-		name: i18n("MonksLittleDetails.opencombat.name"),
-		hint: i18n("MonksLittleDetails.opencombat.hint"),
-		scope: "world",
-		config: true,
-		choices: opencombatoptions,
-		default: "everyone",
-		type: String
-	});
-	game.settings.register(modulename, "disable-opencombat", {
-		name: i18n("MonksLittleDetails.disable-opencombat.name"),
-		hint: i18n("MonksLittleDetails.disable-opencombat.hint"),
-		scope: "client",
-		config: true,
-		default: false,
-		type: Boolean
-	});
-	game.settings.register(modulename, "close-combat-when-done", {
-		name: i18n("MonksLittleDetails.close-combat-when-done.name"),
-		hint: i18n("MonksLittleDetails.close-combat-when-done.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "prevent-token-removal", {
-		name: i18n("MonksLittleDetails.prevent-token-removal.name"),
-		hint: i18n("MonksLittleDetails.prevent-token-removal.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "show-combat-cr", {
-		name: i18n("MonksLittleDetails.show-combat-cr.name"),
-		hint: i18n("MonksLittleDetails.show-combat-cr.hint"),
-		scope: "world",
-		config: MonksLittleDetails.canDo("show-combat-cr"),
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "swap-buttons", {
-		name: i18n("MonksLittleDetails.swap-buttons.name"),
-		hint: i18n("MonksLittleDetails.swap-buttons.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "alter-hud", {
-		name: i18n("MonksLittleDetails.alter-hud.name"),
-		hint: i18n("MonksLittleDetails.alter-hud.hint"),
-		scope: "world",
-		config: MonksLittleDetails.canDo("alter-hud"),
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "alter-hud-colour", {
-		name: i18n("MonksLittleDetails.alter-hud-colour.name"),
-		hint: i18n("MonksLittleDetails.alter-hud-colour.hint"),
-		scope: "world",
-		config: MonksLittleDetails.canDo("alter-hud"),
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "add-extra-statuses", {
-		name: i18n("MonksLittleDetails.add-extra-statuses.name"),
-		hint: i18n("MonksLittleDetails.add-extra-statuses.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "change-invisible-image", {
-		name: i18n("MonksLittleDetails.change-invisible-image.name"),
-		hint: i18n("MonksLittleDetails.change-invisible-image.hint"),
-		scope: "world",
-		config: MonksLittleDetails.canDo("change-invisible-image"),
-		default: true,
-		type: Boolean,
-		onChange: () => {
-			location.reload();
-		}
-	});
-	game.settings.register(modulename, "actor-sounds", {
-		name: i18n("MonksLittleDetails.actor-sounds.name"),
-		hint: i18n("MonksLittleDetails.actor-sounds.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "scene-palette", {
-		name: i18n("MonksLittleDetails.scene-palette.name"),
-		hint: i18n("MonksLittleDetails.scene-palette.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "core-css-changes", {
-		name: i18n("MonksLittleDetails.core-css-changes.name"),
-		hint: i18n("MonksLittleDetails.core-css-changes.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
-		onChange: () => {
-			location.reload();
-		}
-	});
-	game.settings.register(modulename, "show-drag-points-together", {
-		name: i18n("MonksLittleDetails.show-drag-points-together.name"),
-		hint: i18n("MonksLittleDetails.show-drag-points-together.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "movement-key", {
-		name: i18n("MonksLittleDetails.movement-key.name"),
-		hint: i18n("MonksLittleDetails.movement-key.hint"),
-		scope: "world",
-		config: true,
-		default: "m",
-		type: String,
-	});
-	game.settings.register(modulename, "show-notify", {
-		name: i18n("MonksLittleDetails.show-notify.name"),
-		hint: i18n("MonksLittleDetails.show-notify.hint"),
-		scope: "client",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "show-bloodsplat", {
-		name: i18n("MonksLittleDetails.show-bloodsplat.name"),
-		hint: i18n("MonksLittleDetails.show-bloodsplat.hint"),
-		scope: "world",
-		config: true,
-		default: false,
-		type: Boolean,
-		onChange: () => {
-			location.reload();
-		}
-	});
+
+	//Combat Token Highlight
 	game.settings.register(modulename, "token-combat-highlight", {
 		name: i18n("MonksLittleDetails.token-combat-highlight.name"),
 		hint: i18n("MonksLittleDetails.token-combat-highlight.hint"),
@@ -283,41 +271,63 @@ export const registerSettings = function () {
 			location.reload();
 		}
 	});
-	game.settings.register(modulename, "hide-enemies", {
-		name: i18n("MonksLittleDetails.hide-enemies.name"),
-		hint: i18n("MonksLittleDetails.hide-enemies.hint"),
+
+	//Added Features
+	game.settings.register(modulename, "actor-sounds", {
+		name: i18n("MonksLittleDetails.actor-sounds.name"),
+		hint: i18n("MonksLittleDetails.actor-sounds.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "scene-palette", {
+		name: i18n("MonksLittleDetails.scene-palette.name"),
+		hint: i18n("MonksLittleDetails.scene-palette.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+
+	game.settings.register(modulename, "show-drag-points-together", {
+		name: i18n("MonksLittleDetails.show-drag-points-together.name"),
+		hint: i18n("MonksLittleDetails.show-drag-points-together.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "movement-key", {
+		name: i18n("MonksLittleDetails.movement-key.name"),
+		hint: i18n("MonksLittleDetails.movement-key.hint"),
+		scope: "world",
+		config: true,
+		default: "m",
+		type: String,
+	});
+	game.settings.register(modulename, "show-notify", {
+		name: i18n("MonksLittleDetails.show-notify.name"),
+		hint: i18n("MonksLittleDetails.show-notify.hint"),
+		scope: "client",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "show-bloodsplat", {
+		name: i18n("MonksLittleDetails.show-bloodsplat.name"),
+		hint: i18n("MonksLittleDetails.show-bloodsplat.hint"),
 		scope: "world",
 		config: true,
 		default: false,
 		type: Boolean,
-	});
-	game.settings.register(modulename, "auto-defeated", {
-		name: i18n("MonksLittleDetails.auto-defeated.name"),
-		hint: i18n("MonksLittleDetails.auto-defeated.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "auto-reveal", {
-		name: i18n("MonksLittleDetails.auto-reveal.name"),
-		hint: i18n("MonksLittleDetails.auto-reveal.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
+		onChange: () => {
+			location.reload();
+		}
 	});
 	game.settings.register(modulename, "key-swap-tool", {
 		name: i18n("MonksLittleDetails.key-swap-tool.name"),
 		hint: i18n("MonksLittleDetails.key-swap-tool.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "compendium-view-artwork", {
-		name: game.i18n.localize("MonksLittleDetails.compendium-view-artwork.name"),
-		hint: game.i18n.localize("MonksLittleDetails.compendium-view-artwork.hint"),
 		scope: "world",
 		config: true,
 		default: true,
