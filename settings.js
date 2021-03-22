@@ -330,7 +330,7 @@ export const registerSettings = function () {
 		hint: i18n("MonksLittleDetails.key-swap-tool.hint"),
 		scope: "world",
 		config: true,
-		default: true,
+		default: false,
 		type: Boolean,
 	});
 };
