@@ -1,3 +1,6 @@
+# Version 1.0.20
+Don't mind me, just trying to find a set of keys that aren't used by other things and don't cause issues with Foundry.
+
 # Version 1.0.19
 Fixed issue with quick viewing layers, by using Library: DF Hotkeys.  Awesome module by the way.  It's not a requirement for Monks Little Details as it will check to see if you need to to be installed, but will warn you to install it if you want the feature.
 

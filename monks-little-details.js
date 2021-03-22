@@ -410,15 +410,15 @@ export class MonksLittleDetails {
         });
 
         [
-            { name: i18n("MonksLittleDetails.TokenLayer"), tool: 'token', def: Hotkeys.keys.Numpad7 },
-            { name: i18n("MonksLittleDetails.MeasureLayer"), tool: 'measure', def: Hotkeys.keys.Numpad8 },
-            { name: i18n("MonksLittleDetails.TileLayer"), tool: 'tiles', def: Hotkeys.keys.Numpad9 },
-            { name: i18n("MonksLittleDetails.DrawingLayer"), tool: 'drawings', def: Hotkeys.keys.Numpad4 },
-            { name: i18n("MonksLittleDetails.WallLayer"), tool: 'walls', def: Hotkeys.keys.Numpad5 },
-            { name: i18n("MonksLittleDetails.LightingLayer"), tool: 'lighting', def: Hotkeys.keys.Numpad6 },
-            { name: i18n("MonksLittleDetails.SoundLayer"), tool: 'sounds', def: Hotkeys.keys.Numpad1 },
-            { name: i18n("MonksLittleDetails.NoteLayer"), tool: 'notes', def: Hotkeys.keys.Numpad2 },
-            { name: i18n("MonksLittleDetails.TerrainLayer"), tool: 'terrain', def: Hotkeys.keys.Numpad3 }
+            { name: i18n("MonksLittleDetails.TokenLayer"), tool: 'token', def: Hotkeys.keys.KeyG },
+            { name: i18n("MonksLittleDetails.MeasureLayer"), tool: 'measure', def: null },
+            { name: i18n("MonksLittleDetails.TileLayer"), tool: 'tiles', def: Hotkeys.keys.KeyH },
+            { name: i18n("MonksLittleDetails.DrawingLayer"), tool: 'drawings', def: null },
+            { name: i18n("MonksLittleDetails.WallLayer"), tool: 'walls', def: null },
+            { name: i18n("MonksLittleDetails.LightingLayer"), tool: 'lighting', def: Hotkeys.keys.KeyJ },
+            { name: i18n("MonksLittleDetails.SoundLayer"), tool: 'sounds', def: Hotkeys.keys.KeyK },
+            { name: i18n("MonksLittleDetails.NoteLayer"), tool: 'notes', def: null },
+            { name: i18n("MonksLittleDetails.TerrainLayer"), tool: 'terrain', def: Hotkeys.keys.KeyL }
         ].map(l => {
             Hotkeys.registerShortcut({
                 name: `monks-little-details.swap-${l.tool}-control`,
