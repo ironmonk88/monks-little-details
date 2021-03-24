@@ -62,11 +62,15 @@
 	"MonksLittleDetails.token-highlight-scale.hint": "コマに対する強調表示の画像サイズです。",
 	"MonksLittleDetails.hide-enemies.name": "遭遇時に敵を隠す",
 	"MonksLittleDetails.hide-enemies.hint": "遭遇時、戦闘が開始するまでプレイヤーから敵を隠します。",
-	"MonksLittleDetails.context-view-artwork.name": "シーン辞典のコンテキストメニュー",
-	"MonksLittleDetails.context-view-artwork.hint": "シーン辞典の右クリックメニューに、アートワークを表示する機能を追加します。",
+	"MonksLittleDetails.compendium-view-artwork.name": "シーン辞典からアートワークを開く",
+	"MonksLittleDetails.compendium-view-artwork.hint": "“シーン名”をクリックすると、マップの元画像を確認できるようになります。",
 	"MonksLittleDetails.auto-defeated.name": "敗退フラグを自動で付加する",
 	"MonksLittleDetails.auto-defeated.hint": "NPCが戦闘中に0hpになると、自動的に敗退フラグを付与します。",
-
+	"MonksLittleDetails.auto-reveal.name": "非表示の解除をイニシアチブ表と連動させる",
+	"MonksLittleDetails.auto-reveal.hint": "戦闘参加中のコマが非表示状態を解除すると、イニシアチブ表上でも非表示が解除されます。これにより二度手間が省けます。",
+	"MonksLittleDetails.key-swap-tool.name": "キーでツールを切り替える",
+	"MonksLittleDetails.key-swap-tool.hint": "［r］～［i］の各キーを押し続けることでツールを一時的に切り替えます。または［Shift］＋キーでツールを切り替えます。",
+		
 	"MonksLittleDetails.PlayRoundSound": "新しいラウンド開始時のサウンド",
 	"MonksLittleDetails.PlayRoundSoundHint": "次のラウンド開始時にサウンドを再生します。",
 
