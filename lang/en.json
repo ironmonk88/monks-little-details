@@ -70,6 +70,8 @@
 	"MonksLittleDetails.auto-reveal.hint": "Automatically reveal characters on the combat tracker when they become visible, saving you fram having to do it twice.",
 	"MonksLittleDetails.key-swap-tool.name": "Use keys to swap tools",
 	"MonksLittleDetails.key-swap-tool.hint": "Allow the swapping between tools by pressing a key.  Requires the module 'Library: DF Hotkeys' to work",
+	"MonksLittleDetails.clear-targets.name": "Clear targets every turn",
+	"MonksLittleDetails.clear-targets.hint": "Clear the GM targets whenever the turn changes",
 
 	"MonksLittleDetails.PlayRoundSound": "Play new round sound",
 	"MonksLittleDetails.PlayRoundSoundHint": "Play a sound when the next round starts",
@@ -82,6 +84,8 @@
 	"MonksLittleDetails.CombatTurn": "CombatTurn",
 	"MonksLittleDetails.CombatTokenHighlight": "Combat Token Highlight",
 	"MonksLittleDetails.AddedFeatures": "Added Features",
+
+	"MonksLittleDetails.LatestChanges": "Latest Changes",
 
 	"MonksLittleDetails.QuickShow": "Quick show",
 	"MonksLittleDetails.ChangeTo": "Change to",
@@ -120,5 +124,9 @@
 	"MonksLittleDetails.combatopen.none": "Do not open combat window",
 	"MonksLittleDetails.combatopen.everyone": "Everyone",
 	"MonksLittleDetails.combatopen.gm": "GM Only",
-	"MonksLittleDetails.combatopen.players": "Players Only"
+	"MonksLittleDetails.combatopen.players": "Players Only",
+
+	"MonksLittleDetails.autodefeated.none": "None",
+	"MonksLittleDetails.autodefeated.npc": "NPC",
+	"MonksLittleDetails.autodefeated.all": "All"
 }

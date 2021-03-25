@@ -502,6 +502,14 @@ export class MonksLittleDetails {
 #context-menu li.context-item{
     text-align: left;
 }
+
+.form-group select{
+    width: calc(100% - 2px);
+}
+
+#pause{
+    bottom:30%;
+}
 `;
         }
 
@@ -1488,6 +1496,19 @@ Hooks.on("deleteCombat", function (combat) {
 Hooks.on("updateCombat", function (combat, delta) {
     MonksLittleDetails.checkCombatTurn(combat);
 
+    if (combat && combat.started && game.user.isGM && setting('clear-targets')) {
+        //clear the targets
+        game.user.targets.forEach(t => t.setTarget(false, { user: game.user, releaseOthers: true, groupSelection: false }));
+
+        canvas.tokens.selectObjects({
+            x: 0,
+            y: 0,
+            height: 0,
+            releaseOptions: {},
+            controlOptions: { releaseOthers: true, updateSight: true }
+        });
+    }
+
     log("update combat", combat);
     let opencombat = game.settings.get("monks-little-details", "opencombat");
     if ((opencombat == "everyone" || (game.user.isGM && opencombat == "gmonly") || (!game.user.isGM && opencombat == "playersonly"))
@@ -1741,10 +1762,10 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
 
 Hooks.on("updateToken", function (scene, tkn, data, options, userid) {
     //actorData.data.attributes.hp
-    if (setting('auto-defeated') && game.user.isGM) {
+    if (['npc', 'all'].includes(setting('auto-defeated')) && game.user.isGM) {
         let token = canvas.tokens.get(tkn._id);
         let hp = getProperty(data, 'actorData.data.attributes.hp');
-        if (hp != undefined && token.data.disposition != 1) {
+        if (hp != undefined && (setting('auto-defeated') == 'all' || (setting('auto-defeated') == 'npc' && token.data.disposition != 1))) {
             let combatant;
             let combat = game.combats.find(c => {
                 if (c.started)

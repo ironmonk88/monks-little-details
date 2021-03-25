@@ -1,3 +1,12 @@
+#Version 1.0.21
+Adding option to auto-defeat players aswell as npc's.
+
+Moved the game paused icon up a bit more so that it's obvious the game is paused.  If it's too low down it can be missed.
+
+Added a fixed maximum width to select boxes in a form.  If the text is too big it'll drop to the next line.  Still unsure if this is too big of a change though, not entirely sure of the consequences.  But I find it interesting that the input fields are a fized width, but the select fields are not.
+
+Whenever the turn changes, remove targets if you are the GM.
+
 # Version 1.0.20
 Don't mind me, just trying to find a set of keys that aren't used by other things and don't cause issues with Foundry.
 

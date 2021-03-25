@@ -19,6 +19,12 @@ export const registerSettings = function () {
 		'playersonly': i18n("MonksLittleDetails.combatopen.players")
 	};
 
+	let autodefeated = {
+		'none': i18n("MonksLittleDetails.autodefeated.none"),
+		'npc': i18n("MonksLittleDetails.autodefeated.npc"),
+		'all': i18n("MonksLittleDetails.autodefeated.all")
+	};
+
 	//System changes
 	game.settings.register(modulename, "swap-buttons", {
 		name: i18n("MonksLittleDetails.swap-buttons.name"),
@@ -147,8 +153,9 @@ export const registerSettings = function () {
 		hint: i18n("MonksLittleDetails.auto-defeated.hint"),
 		scope: "world",
 		config: true,
-		default: true,
-		type: Boolean,
+		choices: autodefeated,
+		default: 'npc',
+		type: String,
 	});
 	game.settings.register(modulename, "auto-reveal", {
 		name: i18n("MonksLittleDetails.auto-reveal.name"),
@@ -220,6 +227,14 @@ export const registerSettings = function () {
 		config: true,
 		default: false,
 		type: Boolean,
+	});
+	game.settings.register(modulename, "clear-targets", {
+		name: i18n("MonksLittleDetails.clear-targets.name"),
+		hint: i18n("MonksLittleDetails.clear-targets.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean
 	});
 
 	//Combat Token Highlight
@@ -332,5 +347,12 @@ export const registerSettings = function () {
 		config: true,
 		default: false,
 		type: Boolean,
+	});
+
+	game.settings.register(modulename, "latest-version", {
+		scope: "world",
+		config: false,
+		default: 0,
+		type: Number,
 	});
 };
