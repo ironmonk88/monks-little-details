@@ -38,6 +38,30 @@ export class MonksLittleDetails {
         return true;
     };
 
+    static inCombat(token, combat = game.combats) {
+        let combatant;
+        combat = (combat instanceof Combat ? [combat] : combat);
+        combat.find(c => {
+            if (c.started)
+                combatant = c.combatants.find(t => {
+                    return t.tokenId == token.id;
+                });
+            return c.started && combatant != undefined;
+        });
+
+        return combatant;
+    }
+
+    static canViewCombatMode(mode) {
+        if (mode === CONST.TOKEN_DISPLAY_MODES.NONE) return false;
+        else if (mode === CONST.TOKEN_DISPLAY_MODES.ALWAYS) return true;
+        else if (mode === CONST.TOKEN_DISPLAY_MODES.CONTROL) return this.owner;
+        else if (mode === CONST.TOKEN_DISPLAY_MODES.HOVER) return true;
+        else if (mode === CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER) return this.owner;
+        else if (mode === CONST.TOKEN_DISPLAY_MODES.OWNER) return this.owner;
+        return false;
+    }
+
     static init() {
         log("initializing");
         // element statics
@@ -110,6 +134,7 @@ export class MonksLittleDetails {
             //"alter-hud": ["pf2e"]
         }
         MonksLittleDetails._onlylist = {
+            "sort-by-columns": ["dnd5e"],
             "show-combat-cr": ["dnd5e", "pf2e"]
         }
         /*
@@ -214,10 +239,6 @@ export class MonksLittleDetails {
         }*/
 
         if (game.settings.get("monks-little-details", "alter-hud")) {
-            CONFIG.statusEffects = CONFIG.statusEffects.sort(function (a, b) {
-                return (a.id == undefined || a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)); //(a.label == undefined || i18n(a.label) > i18n(b.label) ? 1 : (i18n(a.label) < i18n(b.label) ? -1 : 0));
-            })
-
             let oldTokenHUDRender = TokenHUD.prototype._render;
             TokenHUD.prototype._render = function (force = false, options = {}) {
                 let result = oldTokenHUDRender.call(this, force, options).then((a, b) => {
@@ -264,14 +285,7 @@ export class MonksLittleDetails {
                 oldTokenRefresh.call(this);
 
                 //find defeated state
-                let combatant;
-                game.combats.find(c => {
-                    if (c.started)
-                        combatant = c.combatants.find(t => {
-                            return t.tokenId == this.id;
-                        });
-                    return c.started && combatant != undefined;
-                });
+                let combatant = MonksLittleDetails.inCombat(this);
                 if (((combatant && combatant.defeated) || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId)) && this.actor?.data.type !== 'character') {
                     this.bars.visible = false;
                     for (let effect of this.effects.children) {
@@ -323,6 +337,15 @@ export class MonksLittleDetails {
                         this.removeChild(this.tresurechest);
                         delete this.tresurechest;
                     }
+
+                    //if this token is part of a combat, then always show the bar, but at 0.5 opacity, unless controlled
+                    if (combatant && setting('add-combat-bars')) {
+                        let combatBar = this.getFlag('monks-little-details', 'displayBarsCombat');
+                        let displayBars = (combatBar == undefined || combatBar == -1 ? this.data.displayBars : combatBar);
+                        this.bars.visible = MonksLittleDetails.canViewCombatMode.call(this, displayBars);
+                        this.bars.alpha = ((this._controlled && (displayBars == CONST.TOKEN_DISPLAY_MODES.CONTROL || displayBars == CONST.TOKEN_DISPLAY_MODES.OWNER || displayBars == CONST.TOKEN_DISPLAY_MODES.ALWAYS)) ||
+                            (this._hover && (displayBars == CONST.TOKEN_DISPLAY_MODES.HOVER || displayBars == CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER)) ? 1 : 0.3);
+                    }
                 }
             }
         }
@@ -367,6 +390,31 @@ export class MonksLittleDetails {
                     ui.notifications.error(i18n("MonksLittleDetails.HotKeysWarning"));
             } else {
                 MonksLittleDetails.registerHotKeys();
+            }
+        }
+
+        if (game.settings.get("monks-little-details", "alter-hud")) {
+            CONFIG.statusEffects = CONFIG.statusEffects.sort(function (a, b) {
+                let aid = (a.label != undefined ? i18n(a.label) : a.id);
+                let bid = (b.label != undefined ? i18n(b.label) : b.id);
+                return (aid > bid ? 1 : (aid < bid ? -1 : 0));
+                //return (a.id == undefined || a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)); //(a.label == undefined || i18n(a.label) > i18n(b.label) ? 1 : (i18n(a.label) < i18n(b.label) ? -1 : 0));
+            });
+
+            if (setting('sort-by-columns')) {
+                let [blanks, temp] = CONFIG.statusEffects.partition(f => f.label != undefined);
+                let effects = [];
+                let mid = Math.ceil(temp.length / 4);
+                let offset = (4 - ((mid * 4) - temp.length));
+                for (let i = 0; i < mid; i++) {
+                    for (let j = 0; j < 4; j++) {
+                        let spot = (i + (mid * j) - (j > offset ? 1 : 0));
+                        if (spot < temp.length) {
+                            effects.push(temp[spot]);
+                        }
+                    }
+                }
+                CONFIG.statusEffects = effects.concat(blanks);
             }
         }
     }
@@ -1510,7 +1558,7 @@ Hooks.on("updateCombat", function (combat, delta) {
     }
 
     log("update combat", combat);
-    let opencombat = game.settings.get("monks-little-details", "opencombat");
+    let opencombat = setting("opencombat");
     if ((opencombat == "everyone" || (game.user.isGM && opencombat == "gmonly") || (!game.user.isGM && opencombat == "playersonly"))
         && !game.settings.get("monks-little-details", "disable-opencombat")
         && delta.round === 1 && combat.turn === 0 && combat.started === true) {
@@ -1801,6 +1849,18 @@ Hooks.on("updateToken", function (scene, tkn, data, options, userid) {
                 token.refresh();
             });
         }
+    }
+});
+
+
+Hooks.on('renderTokenConfig', function (app, html, options) {
+    if (setting('add-combat-bars')) {
+        let displayBars = $('[name="displayBars"]', html).parents('div.form-group');
+        let combatBars = displayBars.clone(true);
+
+        $('[name="displayBars"]', combatBars).attr('name', 'flags.monks-little-details.displayBarsCombat').prepend($('<option>').attr('value', '-1').html('')).val(app.object.getFlag('monks-little-details', 'displayBarsCombat'));
+        $('> label', combatBars).html(i18n("MonksLittleDetails.CombatDisplayBars"));
+        combatBars.insertAfter(displayBars);
     }
 });
 

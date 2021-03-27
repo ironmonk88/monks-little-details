@@ -25,6 +25,18 @@ export const registerSettings = function () {
 		'all': i18n("MonksLittleDetails.autodefeated.all")
 	};
 
+	/*
+	game.settings.registerMenu(modulename, 'hot-keys', {
+		name: 'Change Hotkeys',
+		label: 'Change Hotkeys',
+		hint: 'Change the hotkeys this module uses',
+		icon: 'fas fa-keyboard',
+		restricted: true,
+		type: HotkeyConfig,
+		onClick: (value) => {
+		}
+	});*/
+
 	//System changes
 	game.settings.register(modulename, "swap-buttons", {
 		name: i18n("MonksLittleDetails.swap-buttons.name"),
@@ -40,6 +52,14 @@ export const registerSettings = function () {
 		scope: "world",
 		config: MonksLittleDetails.canDo("alter-hud"),
 		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "sort-by-columns", {
+		name: i18n("MonksLittleDetails.sort-by-columns.name"),
+		hint: i18n("MonksLittleDetails.sort-by-columns.hint"),
+		scope: "world",
+		config: MonksLittleDetails.canDo("sort-by-columns"),
+		default: false,
 		type: Boolean,
 	});
 	game.settings.register(modulename, "alter-hud-colour", {
@@ -163,6 +183,14 @@ export const registerSettings = function () {
 		scope: "world",
 		config: true,
 		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "add-combat-bars", {
+		name: i18n("MonksLittleDetails.add-combat-bars.name"),
+		hint: i18n("MonksLittleDetails.add-combat-bars.hint"),
+		scope: "world",
+		config: true,
+		default: false,
 		type: Boolean,
 	});
 
