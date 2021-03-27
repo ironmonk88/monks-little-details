@@ -337,16 +337,18 @@ export class MonksLittleDetails {
                         this.removeChild(this.tresurechest);
                         delete this.tresurechest;
                     }
-
-                    //if this token is part of a combat, then always show the bar, but at 0.5 opacity, unless controlled
-                    if (combatant && setting('add-combat-bars')) {
-                        let combatBar = this.getFlag('monks-little-details', 'displayBarsCombat');
-                        let displayBars = (combatBar == undefined || combatBar == -1 ? this.data.displayBars : combatBar);
-                        this.bars.visible = MonksLittleDetails.canViewCombatMode.call(this, displayBars);
-                        this.bars.alpha = ((this._controlled && (displayBars == CONST.TOKEN_DISPLAY_MODES.CONTROL || displayBars == CONST.TOKEN_DISPLAY_MODES.OWNER || displayBars == CONST.TOKEN_DISPLAY_MODES.ALWAYS)) ||
-                            (this._hover && (displayBars == CONST.TOKEN_DISPLAY_MODES.HOVER || displayBars == CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER)) ? 1 : 0.3);
-                    }
                 }
+
+                //if this token is part of a combat, then always show the bar, but at 0.5 opacity, unless controlled
+                if (combatant && setting('add-combat-bars')) {
+                    let combatBar = this.getFlag('monks-little-details', 'displayBarsCombat');
+                    if (combatBar != undefined && combatBar != -1) {
+                        this.bars.visible = MonksLittleDetails.canViewCombatMode.call(this, combatBar);
+                        this.bars.alpha = ((this._controlled && (combatBar == CONST.TOKEN_DISPLAY_MODES.CONTROL || combatBar == CONST.TOKEN_DISPLAY_MODES.OWNER || combatBar == CONST.TOKEN_DISPLAY_MODES.ALWAYS)) ||
+                            (this._hover && (combatBar == CONST.TOKEN_DISPLAY_MODES.HOVER || combatBar == CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER)) ? 1 : 0.3);
+                    }
+                } else
+                    this.bars.alpha = 1;
             }
         }
 
@@ -1539,6 +1541,22 @@ Hooks.on("deleteCombat", function (combat) {
             }
         }
     }
+
+    //if we're using combat bars and the combat starts or stops, we need to refresh the tokens
+    if (setting('add-combat-bars') && combat) {
+        for (let combatant of combat.combatants) {
+            let token = canvas.tokens.placeables.find(t => { return t.id == combatant.tokenId; });
+            let displayBars = token.data.displayBars;
+            let combatBar = token.getFlag('monks-little-details', 'displayBarsCombat');
+            combatBar = (combatBar == undefined || combatBar == -1 ? displayBars : combatBar);
+
+            if (token.bars.alpha != 1) {
+                token.bars.alpha = 1;
+                token.refresh();
+            } else if (combatBar != displayBars)
+                token.refresh();
+        }
+    }
 });
 
 Hooks.on("updateCombat", function (combat, delta) {
@@ -1555,6 +1573,18 @@ Hooks.on("updateCombat", function (combat, delta) {
             releaseOptions: {},
             controlOptions: { releaseOthers: true, updateSight: true }
         });
+    }
+
+    //if we're using combat bars and the combat starts or stops, we need to refresh the tokens
+    if (setting('add-combat-bars') && combat && (delta.round === 1 && combat.turn === 0 && combat.started === true)) {
+        for (let combatant of combat.combatants) {
+            let token = canvas.tokens.placeables.find(t => { return t.id == combatant.tokenId; });
+            let displayBars = token.data.displayBars;
+            let combatBar = token.getFlag('monks-little-details', 'displayBarsCombat');
+            combatBar = (combatBar == undefined || combatBar == -1 ? displayBars : combatBar);
+            if (combatBar != displayBars)
+                token.refresh();
+        }
     }
 
     log("update combat", combat);
