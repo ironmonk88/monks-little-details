@@ -7,9 +7,7 @@ export let debug = (...args) => {
     if (debugEnabled > 1) console.log("DEBUG: monks-little-details | ", ...args);
 };
 export let log = (...args) => console.log("monks-little-details | ", ...args);
-export let warn = (...args) => {
-    if (debugEnabled > 0) console.warn("monks-little-details | ", ...args);
-};
+export let warn = (...args) => console.warn("monks-little-details | ", ...args);
 export let error = (...args) => console.error("monks-little-details | ", ...args);
 export let i18n = key => {
     return game.i18n.localize(key);
@@ -388,8 +386,10 @@ export class MonksLittleDetails {
 
         if (game.settings.get("monks-little-details", "key-swap-tool")) {
             if (!game.modules.get('lib-df-hotkeys')?.active) {
-                if (game.user.isGM)
+                if (game.user.isGM) {
                     ui.notifications.error(i18n("MonksLittleDetails.HotKeysWarning"));
+                    warn(i18n("MonksLittleDetails.HotKeysWarning"));
+                }
             } else {
                 MonksLittleDetails.registerHotKeys();
             }
@@ -454,7 +454,7 @@ export class MonksLittleDetails {
         })*/
 
         Hotkeys.registerGroup({
-            name: 'monks-little-details.tool-swap',
+            name: 'monks-little-details_tool-swap',
             label: 'Monks Litle Details, Tool Swap',
             description: 'Use these keys to swap between tools'
         });
@@ -471,17 +471,17 @@ export class MonksLittleDetails {
             { name: i18n("MonksLittleDetails.TerrainLayer"), tool: 'terrain', def: Hotkeys.keys.KeyL }
         ].map(l => {
             Hotkeys.registerShortcut({
-                name: `monks-little-details.swap-${l.tool}-control`,
+                name: `monks-little-details_swap-${l.tool}-control`,
                 label: `${i18n("MonksLittleDetails.QuickShow")} ${l.name}`,
-                group: 'monks-little-details.tool-swap',
+                group: 'monks-little-details_tool-swap',
                 default: () => { return { key: l.def, alt: false, ctrl: false, shift: false }; },
                 onKeyDown: (e) => { MonksLittleDetails.swapTool(l.tool, true); },
                 onKeyUp: (e) => { MonksLittleDetails.releaseTool(); }
             });
             Hotkeys.registerShortcut({
-                name: `monks-little-details.change-${l.tool}-control`,
+                name: `monks-little-details_change-${l.tool}-control`,
                 label: `${i18n("MonksLittleDetails.ChangeTo")} ${l.name}`,
-                group: 'monks-little-details.tool-swap',
+                group: 'monks-little-details_tool-swap',
                 default: () => { return { key: l.def, alt: false, ctrl: false, shift: true }; },
                 onKeyDown: (e) => { MonksLittleDetails.swapTool(l.tool, false); }
             });
@@ -1582,6 +1582,7 @@ Hooks.on("updateCombat", function (combat, delta) {
             let displayBars = token.data.displayBars;
             let combatBar = token.getFlag('monks-little-details', 'displayBarsCombat');
             combatBar = (combatBar == undefined || combatBar == -1 ? displayBars : combatBar);
+
             if (combatBar != displayBars)
                 token.refresh();
         }

@@ -25,18 +25,6 @@ export const registerSettings = function () {
 		'all': i18n("MonksLittleDetails.autodefeated.all")
 	};
 
-	/*
-	game.settings.registerMenu(modulename, 'hot-keys', {
-		name: 'Change Hotkeys',
-		label: 'Change Hotkeys',
-		hint: 'Change the hotkeys this module uses',
-		icon: 'fas fa-keyboard',
-		restricted: true,
-		type: HotkeyConfig,
-		onClick: (value) => {
-		}
-	});*/
-
 	//System changes
 	game.settings.register(modulename, "swap-buttons", {
 		name: i18n("MonksLittleDetails.swap-buttons.name"),
@@ -376,6 +364,16 @@ export const registerSettings = function () {
 		default: false,
 		type: Boolean,
 	});
+	if (!game.modules.get('lib-df-hotkeys')?.active) {
+		game.settings.registerMenu(modulename, 'hot-keys', {
+			name: 'Change Hotkeys',
+			label: 'Change Hotkeys',
+			hint: 'Change the hotkeys this module uses',
+			icon: 'fas fa-keyboard',
+			restricted: true,
+			type: Hotkeys.createConfig('Monks Little Details', ['monks-little-details'])
+		});
+	}
 
 	game.settings.register(modulename, "latest-version", {
 		scope: "world",
