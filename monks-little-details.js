@@ -336,9 +336,17 @@ export class MonksLittleDetails {
                         delete this.tresurechest;
                     }
                 }
+            }
+        }
 
-                //if this token is part of a combat, then always show the bar, but at 0.5 opacity, unless controlled
-                if (combatant && setting('add-combat-bars')) {
+        //if this token is part of a combat, then always show the bar, but at 0.5 opacity, unless controlled
+        if (setting('add-combat-bars')) {
+            let oldTokenRefresh = Token.prototype.refresh;
+            Token.prototype.refresh = function () {
+                oldTokenRefresh.call(this);
+
+                let combatant = MonksLittleDetails.inCombat(this);
+                if (combatant) {
                     let combatBar = this.getFlag('monks-little-details', 'displayBarsCombat');
                     if (combatBar != undefined && combatBar != -1) {
                         this.bars.visible = MonksLittleDetails.canViewCombatMode.call(this, combatBar);
@@ -518,7 +526,7 @@ export class MonksLittleDetails {
         let innerHTML = '';
         let style = document.createElement("style");
         style.id = "monks-css-changes";
-        if (game.settings.get("monks-little-details", "core-css-changes")) {
+        if (setting("core-css-changes")) {
             innerHTML += `
 .sidebar-tab .directory-list .directory-item img {
     object-fit: contain !important;
@@ -556,7 +564,11 @@ export class MonksLittleDetails {
 .form-group select{
     width: calc(100% - 2px);
 }
+`;
+        }
 
+        if (setting("move-pause")) {
+            innerHTML += `
 #pause{
     bottom:30%;
 }

@@ -345,6 +345,14 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean,
 	});
+	game.settings.register(modulename, "move-pause", {
+		name: i18n("MonksLittleDetails.move-pause.name"),
+		hint: i18n("MonksLittleDetails.move-pause.hint"),
+		scope: "world",
+		config: true,
+		default: false,
+		type: Boolean,
+	});
 	game.settings.register(modulename, "show-bloodsplat", {
 		name: i18n("MonksLittleDetails.show-bloodsplat.name"),
 		hint: i18n("MonksLittleDetails.show-bloodsplat.hint"),

@@ -1,3 +1,10 @@
+#Version 1.0.25
+Fixing issues with the combat resource bars.
+
+Adding option to move the pause icon
+
+Adding option to sort token statues by column rather than row.
+
 #Version 1.0.22
 Added option to use different setting for resource bars when the token is in combat.  This will also display a see through version of the bar for hover and controlled option until the token is hovered or controlled.  This should make it easier to set the bars to not be seen during regular movement, but have them show once combat starts.
 

@@ -76,6 +76,8 @@
 	"MonksLittleDetails.sort-by-columns.hint": "Sort token hud status effect by columns instead of rows",
 	"MonksLittleDetails.add-combat-bars.name": "Add Combat Bars",
 	"MonksLittleDetails.add-combat-bars.hint": "Use a different setting for resource bars while token is in combat",
+	"MonksLittleDetails.move-pause.name": "Move the Pause icon up",
+	"MonksLittleDetails.move-pause.hint": "Move the Pause icon up the screen so that it is more centered and to avoid wondering why tokens can't move.",
 
 	"MonksLittleDetails.PlayRoundSound": "Play new round sound",
 	"MonksLittleDetails.PlayRoundSoundHint": "Play a sound when the next round starts",
@@ -85,7 +87,7 @@
 
 	"MonksLittleDetails.SystemChanges": "System Changes",
 	"MonksLittleDetails.CombatTracker": "Combat Tracker",
-	"MonksLittleDetails.CombatTurn": "CombatTurn",
+	"MonksLittleDetails.CombatTurn": "Combat Turn",
 	"MonksLittleDetails.CombatTokenHighlight": "Combat Token Highlight",
 	"MonksLittleDetails.AddedFeatures": "Added Features",
 
