@@ -364,7 +364,7 @@ export const registerSettings = function () {
 		default: false,
 		type: Boolean,
 	});
-	if (!game.modules.get('lib-df-hotkeys')?.active) {
+	if (game.modules.get('lib-df-hotkeys')?.active) {
 		game.settings.registerMenu(modulename, 'hot-keys', {
 			name: 'Change Hotkeys',
 			label: 'Change Hotkeys',
