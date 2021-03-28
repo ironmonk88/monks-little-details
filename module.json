@@ -2,7 +2,7 @@
 	"name": "monks-little-details",
 	"title": "Monk's Little Details",
 	"description": "Things to tidy up the interface and flow",
-	"version": "1.0.21",
+	"version": "1.0.22",
 	"author": "IronMonk, ironmonk88#4075",
 	"socket": true,
 	"languages": [
@@ -24,7 +24,7 @@
 	"styles": [ "css/monks-little-details.css" ],
 	"packs": [],
 	"url": "https://github.com/ironmonk88/monks-little-details",
-	"download": "https://github.com/ironmonk88/monks-little-details/archive/1.0.21.zip",
+	"download": "https://github.com/ironmonk88/monks-little-details/archive/1.0.22.zip",
 	"manifest": "https://github.com/ironmonk88/monks-little-details/releases/latest/download/module.json",
 	"bugs": "https://github.com/ironmonk88/monks-little-details/issues",
 	"allowBugReporter": true,
