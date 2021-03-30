@@ -65,17 +65,49 @@
 	"MonksLittleDetails.compendium-view-artwork.name": "シーン辞典からアートワークを開く",
 	"MonksLittleDetails.compendium-view-artwork.hint": "“シーン名”をクリックすると、マップの元画像を確認できるようになります。",
 	"MonksLittleDetails.auto-defeated.name": "敗退フラグを自動で付加する",
-	"MonksLittleDetails.auto-defeated.hint": "NPCが戦闘中に0hpになると、自動的に敗退フラグを付与します。",
+	"MonksLittleDetails.auto-defeated.hint": "戦闘中に0hpになると、自動的に敗退フラグを付与します。",
 	"MonksLittleDetails.auto-reveal.name": "非表示の解除をイニシアチブ表と連動させる",
 	"MonksLittleDetails.auto-reveal.hint": "戦闘参加中のコマが非表示状態を解除すると、イニシアチブ表上でも非表示が解除されます。これにより二度手間が省けます。",
 	"MonksLittleDetails.key-swap-tool.name": "キーでツールを切り替える",
-	"MonksLittleDetails.key-swap-tool.hint": "［r］～［i］の各キーを押し続けることでツールを一時的に切り替えます。または［Shift］＋キーでツールを切り替えます。",
-		
+	"MonksLittleDetails.key-swap-tool.hint": "設定したホットキーでツールを切り替えます。「Library: DF Hotkeys」モジュールが必要です。",
+	"MonksLittleDetails.clear-targets.name": "ターゲットを毎ターン外す",
+	"MonksLittleDetails.clear-targets.hint": "ターンが変わるたび、DMのターゲットをクリアします。",
+	"MonksLittleDetails.sort-by-columns.name": "状態一覧の表示順を縦並びにする",
+	"MonksLittleDetails.sort-by-columns.hint": "トークンHUDから開く状態一覧の表示順を、横並びから縦並びに変更します。",
+	"MonksLittleDetails.add-combat-bars.name": "戦闘中のリソース・バー表示",
+	"MonksLittleDetails.add-combat-bars.hint": "トークン設定から、戦闘中のみのリソース・バーの表示方法を指定できます。",
+	"MonksLittleDetails.move-pause.name": "一時停止アイコンを上に移動する",
+	"MonksLittleDetails.move-pause.hint": "一時停止のアイコンを画面の上に移動し、より中央に表示します。これはコマを動かせないことに、プレイヤーが疑問を感じないようにするためです。",
+
 	"MonksLittleDetails.PlayRoundSound": "新しいラウンド開始時のサウンド",
 	"MonksLittleDetails.PlayRoundSoundHint": "次のラウンド開始時にサウンドを再生します。",
 
-	"MonksLittleDetails.PreventTokenMessage": "一度戦闘状態になると、遭遇時のインターフェイスを経由しない限り、トークンを取り除くことはできません。",
+	"MonksLittleDetails.PreventTokenMessage": "一度戦闘状態になると、イニシアチブ表のインタフェース経由でなければ戦闘から除外できません。",
+	"MonksLittleDetails.HotKeysWarning": "Monks Little Detailsのツール変更機能には「Library: DF Hotkeys」モジュールが必要です。",
 
+	"MonksLittleDetails.SystemChanges": "システム関連",
+	"MonksLittleDetails.CombatTracker": "イニシアチブ表関連",
+	"MonksLittleDetails.CombatTurn": "戦闘ターン管理",
+	"MonksLittleDetails.CombatTokenHighlight": "ターン中の強調表示",
+	"MonksLittleDetails.AddedFeatures": "追加機能",
+
+	"MonksLittleDetails.CombatDisplayBars": "戦闘中の表示方法:",
+
+	"MonksLittleDetails.LatestChanges": "最新の変更点",
+
+	"MonksLittleDetails.QuickShow": "押下中：",
+	"MonksLittleDetails.ChangeTo": "切替：",
+
+	"MonksLittleDetails.TokenLayer": "基本操作",
+	"MonksLittleDetails.MeasureLayer": "テンプレート操作",
+	"MonksLittleDetails.TileLayer": "タイル操作",
+	"MonksLittleDetails.DrawingLayer": "図形描画",
+	"MonksLittleDetails.WallLayer": "ウォール操作",
+	"MonksLittleDetails.LightingLayer": "ライト操作",
+	"MonksLittleDetails.SoundLayer": "環境音の調整",
+	"MonksLittleDetails.NoteLayer": "地点メモ操作",
+	"MonksLittleDetails.TerrainLayer": "テレイン操作",
+	
 	"MonksLittleDetails.StatusCharmed": "魅了状態",
 	"MonksLittleDetails.StatusExhausted": "消耗状態",
 	"MonksLittleDetails.StatusGrappled": "つかまれた状態",
@@ -86,7 +118,7 @@
 	"MonksLittleDetails.StatusSlowed": "スロー",
 	"MonksLittleDetails.StatusConcentrating": "精神集中",
 	"MonksLittleDetails.StatusRage": "レイジ",
-	"MonksLittleDetails.StatusDistracted": "散漫",
+	"MonksLittleDetails.StatusDistracted": "不注意",
 	"MonksLittleDetails.StatusDodging": "回避",
 	"MonksLittleDetails.StatusDisengage": "離脱",
 	"MonksLittleDetails.StatusCover": "遮蔽",
@@ -100,5 +132,9 @@
 	"MonksLittleDetails.combatopen.none": "戦闘ウィンドウを開かない",
 	"MonksLittleDetails.combatopen.everyone": "全員",
 	"MonksLittleDetails.combatopen.gm": "GMのみ",
-	"MonksLittleDetails.combatopen.players": "プレイヤーのみ"
+	"MonksLittleDetails.combatopen.players": "プレイヤーのみ",
+
+	"MonksLittleDetails.autodefeated.none": "なし",
+	"MonksLittleDetails.autodefeated.npc": "NPC",
+	"MonksLittleDetails.autodefeated.all": "全員"
 }
