@@ -196,7 +196,7 @@ export const registerSettings = function () {
 		hint: i18n("MonksLittleDetails.next-sound.hint"),
 		scope: "world",
 		config: true,
-		default: "modules/monks-little-details/sounds/next.wav",
+		default: "modules/monks-little-details/sounds/next.ogg",
 		type: String,
 	});
 	game.settings.register(modulename, "showcurrentup", {
@@ -212,7 +212,7 @@ export const registerSettings = function () {
 		hint: i18n("MonksLittleDetails.turn-sound.hint"),
 		scope: "world",
 		config: true,
-		default: "modules/monks-little-details/sounds/turn.wav",
+		default: "modules/monks-little-details/sounds/turn.ogg",
 		type: String,
 	});
 	game.settings.register(modulename, "round-sound", {
@@ -220,7 +220,7 @@ export const registerSettings = function () {
 		hint: i18n("MonksLittleDetails.round-sound.hint"),
 		scope: "world",
 		config: true,
-		default: "modules/monks-little-details/sounds/round.wav",
+		default: "modules/monks-little-details/sounds/round.ogg",
 		type: String,
 	});
 	game.settings.register(modulename, "volume", {
@@ -280,7 +280,7 @@ export const registerSettings = function () {
 		hint: i18n("MonksLittleDetails.token-highlight-picture.hint"),
 		scope: "world",
 		config: true,
-		default: "modules/monks-little-details/icons/turnmarker.png",
+		default: "modules/monks-little-details/icons/turnmarker.svg",
 		type: String,
 		onChange: () => {
 			location.reload();
