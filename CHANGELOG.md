@@ -1,6 +1,8 @@
 # Version 1.0.26
 Fixing a small error when calculating the CR of an encounter
 
+File optimization, Thank you xdy!
+
 # Version 1.0.25
 Fixing issues with the combat resource bars.
 
