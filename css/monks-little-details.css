@@ -210,7 +210,7 @@
 
 @font-face {
     font-family: 'WC Rhesus A Bta';
-    src: url('../fonts/WCRhesusABta.woff2') format('woff2'), url('../fonts/WCRhesusABta.woff') format('woff');
+    src: url('../fonts/WCRhesusABta.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
     font-display: swap;

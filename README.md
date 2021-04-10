@@ -12,17 +12,17 @@ The images displayed for the filepicker and compendiums crops the image if it's 
 
 Before
 
-![monks-little-details](/screenshots/CoreCssBefore.PNG)
+![monks-little-details](/screenshots/CoreCssBefore.webp)
 
 After
 
-![monks-little-details](/screenshots/CoreCssAfter.PNG)
+![monks-little-details](/screenshots/CoreCssAfter.webp)
 
 I also changed the scene compendium items to more closely match the styling used on the scene tab.  The wider image gives you a better idea of what you're seeing.
 
 Scene Compendium
 
-![monks-little-details](/screenshots/SceneCompendium.PNG)
+![monks-little-details](/screenshots/SceneCompendium.webp)
 
 Scene Navigation changes
 
@@ -43,7 +43,7 @@ The popup will also close when the encounter has been finished.
 ### Show Combat CR
 Display the calculated CR of the Encounter.  This should give you a clue if the encounter might be scaled too hard for the current party.  Not 100% accurate but enough for a good idea.
 
-![monks-little-details](/screenshots/ShowCombatCR.PNG)
+![monks-little-details](/screenshots/ShowCombatCR.webp)
 
 ### Combat tracker 1.0.14
 Display an animated disc behind the token that currently has a turn in the encounter.
@@ -51,7 +51,7 @@ Display an animated disc behind the token that currently has a turn in the encou
 ### Altered Status Effects
 I can never remember what the icons stand for.  I'm displaying the names beside the icons aswell as sorting the statuses alphabetically.  Makes finding them a lot easier.  Also added a clear all button in case you want to get rid of all the statuses quickly.  And I've highlighted each item in bold orange so it's easier at a glance to see what's been selected.  And added some more of the standard statuses you might encounter in a 5e game.
 
-![monks-little-details](/screenshots/TokenHUDUpdates.PNG)
+![monks-little-details](/screenshots/TokenHUDUpdates.webp)
 
 ### Swapped Token HUD buttons
 I personally like the setup button below the target button, it makes more sense to me to be ordered that way.
@@ -61,17 +61,17 @@ Changed the invisible icon from the standard Masked Man image to one that more c
 
 ### Dominant Scene Colours
 Added the top 5 dominant colours of a scene so that you can choose a background colour that blends with the scene a bit better.
-![monks-little-details](/screenshots/BackgroundPalette.PNG)
+![monks-little-details](/screenshots/BackgroundPalette.webp)
 
 ### Drag wall points together
 Added a toggle to the wall tools.  When selected, dragging a wall point to a new location will also move any other wall points that exactly overlapped the first one.  So instead of having to move both wall points to the new location it will maintain the connection between wall joints and move the second one after the first has been moved.  Saves me some time when editing lengths of wall.
 
 ### Character Sound Effects
 Added a button to load a sound file to associate with a character.  So if you ever wanted to make a dragon roar, or a banshee howl, you can upload the file, attach it to the character and play from the Token HUD.  From the NPC sheet, a button with a speaker icon should now be visible.  Clicking that will open the FilePicker so you can select an audio file.  Right clicking will open a context menu with other options.  And orange border will denote that I file has been loaded.
-![monks-little-details](/screenshots/AddSound.png)
+![monks-little-details](/screenshots/AddSound.webp)
 
 While playing, bringing up the Token HUD will show a speaker button under the combat button.  Clicking on the speaker button will play the sound effect using the current volume settings for Foundry.
-![monks-little-details](/screenshots/PlaySound.png)
+![monks-little-details](/screenshots/PlaySound.webp)
 
 ### GM Move characters
 If you select characters, hold down the M Key and click on another map location, the tokens will instantly move there.  I found dragging them there has unfortunate side effects of showing spaces they shouldn't see while they're moving.  Teleporting them there preserves the fog of war between the two spots.  Handy for when you're using a map that has multiple levels on one image.  You can teleport from one area to the other quickly.
