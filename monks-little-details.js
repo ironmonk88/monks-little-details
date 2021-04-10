@@ -1081,7 +1081,7 @@ export class MonksLittleDetails {
             if (combatant.actor != undefined) {
                 if (combatant.token.disposition == 1) {
                     apl.count = apl.count + 1;
-                    apl.levels = apl.levels + (combatant.actor.data.data.details.level.value || combatant.actor.data.data.details.level);
+                    apl.levels = apl.levels + (combatant.actor.data.data.details.level?.value || combatant.actor.data.data.details.level);
                 } else {
                     xp += (combatant?.actor.data.data.details?.xp?.value || MonksLittleDetails.xpchart[Math.clamped(parseInt(combatant?.actor.data.data.details?.level?.value), 0, MonksLittleDetails.xpchart.length - 1)] || 0);
                 }
