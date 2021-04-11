@@ -1,3 +1,42 @@
+# Version 1.0.26
+Fixing a small error when calculating the CR of an encounter
+
+File optimization, Thank you xdy!
+
+# Version 1.0.25
+Fixing issues with the combat resource bars.
+
+Adding option to move the pause icon
+
+Adding option to sort token statues by column rather than row.
+
+# Version 1.0.22
+Added option to use different setting for resource bars when the token is in combat.  This will also display a see through version of the bar for hover and controlled option until the token is hovered or controlled.  This should make it easier to set the bars to not be seen during regular movement, but have them show once combat starts.
+
+Added interface with DF Library Hotkeys to show hotkey settings just for Monks Little Details.
+
+# Version 1.0.21
+Adding option to auto-defeat players aswell as npc's.
+
+Moved the game paused icon up a bit more so that it's obvious the game is paused.  If it's too low down it can be missed.
+
+Added a fixed maximum width to select boxes in a form.  If the text is too big it'll drop to the next line.  Still unsure if this is too big of a change though, not entirely sure of the consequences.  But I find it interesting that the input fields are a fized width, but the select fields are not.
+
+Whenever the turn changes, remove targets if you are the GM.
+
+# Version 1.0.20
+Don't mind me, just trying to find a set of keys that aren't used by other things and don't cause issues with Foundry.
+
+# Version 1.0.19
+Fixed issue with quick viewing layers, by using Library: DF Hotkeys.  Awesome module by the way.  It's not a requirement for Monks Little Details as it will check to see if you need to to be installed, but will warn you to install it if you want the feature.
+
+# Version 1.0.17
+Fixing styling with the token HUD in Pathfinder.
+
+Changing the location of stacked condition indicator in PF2
+
+Adding the option to briefly switch between layers by holding down a key and pressing Shift+key will change the layer.  This should let you switch briefly to another layer such as the Tiles layer to hide or show a tile before releasing the key and going back tot he token layer.  Current keys are assigned as r=tokens, t-tiles, y-lighting, u-sounds, i-terrain (if you have the Terrain Layer module installed)
+
 # Version 1.0.16
 Adding option to not highlight the image in the Token HUD.  If the system uses full colour images, then highlighting it just distorts the image.
 

@@ -1,14 +1,13 @@
 ﻿import { registerSettings } from "./settings.js";
 import { MMCQ } from "./quantize.js";
 import { WithMonksCombatTracker } from "./apps/combattracker.js"
+//import { MonksPlaylistConfig } from "./apps/monksplaylistconfig.js"
 
 export let debug = (...args) => {
     if (debugEnabled > 1) console.log("DEBUG: monks-little-details | ", ...args);
 };
 export let log = (...args) => console.log("monks-little-details | ", ...args);
-export let warn = (...args) => {
-    if (debugEnabled > 0) console.warn("monks-little-details | ", ...args);
-};
+export let warn = (...args) => console.warn("monks-little-details | ", ...args);
 export let error = (...args) => console.error("monks-little-details | ", ...args);
 export let i18n = key => {
     return game.i18n.localize(key);
@@ -37,10 +36,36 @@ export class MonksLittleDetails {
         return true;
     };
 
+    static inCombat(token, combat = game.combats) {
+        let combatant;
+        combat = (combat instanceof Combat ? [combat] : combat);
+        combat.find(c => {
+            if (c.started)
+                combatant = c.combatants.find(t => {
+                    return t.tokenId == token.id;
+                });
+            return c.started && combatant != undefined;
+        });
+
+        return combatant;
+    }
+
+    static canViewCombatMode(mode) {
+        if (mode === CONST.TOKEN_DISPLAY_MODES.NONE) return false;
+        else if (mode === CONST.TOKEN_DISPLAY_MODES.ALWAYS) return true;
+        else if (mode === CONST.TOKEN_DISPLAY_MODES.CONTROL) return this.owner;
+        else if (mode === CONST.TOKEN_DISPLAY_MODES.HOVER) return true;
+        else if (mode === CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER) return this.owner;
+        else if (mode === CONST.TOKEN_DISPLAY_MODES.OWNER) return this.owner;
+        return false;
+    }
+
     static init() {
-	    log("initializing");
+        log("initializing");
         // element statics
-       // CONFIG.debug.hooks = true;
+        // CONFIG.debug.hooks = true;
+
+        //CONFIG.Playlist.sheetClass = MonksPlaylistConfig;
 
         if (game.MonksLittleDetails == undefined)
             game.MonksLittleDetails = MonksLittleDetails;
@@ -92,7 +117,7 @@ export class MonksLittleDetails {
         if (game.world.system == 'dnd5e')
             MonksLittleDetails.xpchart = CONFIG.DND5E.CR_EXP_LEVELS;
         else if (game.world.system == 'pf2e') {
-            MonksLittleDetails.xpchart = [50, 400, 600,800,1200,1600, 2400, 3200, 4800, 6400, 9600, 12800, 19200, 25600, 38400, 51200, 76800, 102400, 153600, 204800, 307200, 409600, 614400, 819200, 1228800, 1638400, 2457600, 3276800, 4915200, 6553600, 9830400 ];
+            MonksLittleDetails.xpchart = [50, 400, 600, 800, 1200, 1600, 2400, 3200, 4800, 6400, 9600, 12800, 19200, 25600, 38400, 51200, 76800, 102400, 153600, 204800, 307200, 409600, 614400, 819200, 1228800, 1638400, 2457600, 3276800, 4915200, 6553600, 9830400];
         }
 
         MonksLittleDetails.crChallenge = [
@@ -107,8 +132,17 @@ export class MonksLittleDetails {
             //"alter-hud": ["pf2e"]
         }
         MonksLittleDetails._onlylist = {
+            "sort-by-columns": ["dnd5e"],
             "show-combat-cr": ["dnd5e", "pf2e"]
         }
+        /*
+        MonksLittleDetails.swapTool = {
+            'r': 'token',
+            't': 'tiles',
+            'y': 'lighting',
+            'u': 'sounds',
+            'i': 'terrain'
+        }*/
 
         // sound statics
         //MonksLittleDetails.NEXT_SOUND = "modules/monks-little-details/sounds/next.wav";
@@ -125,27 +159,28 @@ export class MonksLittleDetails {
         if (MonksLittleDetails.canDo("add-extra-statuses") && game.settings.get("monks-little-details", "add-extra-statuses")) {
             CONFIG.statusEffects = CONFIG.statusEffects.concat(
                 [
-                    { "id": "charmed", "label": "MonksLittleDetails.StatusCharmed", "icon": "modules/monks-little-details/icons/smitten.png" },
-                    { "id": "exhausted", "label": "MonksLittleDetails.StatusExhausted", "icon": "modules/monks-little-details/icons/oppression.png" },
-                    { "id": "grappled", "label": "MonksLittleDetails.StatusGrappled", "icon": "modules/monks-little-details/icons/grab.png" },
-                    { "id": "incapacitated", "label": "MonksLittleDetails.StatusIncapacitated", "icon": "modules/monks-little-details/icons/internal-injury.png" },
-                    { "id": "invisible", "label": "MonksLittleDetails.StatusInvisible", "icon": "modules/monks-little-details/icons/invisible.png" },
-                    { "id": "petrified", "label": "MonksLittleDetails.StatusPetrified", "icon": "modules/monks-little-details/icons/stone-pile.png" },
-                    { "id": "hasted", "label": "MonksLittleDetails.StatusHasted", "icon": "modules/monks-little-details/icons/running-shoe.png" },
-                    { "id": "slowed", "label": "MonksLittleDetails.StatusSlowed", "icon": "modules/monks-little-details/icons/turtle.png" },
-                    { "id": "concentration", "label": "MonksLittleDetails.StatusConcentrating", "icon": "modules/monks-little-details/icons/beams-aura.png" },
-                    { "id": "rage", "label": "MonksLittleDetails.StatusRage", "icon": "modules/monks-little-details/icons/enrage.png" },
-                    { "id": "distracted", "label": "MonksLittleDetails.StatusDistracted", "icon": "modules/monks-little-details/icons/distraction.png" },
-                    { "id": "dodging", "label": "MonksLittleDetails.StatusDodging", "icon": "modules/monks-little-details/icons/dodging.png" },
-                    { "id": "disengage", "label": "MonksLittleDetails.StatusDisengage", "icon": "modules/monks-little-details/icons/journey.png" },
-                    { "id": "cover", "label": "MonksLittleDetails.StatusCover", "icon": "modules/monks-little-details/icons/push.png" }
+                    { "id": "charmed", "label": "MonksLittleDetails.StatusCharmed", "icon": "modules/monks-little-details/icons/smitten.svg" },
+                    { "id": "exhausted", "label": "MonksLittleDetails.StatusExhausted", "icon": "modules/monks-little-details/icons/oppression.svg" },
+                    { "id": "grappled", "label": "MonksLittleDetails.StatusGrappled", "icon": "modules/monks-little-details/icons/grab.svg" },
+                    { "id": "incapacitated", "label": "MonksLittleDetails.StatusIncapacitated", "icon": "modules/monks-little-details/icons/internal-injury.svg" },
+                    { "id": "invisible", "label": "MonksLittleDetails.StatusInvisible", "icon": "modules/monks-little-details/icons/invisible.svg" },
+                    { "id": "petrified", "label": "MonksLittleDetails.StatusPetrified", "icon": "modules/monks-little-details/icons/stone-pile.svg" },
+                    { "id": "hasted", "label": "MonksLittleDetails.StatusHasted", "icon": "modules/monks-little-details/icons/running-shoe.svg" },
+                    { "id": "slowed", "label": "MonksLittleDetails.StatusSlowed", "icon": "modules/monks-little-details/icons/turtle.svg" },
+                    { "id": "concentration", "label": "MonksLittleDetails.StatusConcentrating", "icon": "modules/monks-little-details/icons/beams-aura.svg" },
+                    { "id": "rage", "label": "MonksLittleDetails.StatusRage", "icon": "modules/monks-little-details/icons/enrage.svg" },
+                    { "id": "distracted", "label": "MonksLittleDetails.StatusDistracted", "icon": "modules/monks-little-details/icons/distraction.svg" },
+                    { "id": "dodging", "label": "MonksLittleDetails.StatusDodging", "icon": "modules/monks-little-details/icons/dodging.svg" },
+                    { "id": "disengage", "label": "MonksLittleDetails.StatusDisengage", "icon": "modules/monks-little-details/icons/journey.svg" },
+                    { "id": "cover", "label": "MonksLittleDetails.StatusCover", "icon": "modules/monks-little-details/icons/push.svg" }
                 ]
             );
         }
 
-        if (setting('context-view-artwork')) {
-            //let oldContextMenuOptions = Compendium.prototype._getContextMenuOptions;
+        /*if (setting('context-view-artwork')) {
+            let oldContextMenuOptions = Compendium.prototype._getContextMenuOptions;
             Compendium.prototype._contextMenu = function (html) {
+
                 let compendium = this;
                 new ContextMenu(html, ".directory-item", [
                     {
@@ -199,13 +234,9 @@ export class MonksLittleDetails {
                     }
                 ]);
             }
-        }
+        }*/
 
         if (game.settings.get("monks-little-details", "alter-hud")) {
-            CONFIG.statusEffects = CONFIG.statusEffects.sort(function (a, b) {
-                return (a.id == undefined || a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)); //(a.label == undefined || i18n(a.label) > i18n(b.label) ? 1 : (i18n(a.label) < i18n(b.label) ? -1 : 0));
-            })
-
             let oldTokenHUDRender = TokenHUD.prototype._render;
             TokenHUD.prototype._render = function (force = false, options = {}) {
                 let result = oldTokenHUDRender.call(this, force, options).then((a, b) => {
@@ -214,7 +245,7 @@ export class MonksLittleDetails {
 
                 return result;
             }
-            TokenHUD.prototype.refreshStatusIcons = function() {
+            TokenHUD.prototype.refreshStatusIcons = function () {
                 const effects = this.element.find(".status-effects")[0];
                 const statuses = this._getStatusEffectChoices();
                 for (let img of $('[src]', effects)) {
@@ -242,7 +273,7 @@ export class MonksLittleDetails {
             CONFIG.ui.combat = WithMonksCombatTracker(CONFIG.ui.combat);
 
         if (setting("show-bloodsplat")) {
-            MonksLittleDetails.splatfont = new FontFace('WC Rhesus A Bta', "url('modules/monks-little-details/fonts/WCRhesusABta.woff2'), url('modules/monks-little-details/fonts/WCRhesusABta.woff')");
+            MonksLittleDetails.splatfont = new FontFace('WC Rhesus A Bta', "url('modules/monks-little-details/fonts/WCRhesusABta.woff2')");
             MonksLittleDetails.splatfont.load().then(() => {
                 document.fonts.add(MonksLittleDetails.splatfont);
             });
@@ -252,14 +283,7 @@ export class MonksLittleDetails {
                 oldTokenRefresh.call(this);
 
                 //find defeated state
-                let combatant;
-                game.combats.find(c => {
-                    if (c.started)
-                        combatant = c.combatants.find(t => {
-                            return t.tokenId == this.id;
-                        });
-                    return c.started && combatant != undefined;
-                });
+                let combatant = MonksLittleDetails.inCombat(this);
                 if (((combatant && combatant.defeated) || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId)) && this.actor?.data.type !== 'character') {
                     this.bars.visible = false;
                     for (let effect of this.effects.children) {
@@ -315,6 +339,25 @@ export class MonksLittleDetails {
             }
         }
 
+        //if this token is part of a combat, then always show the bar, but at 0.5 opacity, unless controlled
+        if (setting('add-combat-bars')) {
+            let oldTokenRefresh = Token.prototype.refresh;
+            Token.prototype.refresh = function () {
+                oldTokenRefresh.call(this);
+
+                let combatant = MonksLittleDetails.inCombat(this);
+                if (combatant) {
+                    let combatBar = this.getFlag('monks-little-details', 'displayBarsCombat');
+                    if (combatBar != undefined && combatBar != -1) {
+                        this.bars.visible = MonksLittleDetails.canViewCombatMode.call(this, combatBar);
+                        this.bars.alpha = ((this._controlled && (combatBar == CONST.TOKEN_DISPLAY_MODES.CONTROL || combatBar == CONST.TOKEN_DISPLAY_MODES.OWNER || combatBar == CONST.TOKEN_DISPLAY_MODES.ALWAYS)) ||
+                            (this._hover && (combatBar == CONST.TOKEN_DISPLAY_MODES.HOVER || combatBar == CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER)) ? 1 : 0.3);
+                    }
+                } else
+                    this.bars.alpha = 1;
+            }
+        }
+
         if (game.settings.get("monks-little-details", "show-notify")) {
             let oldChatLogNotify = ChatLog.prototype.notify;
             ChatLog.prototype.notify = function (message) {
@@ -348,13 +391,142 @@ export class MonksLittleDetails {
             let icon = $('#chat-notification');
             if(icon.is(":visible")) icon.fadeOut(100);
         });
+
+        if (game.settings.get("monks-little-details", "key-swap-tool")) {
+            if (!game.modules.get('lib-df-hotkeys')?.active) {
+                if (game.user.isGM) {
+                    ui.notifications.error(i18n("MonksLittleDetails.HotKeysWarning"));
+                    warn(i18n("MonksLittleDetails.HotKeysWarning"));
+                }
+            } else {
+                MonksLittleDetails.registerHotKeys();
+            }
+        }
+
+        if (game.settings.get("monks-little-details", "alter-hud")) {
+            CONFIG.statusEffects = CONFIG.statusEffects.sort(function (a, b) {
+                let aid = (a.label != undefined ? i18n(a.label) : a.id);
+                let bid = (b.label != undefined ? i18n(b.label) : b.id);
+                return (aid > bid ? 1 : (aid < bid ? -1 : 0));
+                //return (a.id == undefined || a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)); //(a.label == undefined || i18n(a.label) > i18n(b.label) ? 1 : (i18n(a.label) < i18n(b.label) ? -1 : 0));
+            });
+
+            if (setting('sort-by-columns')) {
+                let [blanks, temp] = CONFIG.statusEffects.partition(f => f.label != undefined);
+                let effects = [];
+                let mid = Math.ceil(temp.length / 4);
+                let offset = (4 - ((mid * 4) - temp.length));
+                for (let i = 0; i < mid; i++) {
+                    for (let j = 0; j < 4; j++) {
+                        let spot = (i + (mid * j) - (j > offset ? 1 : 0));
+                        if (spot < temp.length) {
+                            effects.push(temp[spot]);
+                        }
+                    }
+                }
+                CONFIG.statusEffects = effects.concat(blanks);
+            }
+        }
+    }
+
+    static registerHotKeys() {
+        /*
+        window.addEventListener('keydown', (e) => {
+            if (MonksLittleDetails.canvasfocus && document.activeElement.tagName == 'BODY') {
+                if (Object.keys(MonksLittleDetails.swapTool).includes(e.key.toLowerCase())) {
+                    let controlName = MonksLittleDetails.swapTool[e.key.toLowerCase()];
+                    let control = ui.controls.control;
+                    if (control.name != controlName && MonksLittleDetails.switchTool == undefined) {
+                        if (!e.shiftKey)
+                            MonksLittleDetails.switchTool = { control: control, tool: control.activeTool };
+                        let newcontrol = ui.controls.controls.find(c => { return c.name == controlName; });
+                        if (newcontrol != undefined) {
+                            ui.controls.activeControl = newcontrol.name;
+                            if (newcontrol && newcontrol.layer)
+                                canvas.getLayer(newcontrol.layer).activate();
+                        }
+                    }
+                }
+            }
+        })
+
+        window.addEventListener('keyup', (e) => {
+            if (Object.keys(MonksLittleDetails.swapTool).includes(e.key.toLowerCase()) && MonksLittleDetails.switchTool != undefined) {
+                if (MonksLittleDetails.switchTool.control) {
+                    if (MonksLittleDetails.switchTool.control.layer)
+                        canvas.getLayer(MonksLittleDetails.switchTool.control.layer).activate();
+                    ui.controls.activeControl = MonksLittleDetails.switchTool.control.name;
+                }
+                delete MonksLittleDetails.switchTool;
+            }
+        })*/
+
+        Hotkeys.registerGroup({
+            name: 'monks-little-details_tool-swap',
+            label: 'Monks Litle Details, Tool Swap',
+            description: 'Use these keys to swap between tools'
+        });
+
+        [
+            { name: i18n("MonksLittleDetails.TokenLayer"), tool: 'token', def: Hotkeys.keys.KeyG },
+            { name: i18n("MonksLittleDetails.MeasureLayer"), tool: 'measure', def: null },
+            { name: i18n("MonksLittleDetails.TileLayer"), tool: 'tiles', def: Hotkeys.keys.KeyH },
+            { name: i18n("MonksLittleDetails.DrawingLayer"), tool: 'drawings', def: null },
+            { name: i18n("MonksLittleDetails.WallLayer"), tool: 'walls', def: null },
+            { name: i18n("MonksLittleDetails.LightingLayer"), tool: 'lighting', def: Hotkeys.keys.KeyJ },
+            { name: i18n("MonksLittleDetails.SoundLayer"), tool: 'sounds', def: Hotkeys.keys.KeyK },
+            { name: i18n("MonksLittleDetails.NoteLayer"), tool: 'notes', def: null },
+            { name: i18n("MonksLittleDetails.TerrainLayer"), tool: 'terrain', def: Hotkeys.keys.KeyL }
+        ].map(l => {
+            Hotkeys.registerShortcut({
+                name: `monks-little-details_swap-${l.tool}-control`,
+                label: `${i18n("MonksLittleDetails.QuickShow")} ${l.name}`,
+                group: 'monks-little-details_tool-swap',
+                default: () => { return { key: l.def, alt: false, ctrl: false, shift: false }; },
+                onKeyDown: (e) => { MonksLittleDetails.swapTool(l.tool, true); },
+                onKeyUp: (e) => { MonksLittleDetails.releaseTool(); }
+            });
+            Hotkeys.registerShortcut({
+                name: `monks-little-details_change-${l.tool}-control`,
+                label: `${i18n("MonksLittleDetails.ChangeTo")} ${l.name}`,
+                group: 'monks-little-details_tool-swap',
+                default: () => { return { key: l.def, alt: false, ctrl: false, shift: true }; },
+                onKeyDown: (e) => { MonksLittleDetails.swapTool(l.tool, false); }
+            });
+        });
+        
+    }
+
+    static swapTool(controlName, quick = true) {
+        let control = ui.controls.control;
+        if (control.name != controlName && MonksLittleDetails.switchTool == undefined) {
+            if (quick !== false) //e?.shiftKey
+                MonksLittleDetails.switchTool = { control: control, tool: control.activeTool };
+            let newcontrol = ui.controls.controls.find(c => { return c.name == controlName; });
+            if (newcontrol != undefined) {
+                ui.controls.activeControl = newcontrol.name;
+                if (newcontrol && newcontrol.layer)
+                    canvas.getLayer(newcontrol.layer).activate();
+            }
+        }
+    }
+
+    static releaseTool() {
+        if (MonksLittleDetails.switchTool != undefined) {
+            if (MonksLittleDetails.switchTool.control) {
+                if (MonksLittleDetails.switchTool.control.layer)
+                    canvas.getLayer(MonksLittleDetails.switchTool.control.layer).activate();
+                ui.controls.activeControl = MonksLittleDetails.switchTool.control.name;
+            }
+            delete MonksLittleDetails.switchTool;
+        }
     }
 
     static injectCSS() {
         let innerHTML = '';
         let style = document.createElement("style");
         style.id = "monks-css-changes";
-        if (game.settings.get("monks-little-details", "core-css-changes")) {
+        if (setting("core-css-changes")) {
             innerHTML += `
 .sidebar-tab .directory-list .directory-item img {
     object-fit: contain !important;
@@ -387,6 +559,18 @@ export class MonksLittleDetails {
 
 #context-menu li.context-item{
     text-align: left;
+}
+
+.form-group select{
+    width: calc(100% - 2px);
+}
+`;
+        }
+
+        if (setting("move-pause")) {
+            innerHTML += `
+#pause{
+    bottom:30%;
 }
 `;
         }
@@ -897,7 +1081,7 @@ export class MonksLittleDetails {
             if (combatant.actor != undefined) {
                 if (combatant.token.disposition == 1) {
                     apl.count = apl.count + 1;
-                    apl.levels = apl.levels + (combatant.actor.data.data.details.level.value || combatant.actor.data.data.details.level);
+                    apl.levels = apl.levels + (combatant.actor.data.data.details.level?.value || combatant.actor.data.data.details.level);
                 } else {
                     xp += (combatant?.actor.data.data.details?.xp?.value || MonksLittleDetails.xpchart[Math.clamped(parseInt(combatant?.actor.data.data.details?.level?.value), 0, MonksLittleDetails.xpchart.length - 1)] || 0);
                 }
@@ -1369,13 +1553,55 @@ Hooks.on("deleteCombat", function (combat) {
             }
         }
     }
+
+    //if we're using combat bars and the combat starts or stops, we need to refresh the tokens
+    if (setting('add-combat-bars') && combat) {
+        for (let combatant of combat.combatants) {
+            let token = canvas.tokens.placeables.find(t => { return t.id == combatant.tokenId; });
+            let displayBars = token.data.displayBars;
+            let combatBar = token.getFlag('monks-little-details', 'displayBarsCombat');
+            combatBar = (combatBar == undefined || combatBar == -1 ? displayBars : combatBar);
+
+            if (token.bars.alpha != 1) {
+                token.bars.alpha = 1;
+                token.refresh();
+            } else if (combatBar != displayBars)
+                token.refresh();
+        }
+    }
 });
 
 Hooks.on("updateCombat", function (combat, delta) {
     MonksLittleDetails.checkCombatTurn(combat);
 
+    if (combat && combat.started && game.user.isGM && setting('clear-targets')) {
+        //clear the targets
+        game.user.targets.forEach(t => t.setTarget(false, { user: game.user, releaseOthers: true, groupSelection: false }));
+
+        canvas.tokens.selectObjects({
+            x: 0,
+            y: 0,
+            height: 0,
+            releaseOptions: {},
+            controlOptions: { releaseOthers: true, updateSight: true }
+        });
+    }
+
+    //if we're using combat bars and the combat starts or stops, we need to refresh the tokens
+    if (setting('add-combat-bars') && combat && (delta.round === 1 && combat.turn === 0 && combat.started === true)) {
+        for (let combatant of combat.combatants) {
+            let token = canvas.tokens.placeables.find(t => { return t.id == combatant.tokenId; });
+            let displayBars = token.data.displayBars;
+            let combatBar = token.getFlag('monks-little-details', 'displayBarsCombat');
+            combatBar = (combatBar == undefined || combatBar == -1 ? displayBars : combatBar);
+
+            if (combatBar != displayBars)
+                token.refresh();
+        }
+    }
+
     log("update combat", combat);
-    let opencombat = game.settings.get("monks-little-details", "opencombat");
+    let opencombat = setting("opencombat");
     if ((opencombat == "everyone" || (game.user.isGM && opencombat == "gmonly") || (!game.user.isGM && opencombat == "playersonly"))
         && !game.settings.get("monks-little-details", "disable-opencombat")
         && delta.round === 1 && combat.turn === 0 && combat.started === true) {
@@ -1417,6 +1643,14 @@ Hooks.on("ready", MonksLittleDetails.ready);
 
 Hooks.on("canvasReady", () => {
     canvas.stage.on("mousedown", MonksLittleDetails.moveTokens);    //move all tokens while holding down m
+
+    canvas.stage.on('mouseover', (e) => {
+        MonksLittleDetails.canvasfocus = true;
+    });
+
+    canvas.stage.on('mouseout', (e) => {
+        MonksLittleDetails.canvasfocus = false;
+    });
 });
 
 Hooks.on('renderCombatTracker', async (app, html, options) => {
@@ -1537,7 +1771,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
 
 Hooks.on("preUpdateWall", (scene, wall, update, options) => {
     let dragtogether = ui.controls.control.tools.find(t => { return t.name == "toggledragtogether" });
-    if (dragtogether != undefined && dragtogether.active && options.ignore == undefined) {
+    if (dragtogether != undefined && dragtogether.active && options.ignore == undefined && update.c != undefined) {
         let updates = [];
         let oldcoord = ((wall.c[0] != update.c[0] || wall.c[1] != update.c[1]) && wall.c[2] == update.c[2] && wall.c[3] == update.c[3] ? [wall.c[0], wall.c[1], update.c[0], update.c[1]] :
             ((wall.c[2] != update.c[2] || wall.c[3] != update.c[3]) && wall.c[0] == update.c[0] && wall.c[1] == update.c[1] ? [wall.c[2], wall.c[3], update.c[2], update.c[3]] : null));
@@ -1609,14 +1843,20 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
         });
 
     btn2.clone(true).insertAfter($('input[name="monks-little-details.token-highlight-picture"]', html));
+
+    $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.SystemChanges")).insertBefore($('[name="monks-little-details.swap-buttons"]').parents('div.form-group:first'));
+    $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.CombatTracker")).insertBefore($('[name="monks-little-details.show-combat-cr"]').parents('div.form-group:first'));
+    $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.CombatTurn")).insertBefore($('[name="monks-little-details.shownextup"]').parents('div.form-group:first'));
+    $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.CombatTokenHighlight")).insertBefore($('[name="monks-little-details.token-combat-highlight"]').parents('div.form-group:first'));
+    $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.AddedFeatures")).insertBefore($('[name="monks-little-details.actor-sounds"]').parents('div.form-group:first'));
 });
 
 Hooks.on("updateToken", function (scene, tkn, data, options, userid) {
     //actorData.data.attributes.hp
-    if (setting('auto-defeated')) {
+    if (['npc', 'all'].includes(setting('auto-defeated')) && game.user.isGM) {
         let token = canvas.tokens.get(tkn._id);
         let hp = getProperty(data, 'actorData.data.attributes.hp');
-        if (hp != undefined && token.data.disposition != 1) {
+        if (hp != undefined && (setting('auto-defeated') == 'all' || (setting('auto-defeated') == 'npc' && token.data.disposition != 1))) {
             let combatant;
             let combat = game.combats.find(c => {
                 if (c.started)
@@ -1635,11 +1875,121 @@ Hooks.on("updateToken", function (scene, tkn, data, options, userid) {
             }
         }
     }
+
+    if (setting('auto-reveal') && game.user.isGM && data.hidden === false) {
+        let token = canvas.tokens.get(tkn._id);
+        let combatant;
+        let combat = game.combats.find(c => {
+            if (c.started)
+                combatant = c.combatants.find(t => {
+                    return t.tokenId == token.id;
+                });
+            return c.started && combatant != undefined;
+        });
+
+        if (combatant?.hidden === true) {
+            combat.updateCombatant({ _id: combatant._id, hidden: false }).then(() => {
+                token.refresh();
+            });
+        }
+    }
 });
 
-/*
-Hooks.on("renderCompendium", (compendium, html, data) => {
-    if (compendium.entity == 'Scene') {
 
+Hooks.on('renderTokenConfig', function (app, html, options) {
+    if (setting('add-combat-bars')) {
+        let displayBars = $('[name="displayBars"]', html).parents('div.form-group');
+        let combatBars = displayBars.clone(true);
+
+        $('[name="displayBars"]', combatBars).attr('name', 'flags.monks-little-details.displayBarsCombat').prepend($('<option>').attr('value', '-1').html('')).val(app.object.getFlag('monks-little-details', 'displayBarsCombat'));
+        $('> label', combatBars).html(i18n("MonksLittleDetails.CombatDisplayBars"));
+        combatBars.insertAfter(displayBars);
     }
-});*/
+});
+
+Hooks.on("renderCompendium", (compendium, html, data) => {
+    if (setting('compendium-view-artwork')) {
+        if (compendium.entity == 'Scene') {
+            html.find('li.directory-item h4 a').click(ev => {
+                ev.preventDefault();
+                ev.cancelBubble = true;
+                if (ev.stopPropagation)
+                    ev.stopPropagation();
+                let entryId = $(ev.currentTarget).parents('li:first').attr('data-entry-id');
+                compendium.getEntity(entryId).then(entry => {
+                    let img = entry.data.img;
+                    if (VideoHelper.hasVideoExtension(img))
+                        ImageHelper.createThumbnail(img, { width: entry.data.width, height: entry.data.height }).then(img => {
+                            new ImagePopout(img.thumb, {
+                                title: entry.name,
+                                shareable: true,
+                                uuid: entry.uuid
+                            }).render(true);
+                        });
+                    else {
+                        new ImagePopout(img, {
+                            title: entry.name,
+                            shareable: true,
+                            uuid: entry.uuid
+                        }).render(true);
+                    }
+                });
+            });
+        }
+    }
+    /*
+    if (compendium.entity == 'Playlist') {
+        compendium._onEntry = async (entryId) => {
+            //for the playlist I want to expand the directory structure
+            let li = $('li[data-entry-id="' + entryId + '"]', compendium.element);
+            let dir = $('.play-list-sounds', li);
+            if (dir.length == 0) {
+                dir = $('<ol>').addClass('play-list-sounds').appendTo(li);
+                const entity = await compendium.getEntity(entryId);
+                $(entity.sounds).each(function () {
+                    let sound = this;
+                    $('<li>').addClass('play-sound').html(this.name).appendTo(dir).on('click', $.proxy((sound, entity, li, ev)=>{
+                        if (sound != undefined) {
+                            //let path = li.attr('data-sound-path');
+                            if (compendium.currentsound != undefined) {
+                                if (compendium.currentsound.sound.playing) {
+                                    compendium.currentsound.sound.playing = false;
+                                    compendium.currentsound.audio.stop();
+                                }
+                            }
+                            if (compendium.currentsound == undefined || compendium.currentsound.sound.path != sound.path) {
+                                sound.playing = true;
+                                let audio = AudioHelper.play({ src: sound.path });
+                                compendium.currentsound = {
+                                    sound: sound,
+                                    audio: audio
+                                };
+                            }
+                        }
+                    }, compendium, sound, entity, li));
+                });
+
+                new DragDrop({
+                    dragSelector: ".play-list-sounds .play-sound",
+                    dropSelector: "#playlists .directory-list .directory-item.playlist",
+                    callbacks: {
+                        dragstart: (ev) => {
+                            ev.preventDefault();
+                            log('play sound drag start', ev);
+                             },
+                        dragover: (ev) => {
+                            ev.preventDefault();
+                            log('play sound drag over', ev);
+                             },
+                        drop: (ev) => {
+                            ev.preventDefault();
+                            log('play sound drag drop', ev);
+                             }
+                    }
+                }).bind(dir[0]);
+            }
+            dir.hide().slideDown(200);
+        }
+    }*/
+});
+
