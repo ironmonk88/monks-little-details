@@ -280,7 +280,7 @@ export const registerSettings = function () {
 		hint: i18n("MonksLittleDetails.token-highlight-picture.hint"),
 		scope: "world",
 		config: true,
-		default: "modules/monks-little-details/icons/turnmarker.svg",
+		default: "modules/monks-little-details/icons/turnmarker.png",
 		type: String,
 		onChange: () => {
 			location.reload();

@@ -1,3 +1,6 @@
+# Version 1.0.27
+File name accidentally changed to .svg, restored it back to .png
+
 # Version 1.0.26
 Fixing a small error when calculating the CR of an encounter
 
