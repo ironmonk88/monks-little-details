@@ -191,14 +191,6 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean,
 	});
-	game.settings.register(modulename, "next-sound", {
-		name: i18n("MonksLittleDetails.next-sound.name"),
-		hint: i18n("MonksLittleDetails.next-sound.hint"),
-		scope: "world",
-		config: true,
-		default: "modules/monks-little-details/sounds/next.ogg",
-		type: String,
-	});
 	game.settings.register(modulename, "showcurrentup", {
 		name: i18n("MonksLittleDetails.showcurrentup.name"),
 		hint: i18n("MonksLittleDetails.showcurrentup.hint"),
@@ -206,6 +198,14 @@ export const registerSettings = function () {
 		config: true,
 		default: true,
 		type: Boolean,
+	});
+	game.settings.register(modulename, "next-sound", {
+		name: i18n("MonksLittleDetails.next-sound.name"),
+		hint: i18n("MonksLittleDetails.next-sound.hint"),
+		scope: "world",
+		config: true,
+		default: "modules/monks-little-details/sounds/next.ogg",
+		type: String,
 	});
 	game.settings.register(modulename, "turn-sound", {
 		name: i18n("MonksLittleDetails.turn-sound.name"),
@@ -376,7 +376,7 @@ export const registerSettings = function () {
 		game.settings.registerMenu(modulename, 'hot-keys', {
 			name: 'Change Hotkeys',
 			label: 'Change Hotkeys',
-			hint: 'Change the hotkeys this module uses',
+			hint: 'Change the hotkeys that this module uses',
 			icon: 'fas fa-keyboard',
 			restricted: true,
 			type: Hotkeys.createConfig('Monks Little Details', ['monks-little-details'])

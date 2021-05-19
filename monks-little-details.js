@@ -153,10 +153,10 @@ export class MonksLittleDetails {
 
         MonksLittleDetails.injectCSS();
 
-        if (MonksLittleDetails.canDo("change-invisible-image") && game.settings.get("monks-little-details", "change-invisible-image"))
+        if (MonksLittleDetails.canDo("change-invisible-image") && setting("change-invisible-image"))
             CONFIG.controlIcons.visibility = "modules/monks-little-details/icons/invisible.svg";
 
-        if (MonksLittleDetails.canDo("add-extra-statuses") && game.settings.get("monks-little-details", "add-extra-statuses")) {
+        if (MonksLittleDetails.canDo("add-extra-statuses") && setting("add-extra-statuses")) {
             CONFIG.statusEffects = CONFIG.statusEffects.concat(
                 [
                     { "id": "charmed", "label": "MonksLittleDetails.StatusCharmed", "icon": "modules/monks-little-details/icons/smitten.svg" },
@@ -296,8 +296,17 @@ export class MonksLittleDetails {
                                 let glyph = this.getFlag('monks-little-details', 'glyph');
                                 if (glyph == undefined) {
                                     glyph = MonksLittleDetails.availableGlyphs.charAt(Math.floor(Math.random() * MonksLittleDetails.availableGlyphs.length));
-                                    this.setFlag('monks-little-details', 'glyph', glyph);
+                                    if(game.user.isGM)
+                                        this.setFlag('monks-little-details', 'glyph', glyph);
                                 }
+                                /*this.splat = new PIXI.Text(' ' + glyph + ' ', { fontFamily: 'Times New Roman', fontSize: this.height, fill: 0xff0000, align: 'center' }); //WC Rhesus A Bta
+                                this.splat.alpha = 0.7;
+                                this.splat.blendMode = PIXI.BLEND_MODES.OVERLAY;
+                                this.splat.anchor.set(0.5, 0.5);
+                                this.splat.x = this.width / 2;
+                                this.splat.y = this.height / 2;
+                                this.addChild(this.splat);*/
+
                                 this.bloodsplat = new PIXI.Text(' ' + glyph + ' ', { fontFamily: 'WC Rhesus A Bta', fontSize: this.height, fill: 0xff0000, align: 'center' });
                                 this.bloodsplat.alpha = 0.7;
                                 this.bloodsplat.blendMode = PIXI.BLEND_MODES.OVERLAY;
@@ -310,6 +319,9 @@ export class MonksLittleDetails {
                     } else {
                         this.icon.alpha = 0.5;
                         if (this.bloodsplat) {
+                            //this.removeChild(this.splat);
+                            //delete this.splat;
+
                             this.removeChild(this.bloodsplat);
                             delete this.bloodsplat;
                         }
@@ -328,6 +340,9 @@ export class MonksLittleDetails {
                     }
                 } else {
                     if (this.bloodsplat) {
+                        //this.removeChild(this.splat);
+                        //delete this.splat;
+
                         this.removeChild(this.bloodsplat);
                         delete this.bloodsplat;
                     }
@@ -380,7 +395,9 @@ export class MonksLittleDetails {
     }
 
     static ready() {
-        if(game.settings.get("monks-little-details", "actor-sounds"))
+        game.settings.settings.get("monks-little-details.volume").default = (game.user.isGM ? 0 : 60); //set the default when we have the users loaded
+
+        if(setting("actor-sounds"))
             MonksLittleDetails.injectSoundCtrls();
 
         MonksLittleDetails.checkCombatTurn(game.combats.active);
@@ -773,18 +790,23 @@ export class MonksLittleDetails {
                 this.actor.setFlag('monks-little-details', 'sound-effect', path);
             },
             top: this.position.top + 40,
-            left: this.position.left + 10
+            left: this.position.left + 10,
+            wildcard: true
         });
         return fp.browse();
     }
 
-    static loadSoundEffect(event) {
-        const audiofile = this.actor.getFlag('monks-little-details', 'sound-effect');
-        if (audiofile != undefined) {
+    static async loadSoundEffect(event) {
+        const audiofiles = await MonksLittleDetails.getTokenSounds(this.actor);
+
+        //audiofiles = audiofiles.filter(i => (audiofiles.length === 1) || !(i === this._lastWildcard));
+        if (audiofiles.length > 0) {
+            const audiofile = audiofiles[Math.floor(Math.random() * audiofiles.length)];
+
+            let volume = game.settings.get("core", 'globalInterfaceVolume');
             if (this instanceof Token) {
                 let token = this;
                 if (this.soundeffect == undefined) {
-                    let volume = game.settings.get("core", 'globalInterfaceVolume');
                     token.soundeffect = AudioHelper.play({ src: audiofile, volume: volume }, true);
                     token.soundeffect.on("end", () => {
                         log('Finished playing', audiofile);
@@ -810,11 +832,41 @@ export class MonksLittleDetails {
                     },
                     (resp) => { }
                 );*/
-            } //else
-                //MonksLittleDetails.playSoundEffect(audiofile);
+            } else
+                AudioHelper.play({ src: audiofile, volume: volume }, true);
         }
         if(event != undefined)
             event.preventDefault;
+    }
+
+    static async getTokenSounds(actor) {
+        const audiofile = actor.getFlag('monks-little-details', 'sound-effect');
+
+        if (!audiofile.includes('*')) return [audiofile];
+        if (actor._tokenSounds) return this._tokenSounds;
+        let source = "data";
+        let pattern = audiofile;
+        const browseOptions = { wildcard: true };
+
+        // Support S3 matching
+        if (/\.s3\./.test(pattern)) {
+            source = "s3";
+            const { bucket, keyPrefix } = FilePicker.parseS3URL(pattern);
+            if (bucket) {
+                browseOptions.bucket = bucket;
+                pattern = keyPrefix;
+            }
+        }
+
+        // Retrieve wildcard content
+        try {
+            const content = await FilePicker.browse(source, pattern, browseOptions);
+            this._tokenSounds = content.files;
+        } catch (err) {
+            this._tokenSounds = [];
+            ui.notifications.error(err);
+        }
+        return this._tokenSounds;
     }
 
     /*
@@ -875,7 +927,7 @@ export class MonksLittleDetails {
     }*/
 
     static doDisplayTurn() {
-        if (!game.settings.get("monks-little-details", "showcurrentup")) {
+        if (!setting("showcurrentup")) {
             return;
         }
 
@@ -885,12 +937,12 @@ export class MonksLittleDetails {
         ui.notifications.warn(i18n("MonksLittleDetails.Turn"));
 
         // play a sound
-        if (volume() > 0 && !game.settings.get("monks-little-details", "disablesounds") && game.settings.get('monks-little-details', 'turn-sound') != '')
-            AudioHelper.play({ src: game.settings.get('monks-little-details', 'turn-sound'), volume: volume() });
+        if (volume() > 0 && !setting("disablesounds") && setting('turn-sound') != '')
+            AudioHelper.play({ src: setting('turn-sound'), volume: volume() });
     }
 
     static doDisplayNext() {
-        if (!game.settings.get("monks-little-details", "shownextup")) {
+        if (!setting("shownextup")) {
             return;
         }
 
@@ -900,8 +952,8 @@ export class MonksLittleDetails {
 
         ui.notifications.info(i18n("MonksLittleDetails.Next"));
         // play a sound
-        if (volume() > 0 && !game.settings.get("monks-little-details", "disablesounds") && game.settings.get('monks-little-details', 'next-sound') != '')
-            AudioHelper.play({ src: game.settings.get('monks-little-details', 'next-sound'), volume: volume() });
+        if (volume() > 0 && !setting("disablesounds") && setting('next-sound') != '')
+            AudioHelper.play({ src: setting('next-sound'), volume: volume() });
     }
 
     /**
@@ -1081,7 +1133,7 @@ export class MonksLittleDetails {
             if (combatant.actor != undefined) {
                 if (combatant.token.disposition == 1) {
                     apl.count = apl.count + 1;
-                    apl.levels = apl.levels + (combatant.actor.data.data.details.level?.value || combatant.actor.data.data.details.level);
+                    apl.levels = apl.levels + (combatant.actor.data.data.details.level?.value || combatant.actor.data.data.details.level || 0);
                 } else {
                     xp += (combatant?.actor.data.data.details?.xp?.value || MonksLittleDetails.xpchart[Math.clamped(parseInt(combatant?.actor.data.data.details?.level?.value), 0, MonksLittleDetails.xpchart.length - 1)] || 0);
                 }
@@ -1510,6 +1562,16 @@ Hooks.on("addCombatant", function (context, parentId, data) {
 
     if (combatant.actor.owner) 
         MonksLittleDetails.checkCombatTurn(combat);
+
+    //set the blood glyph if this is the GM
+    if (setting('show-bloodsplat') && combatant && game.user.isGM) {
+        let token = canvas.tokens.placeables.find(t => { return t.id == combatant.tokenId; });
+        let glyph = token.getFlag('monks-little-details', 'glyph');
+        if (glyph == undefined) {
+            glyph = MonksLittleDetails.availableGlyphs.charAt(Math.floor(Math.random() * MonksLittleDetails.availableGlyphs.length));
+            token.setFlag('monks-little-details', 'glyph', glyph);
+        }
+    }
 });
 
 /**
@@ -1571,8 +1633,10 @@ Hooks.on("deleteCombat", function (combat) {
     }
 });
 
-Hooks.on("updateCombat", function (combat, delta) {
+Hooks.on("updateCombat", async function (combat, delta) {
     MonksLittleDetails.checkCombatTurn(combat);
+
+    let combatStarted = (combat && (delta.round === 1 && combat.turn === 0 && combat.started === true));
 
     if (combat && combat.started && game.user.isGM && setting('clear-targets')) {
         //clear the targets
@@ -1587,8 +1651,20 @@ Hooks.on("updateCombat", function (combat, delta) {
         });
     }
 
+    //set the bloodsplat glyph when the combat starts to maintain consistency
+    if (setting('show-bloodsplat') && game.user.isGM && combatStarted) {
+        for (let combatant of combat.combatants) {
+            let token = canvas.tokens.placeables.find(t => { return t.id == combatant.tokenId; });
+            let glyph = token.getFlag('monks-little-details', 'glyph');
+            if (glyph == undefined) {
+                glyph = MonksLittleDetails.availableGlyphs.charAt(Math.floor(Math.random() * MonksLittleDetails.availableGlyphs.length));
+                await token.setFlag('monks-little-details', 'glyph', glyph);
+            }
+        }
+    }
+
     //if we're using combat bars and the combat starts or stops, we need to refresh the tokens
-    if (setting('add-combat-bars') && combat && (delta.round === 1 && combat.turn === 0 && combat.started === true)) {
+    if (setting('add-combat-bars') && combatStarted) {
         for (let combatant of combat.combatants) {
             let token = canvas.tokens.placeables.find(t => { return t.id == combatant.tokenId; });
             let displayBars = token.data.displayBars;
@@ -1618,7 +1694,7 @@ Hooks.on("updateCombat", function (combat, delta) {
         MonksLittleDetails.tracker = false;   //delete this so that the next render will reposition the popout, changing between combats changes the height
     }
 
-    if (!game.user.isGM && volume() > 0 && !game.settings.get("monks-little-details", "disablesounds") && game.settings.get('monks-little-details', 'round-sound') && Object.keys(delta).some((k) => k === "round")) {
+    if (volume() > 0 && !setting("disablesounds") && setting('round-sound') && Object.keys(delta).some((k) => k === "round")) {
 		AudioHelper.play({
             src: game.settings.get('monks-little-details', 'round-sound'),
 		    volume: volume()
@@ -1712,7 +1788,7 @@ Hooks.on('renderSceneConfig', async (app, html, options) => {
     if (game.settings.get("monks-little-details", 'scene-palette')) {
         MonksLittleDetails.currentScene = app.object;
 
-        let backgroundColor = $('input[data-edit="backgroundColor"]');
+        let backgroundColor = $('input[data-edit="backgroundColor"]', html);
         backgroundColor.parents('.form-group:first').css({ position: 'relative' });
         $('<button>').attr('type', 'button').html('<i class="fas fa-palette"></i>').on('click', function (e) {
             let element = $(this).siblings('.background-palette-container');
@@ -1991,5 +2067,15 @@ Hooks.on("renderCompendium", (compendium, html, data) => {
             dir.hide().slideDown(200);
         }
     }*/
+});
+
+Hooks.on("preUpdateToken", (scene, token, update, options) => {
+    let movechar = game.settings.get("monks-little-details", "movement-key");
+    if (movechar.length == 0) movechar = "m";
+    if (movechar.length > 1) movechar = movechar[0];
+
+    if ((update.x != undefined || update.y != undefined) && game.user.isGM && game.keyboard.isDown(movechar)) {
+        options.animate = false;
+    }
 });
 

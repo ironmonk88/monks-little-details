@@ -1,3 +1,14 @@
+# Version 1.0.28
+Added option for GM to hear the next round sound
+
+Changed the positioning of the status effects to be consistent with Foundry standards.
+
+Fixed an issue with the bloodsplat causing players to receive an error message
+
+Fixed issue with images not scaling properly in the Windows Foundry Client.
+
+Added option to select sounds with wildcards
+
 # Version 1.0.27
 File name accidentally changed to .svg, restored it back to .png
 

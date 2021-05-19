@@ -67,7 +67,7 @@
 	"MonksLittleDetails.auto-defeated.name": "Automatically set defeated",
 	"MonksLittleDetails.auto-defeated.hint": "When an NPC reaches 0 HP in combat, set it to defeated automatically.",
 	"MonksLittleDetails.auto-reveal.name": "Automatically reveal combat tracker character",
-	"MonksLittleDetails.auto-reveal.hint": "Automatically reveal characters on the combat tracker when they become visible, saving you fram having to do it twice.",
+	"MonksLittleDetails.auto-reveal.hint": "Automatically reveal characters on the combat tracker when they become visible, saving you from having to do it twice.",
 	"MonksLittleDetails.key-swap-tool.name": "Use keys to swap tools",
 	"MonksLittleDetails.key-swap-tool.hint": "Allow the swapping between tools by pressing a key.  Requires the module 'Library: DF Hotkeys' to work",
 	"MonksLittleDetails.clear-targets.name": "Clear targets every turn",
