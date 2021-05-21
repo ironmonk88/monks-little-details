@@ -299,21 +299,24 @@ export class MonksLittleDetails {
                                     if(game.user.isGM)
                                         this.setFlag('monks-little-details', 'glyph', glyph);
                                 }
-                                /*this.splat = new PIXI.Text(' ' + glyph + ' ', { fontFamily: 'Times New Roman', fontSize: this.height, fill: 0xff0000, align: 'center' }); //WC Rhesus A Bta
+                                /*
+                                this.splat = new PIXI.Text(' ' + glyph + ' ', { fontFamily: 'Times New Roman', fontSize: this.h * 1.5, fill: 0xff0000, align: 'center' }); //WC Rhesus A Bta
                                 this.splat.alpha = 0.7;
                                 this.splat.blendMode = PIXI.BLEND_MODES.OVERLAY;
                                 this.splat.anchor.set(0.5, 0.5);
-                                this.splat.x = this.width / 2;
-                                this.splat.y = this.height / 2;
+                                this.splat.x = this.w / 2;
+                                this.splat.y = this.h / 2;
                                 this.addChild(this.splat);*/
 
-                                this.bloodsplat = new PIXI.Text(' ' + glyph + ' ', { fontFamily: 'WC Rhesus A Bta', fontSize: this.height, fill: 0xff0000, align: 'center' });
+                                this.bloodsplat = new PIXI.Text(' ' + glyph + ' ', { fontFamily: 'WC Rhesus A Bta', fontSize: this.h * 1.5, fill: 0xff0000, align: 'center' });
                                 this.bloodsplat.alpha = 0.7;
                                 this.bloodsplat.blendMode = PIXI.BLEND_MODES.OVERLAY;
                                 this.bloodsplat.anchor.set(0.5, 0.5);
-                                this.bloodsplat.x = this.width / 2;
-                                this.bloodsplat.y = this.height / 2;
+                                this.bloodsplat.x = this.w / 2;
+                                this.bloodsplat.y = this.h / 2;
                                 this.addChild(this.bloodsplat);
+
+                                log('Font: ', this.id, (this.h * 1.5), this.bloodsplat.x, this.bloodsplat.y);
                             }
                         }
                     } else {
@@ -351,6 +354,16 @@ export class MonksLittleDetails {
                         delete this.tresurechest;
                     }
                 }
+            }
+
+            let oldTokenDrawOverlay = Token.prototype._drawOverlay;
+            Token.prototype._drawOverlay = async function ({ src, tint } = {}) {
+                let combatant = MonksLittleDetails.inCombat(this);
+                if (((combatant && combatant.defeated) || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId)) && this.actor?.data.type !== 'character') {
+                    //this should be showing the bloodsplat, so don't show the skull overlay
+                    return;
+                } else
+                    return oldTokenDrawOverlay.call(this, { src, tint });
             }
         }
 
@@ -1968,6 +1981,22 @@ Hooks.on("updateToken", function (scene, tkn, data, options, userid) {
                 token.refresh();
             });
         }
+    }
+});
+
+Hooks.on("updateCombatant", async function (context, parentId, data) {
+    const combat = game.combats.get(parentId);
+    if (combat && combat.started && data.defeated != undefined && ['npc', 'all'].includes(setting('auto-defeated')) && game.user.isGM) {
+        const combatant = combat.data.combatants.find((o) => o.id === data.id);
+
+        let t = canvas.tokens.get(combatant.token.data._id);
+        const a = t.actor;
+
+        let status = CONFIG.statusEffects.find(e => e.id === CONFIG.Combat.defeatedStatusId);
+        let effect = a && status ? status : CONFIG.controlIcons.defeated;
+        const exists = (effect.icon == undefined ? (t.data.overlayEffect == effect) : (a.effects.find(e => e.getFlag("core", "statusId") === effect.id) != undefined));
+        if (exists != data.defeated)
+            await t.toggleEffect(effect, { overlay: true, active: data.defeated });
     }
 });
 

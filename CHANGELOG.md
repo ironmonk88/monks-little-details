@@ -9,6 +9,16 @@ Fixed issue with images not scaling properly in the Windows Foundry Client.
 
 Added option to select sounds with wildcards
 
+Fixed an issue where the palette button would duplicate if multiple scene configs were opened up.
+
+Fixed a bloodsplat issue that couldn't find the correct sized font, so the image would be off center.
+
+Fixed issue where the skull overlay would show briefly before the bloodsplat redraws.
+
+If auto defeated is enabled, set the token to the defeated status too, not just the combat defeated status.  This was causing some weird issues when the combat ended and some tokens stopped being bloodsplats.
+
+Fixed issues with Warhammer positioning of expand 
+
 # Version 1.0.27
 File name accidentally changed to .svg, restored it back to .png
 

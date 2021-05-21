@@ -184,6 +184,11 @@
     left: 10px;
 }
 
+body.system-wfrp4e #sidebar.collapsed #sidebar-tabs a.collapse {
+    top: -135px;
+    left: 90px;
+}
+
 #context-menu li.context-item {
     overflow: hidden;
     white-space: nowrap;
@@ -383,4 +388,8 @@ body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details
     padding: 5px 0;
     border-bottom: 1px solid #444;
     line-height: 24px;
+}
+
+#combat #combat-controls{
+    min-height:38px;
 }
