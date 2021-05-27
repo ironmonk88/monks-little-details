@@ -2,7 +2,9 @@ import { MonksLittleDetails, i18n } from "./monks-little-details.js";
 
 export const registerSettings = function () {
     // Register any custom module settings here
-    let modulename = "monks-little-details";
+	let modulename = "monks-little-details";
+
+	const debouncedReload = foundry.utils.debounce(function () { window.location.reload(); }, 100);
 	
 	let dialogpositions = {
 		'': '—',
@@ -73,9 +75,7 @@ export const registerSettings = function () {
 		config: MonksLittleDetails.canDo("change-invisible-image"),
 		default: true,
 		type: Boolean,
-		onChange: () => {
-			location.reload();
-		}
+		onChange: debouncedReload
 	});
 	game.settings.register(modulename, "core-css-changes", {
 		name: i18n("MonksLittleDetails.core-css-changes.name"),
@@ -84,9 +84,7 @@ export const registerSettings = function () {
 		config: true,
 		default: true,
 		type: Boolean,
-		onChange: () => {
-			location.reload();
-		}
+		onChange: debouncedReload
 	});
 	game.settings.register(modulename, "compendium-view-artwork", {
 		name: game.i18n.localize("MonksLittleDetails.compendium-view-artwork.name"),
@@ -113,6 +111,7 @@ export const registerSettings = function () {
 		config: true,
 		default: false,
 		type: Boolean,
+		onChange: debouncedReload
 	});
 	game.settings.register(modulename, "opencombat", {
 		name: i18n("MonksLittleDetails.opencombat.name"),
@@ -282,9 +281,8 @@ export const registerSettings = function () {
 		config: true,
 		default: "modules/monks-little-details/icons/turnmarker.png",
 		type: String,
-		onChange: () => {
-			location.reload();
-		}
+		//filePicker: true,
+		onChange: debouncedReload
 	});
 	game.settings.register(modulename, "token-highlight-scale", {
 		name: i18n("MonksLittleDetails.token-highlight-scale.name"),
@@ -298,9 +296,7 @@ export const registerSettings = function () {
 			max: 2,
 			step: 0.1
 		},
-		onChange: () => {
-			location.reload();
-		}
+		onChange: debouncedReload
 	});
 
 	//Added Features
@@ -360,9 +356,7 @@ export const registerSettings = function () {
 		config: true,
 		default: false,
 		type: Boolean,
-		onChange: () => {
-			location.reload();
-		}
+		onChange: debouncedReload
 	});
 	game.settings.register(modulename, "key-swap-tool", {
 		name: i18n("MonksLittleDetails.key-swap-tool.name"),

@@ -29,9 +29,9 @@ export class MonksLittleDetails {
 
     static canDo(setting) {
         //needs to not be on the reject list, and if there is an only list, it needs to be on it.
-        if (MonksLittleDetails._rejectlist[setting] != undefined && MonksLittleDetails._rejectlist[setting].includes(game.world.system))
+        if (MonksLittleDetails._rejectlist[setting] != undefined && MonksLittleDetails._rejectlist[setting].includes(game.system.id))
             return false;
-        if (MonksLittleDetails._onlylist[setting] != undefined && !MonksLittleDetails._onlylist[setting].includes(game.world.system))
+        if (MonksLittleDetails._onlylist[setting] != undefined && !MonksLittleDetails._onlylist[setting].includes(game.system.id))
             return false;
         return true;
     };
@@ -41,8 +41,8 @@ export class MonksLittleDetails {
         combat = (combat instanceof Combat ? [combat] : combat);
         combat.find(c => {
             if (c.started)
-                combatant = c.combatants.find(t => {
-                    return t.tokenId == token.id;
+                combatant = c.combatants.find(cbt => {
+                    return (cbt.token.id == token.id);
                 });
             return c.started && combatant != undefined;
         });
@@ -53,17 +53,15 @@ export class MonksLittleDetails {
     static canViewCombatMode(mode) {
         if (mode === CONST.TOKEN_DISPLAY_MODES.NONE) return false;
         else if (mode === CONST.TOKEN_DISPLAY_MODES.ALWAYS) return true;
-        else if (mode === CONST.TOKEN_DISPLAY_MODES.CONTROL) return this.owner;
+        else if (mode === CONST.TOKEN_DISPLAY_MODES.CONTROL) return this.isOwner;
         else if (mode === CONST.TOKEN_DISPLAY_MODES.HOVER) return true;
-        else if (mode === CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER) return this.owner;
-        else if (mode === CONST.TOKEN_DISPLAY_MODES.OWNER) return this.owner;
+        else if (mode === CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER) return this.isOwner;
+        else if (mode === CONST.TOKEN_DISPLAY_MODES.OWNER) return this.isOwner;
         return false;
     }
 
     static init() {
         log("initializing");
-        // element statics
-        // CONFIG.debug.hooks = true;
 
         //CONFIG.Playlist.sheetClass = MonksPlaylistConfig;
 
@@ -76,47 +74,9 @@ export class MonksLittleDetails {
 
         MonksLittleDetails.availableGlyphs = '!"#$%&\'()*+,-./01234568:;<=>?@ABDEFGHIKMNOPQRSTUVWX[\\]^_`acdfhoquvx|}~¢£¥§©ª«¬®°±¶·º¿ÀÁÂÄÅÆÈÉÊËÌÏÑÒÓÔÖØÙÚÜßàáâåæçéêëìíîïñòõ÷øùûüÿiœŸƒπ';
 
-        /*
-        MonksLittleDetails.xpchart = [
-            { cr: 0, xp: 10 },
-            { cr: 0.13, xp: 25 },
-            { cr: 0.25, xp: 50 },
-            { cr: 0.5, xp: 100 },
-            { cr: 1, xp: 200 },
-            { cr: 2, xp: 450 },
-            { cr: 3, xp: 700 },
-            { cr: 4, xp: 1100 },
-            { cr: 5, xp: 1800 },
-            { cr: 6, xp: 2300 },
-            { cr: 7, xp: 2900 },
-            { cr: 8, xp: 3900 },
-            { cr: 9, xp: 5000 },
-            { cr: 10, xp: 5900 },
-            { cr: 11, xp: 7200 },
-            { cr: 12, xp: 8400 },
-            { cr: 13, xp: 10000 },
-            { cr: 14, xp: 11500 },
-            { cr: 15, xp: 13000 },
-            { cr: 16, xp: 15000 },
-            { cr: 17, xp: 18000 },
-            { cr: 18, xp: 20000 },
-            { cr: 19, xp: 22000 },
-            { cr: 20, xp: 25000 },
-            { cr: 21, xp: 33000 },
-            { cr: 22, xp: 41000 },
-            { cr: 23, xp: 50000 },
-            { cr: 24, xp: 62000 },
-            { cr: 25, xp: 75000 },
-            { cr: 26, xp: 90000 },
-            { cr: 27, xp: 105000 },
-            { cr: 28, xp: 120000 },
-            { cr: 29, xp: 135000 },
-            { cr: 30, xp: 155000 }
-        ];*/
-
-        if (game.world.system == 'dnd5e')
+        if (game.system.id == 'dnd5e')
             MonksLittleDetails.xpchart = CONFIG.DND5E.CR_EXP_LEVELS;
-        else if (game.world.system == 'pf2e') {
+        else if (game.system.id == 'pf2e') {
             MonksLittleDetails.xpchart = [50, 400, 600, 800, 1200, 1600, 2400, 3200, 4800, 6400, 9600, 12800, 19200, 25600, 38400, 51200, 76800, 102400, 153600, 204800, 307200, 409600, 614400, 819200, 1228800, 1638400, 2457600, 3276800, 4915200, 6553600, 9830400];
         }
 
@@ -135,19 +95,6 @@ export class MonksLittleDetails {
             "sort-by-columns": ["dnd5e"],
             "show-combat-cr": ["dnd5e", "pf2e"]
         }
-        /*
-        MonksLittleDetails.swapTool = {
-            'r': 'token',
-            't': 'tiles',
-            'y': 'lighting',
-            'u': 'sounds',
-            'i': 'terrain'
-        }*/
-
-        // sound statics
-        //MonksLittleDetails.NEXT_SOUND = "modules/monks-little-details/sounds/next.wav";
-        //MonksLittleDetails.TURN_SOUND = "modules/monks-little-details/sounds/turn.wav";
-        //MonksLittleDetails.ROUND_SOUND = "modules/monks-little-details/sounds/round.wav";
 
         registerSettings();
 
@@ -293,11 +240,11 @@ export class MonksLittleDetails {
                         if (this.data._id != undefined) {
                             this.icon.alpha = (game.user.isGM ? 0.2 : 0);
                             if (this.bloodsplat == undefined) {
-                                let glyph = this.getFlag('monks-little-details', 'glyph');
+                                let glyph = this.document.getFlag('monks-little-details', 'glyph');
                                 if (glyph == undefined) {
                                     glyph = MonksLittleDetails.availableGlyphs.charAt(Math.floor(Math.random() * MonksLittleDetails.availableGlyphs.length));
                                     if(game.user.isGM)
-                                        this.setFlag('monks-little-details', 'glyph', glyph);
+                                        this.document.setFlag('monks-little-details', 'glyph', glyph);
                                 }
                                 /*
                                 this.splat = new PIXI.Text(' ' + glyph + ' ', { fontFamily: 'Times New Roman', fontSize: this.h * 1.5, fill: 0xff0000, align: 'center' }); //WC Rhesus A Bta
@@ -375,7 +322,7 @@ export class MonksLittleDetails {
 
                 let combatant = MonksLittleDetails.inCombat(this);
                 if (combatant) {
-                    let combatBar = this.getFlag('monks-little-details', 'displayBarsCombat');
+                    let combatBar = this.document.getFlag('monks-little-details', 'displayBarsCombat');
                     if (combatBar != undefined && combatBar != -1) {
                         this.bars.visible = MonksLittleDetails.canViewCombatMode.call(this, combatBar);
                         this.bars.alpha = ((this._controlled && (combatBar == CONST.TOKEN_DISPLAY_MODES.CONTROL || combatBar == CONST.TOKEN_DISPLAY_MODES.OWNER || combatBar == CONST.TOKEN_DISPLAY_MODES.ALWAYS)) ||
@@ -460,37 +407,6 @@ export class MonksLittleDetails {
     }
 
     static registerHotKeys() {
-        /*
-        window.addEventListener('keydown', (e) => {
-            if (MonksLittleDetails.canvasfocus && document.activeElement.tagName == 'BODY') {
-                if (Object.keys(MonksLittleDetails.swapTool).includes(e.key.toLowerCase())) {
-                    let controlName = MonksLittleDetails.swapTool[e.key.toLowerCase()];
-                    let control = ui.controls.control;
-                    if (control.name != controlName && MonksLittleDetails.switchTool == undefined) {
-                        if (!e.shiftKey)
-                            MonksLittleDetails.switchTool = { control: control, tool: control.activeTool };
-                        let newcontrol = ui.controls.controls.find(c => { return c.name == controlName; });
-                        if (newcontrol != undefined) {
-                            ui.controls.activeControl = newcontrol.name;
-                            if (newcontrol && newcontrol.layer)
-                                canvas.getLayer(newcontrol.layer).activate();
-                        }
-                    }
-                }
-            }
-        })
-
-        window.addEventListener('keyup', (e) => {
-            if (Object.keys(MonksLittleDetails.swapTool).includes(e.key.toLowerCase()) && MonksLittleDetails.switchTool != undefined) {
-                if (MonksLittleDetails.switchTool.control) {
-                    if (MonksLittleDetails.switchTool.control.layer)
-                        canvas.getLayer(MonksLittleDetails.switchTool.control.layer).activate();
-                    ui.controls.activeControl = MonksLittleDetails.switchTool.control.name;
-                }
-                delete MonksLittleDetails.switchTool;
-            }
-        })*/
-
         Hotkeys.registerGroup({
             name: 'monks-little-details_tool-swap',
             label: 'Monks Litle Details, Tool Swap',
@@ -536,7 +452,7 @@ export class MonksLittleDetails {
             if (newcontrol != undefined) {
                 ui.controls.activeControl = newcontrol.name;
                 if (newcontrol && newcontrol.layer)
-                    canvas.getLayer(newcontrol.layer).activate();
+                    canvas[newcontrol.layer].activate();
             }
         }
     }
@@ -545,7 +461,7 @@ export class MonksLittleDetails {
         if (MonksLittleDetails.switchTool != undefined) {
             if (MonksLittleDetails.switchTool.control) {
                 if (MonksLittleDetails.switchTool.control.layer)
-                    canvas.getLayer(MonksLittleDetails.switchTool.control.layer).activate();
+                    canvas[MonksLittleDetails.switchTool.control.layer].activate();
                 ui.controls.activeControl = MonksLittleDetails.switchTool.control.name;
             }
             delete MonksLittleDetails.switchTool;
@@ -566,23 +482,6 @@ export class MonksLittleDetails {
     object-fit: contain !important;
 }
 
-.sidebar-tab .directory-list .directory-item.scene {
-    position: relative;
-}
-
-.sidebar-tab .directory-list .directory-item.scene img {
-    flex: 1;
-    object-fit: cover !important;
-}
-
-.sidebar-tab .directory-list .directory-item.scene h4 {
-    position: absolute;
-    width: 100%;
-    text-align: center;
-    text-shadow: 1px 1px 3px #000;
-    color: #f0f0e0;
-}
-
 .control-icon.active > img {
     filter: sepia(100%) saturate(2000%) hue-rotate(-50deg);
 }
@@ -594,7 +493,31 @@ export class MonksLittleDetails {
 .form-group select{
     width: calc(100% - 2px);
 }
+
+.compendium.directory .directory-list .directory-item.scene {
+    position: relative;
+}
+
+.compendium.directory .directory-list .directory-item.scene img {
+    flex: 1;
+    object-fit: cover !important;
+}
+
+.compendium.directory .directory-list .directory-item.scene h4 {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    text-shadow: 1px 1px 3px #000;
+    color: #f0f0e0;
+}
+
+.compendium.directory .directory-list .directory-item.scene h4 a{
+background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    border-radius: 4px;
+}
 `;
+
         }
 
         if (setting("move-pause")) {
@@ -605,118 +528,9 @@ export class MonksLittleDetails {
 `;
         }
 
-        let iconWidth = '24';
-        if (game.world.system == 'pf2e' || (game.modules.get("illandril-token-hud-scale") != undefined && game.modules.get("illandril-token-hud-scale").active && game.settings.get("illandril-token-hud-scale", "enableStatusSelectorScale")))
-            iconWidth = '36';
-
-        /*
-        if (MonksLittleDetails.canDo("alter-hud") && game.settings.get("monks-little-details", "alter-hud")) {
-            innerHTML += `
-#token-hud .status-effects {
-    top: -56px !important;
-    width: unset !important;
-    grid-template-columns: 130px 130px 130px 130px !important;
-    font-size: 16px;
-    line-height: ${iconWidth}px;
-    text-align: left;
-    background: rgba(0, 0, 0, 0.8);
-}
-
-#token-hud .status-effects .clear-all {
-    position: absolute;
-    bottom: 100%;
-    right: 5px;
-    cursor: pointer;
-    color: #ccc;
-    border-top-right-radius: 4px;
-    border-top-left-radius: 4px;
-    background: #333;
-    padding: 4px 8px;
-}
-
-#token-hud .status-effects .clear-all:hover {
-    color: #d2d1d0;
-}
-
-#token-hud .status-effects div.effect-control{
-    width: 100% !important;
-    height: ${iconWidth}px !important;
-    color: #ccc;
-    cursor: pointer;
-    border-radius: 4px;
-    padding: 1px;
-    border: 1px solid transparent;
-    position:relative;
-}
-
-#token-hud .status-effects div.pf2e-effect-img-container{
-    height: ${iconWidth}px !important;
-    text-align:left;
-    padding-left:1px;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    opacity:0.4;
-    color: #ccc;
-}
-
-#token-hud .status-effects div.effect-control:hover {
-    color: #d2d1d0 !important;
-}
-
-#token-hud .status-effects div.pf2e-effect-img-container:hover{
-    opacity:0.75;
-}
-
-#token-hud .status-effects .effect-control.active,
-#token-hud .status-effects .pf2e-effect-img-container.active{
-    color: #ff6400;
-    border: 1px solid #ff6400;
-    opacity:1;
-}
-
-#token-hud .status-effects .effect-control.active:hover {
-    color: #ffc163 !important;
-}
-
-#token-hud .status-effects .effect-control img,
-#token-hud .status-effects .pf2e-effect-img-container img{
-    width: 100%;
-    height: ${iconWidth}px;
-    margin: 0;
-    margin-top:-1px;
-    padding: 0;
-    padding-right: calc(100% - ${iconWidth}px);
-    border: none;
-    opacity: 0.5;
-    display: inline-block;
-}
-
-#token-hud .status-effects .effect-control:hover img {
-    opacity: 0.8;
-}
-
-#token-hud .status-effects .effect-control.active img,
-#token-hud .status-effects .pf2e-effect-img-container.active img{
-    opacity: 1;
-    filter: sepia(100%) saturate(2000%) hue-rotate(-50deg);
-}
-
-#token-hud .status-effects div.effect-control div.effect-name,
-#token-hud .status-effects div.pf2e-effect-img-container div.effect-name{
-    vertical-align: top;
-    padding-left: 4px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: calc(100% - ${iconWidth}px);
-    display: inline-block;
-    pointer-events:none;
-    position: absolute;
-    top: 0px;
-    left: ${iconWidth}px;
-}
-`;
-        }*/
+        //let iconWidth = '24';
+        //if (game.system.id == 'pf2e' || (game.modules.get("illandril-token-hud-scale") != undefined && game.modules.get("illandril-token-hud-scale").active && game.settings.get("illandril-token-hud-scale", "enableStatusSelectorScale")))
+        //    iconWidth = '36';
 
         style.innerHTML = innerHTML;
         if (innerHTML != '')
@@ -738,7 +552,7 @@ export class MonksLittleDetails {
                     // don't add the button multiple times
                     if ($(html).find("#mldCharacterSound").length > 0) return;
 
-                    let hasSound = (app.entity.getFlag('monks-little-details', 'sound-effect') != undefined);
+                    let hasSound = (app.document.getFlag('monks-little-details', 'sound-effect') != undefined);
 
                     let button = $('<button>')
                         .attr('type', "button")
@@ -761,7 +575,7 @@ export class MonksLittleDetails {
                                 name: "Play Sound",
                                 icon: '<i class="fas fa-play"></i>',
                                 condition: $.proxy(function () {
-                                    return this.entity.getFlag('monks-little-details', 'sound-effect');
+                                    return this.document.getFlag('monks-little-details', 'sound-effect');
                                 }, app),
                                 callback: li => {
                                     MonksLittleDetails.loadSoundEffect.call(app);
@@ -771,7 +585,7 @@ export class MonksLittleDetails {
                                 name: "Delete Sound",
                                 icon: '<i class="fas fa-trash-alt"></i>',
                                 condition: $.proxy(function () {
-                                    return this.entity.getFlag('monks-little-details', 'sound-effect');
+                                    return this.document.getFlag('monks-little-details', 'sound-effect');
                                 }, app),
                                 callback: li => {
                                     MonksLittleDetails.clearSoundEffect.call(app);
@@ -820,31 +634,21 @@ export class MonksLittleDetails {
             if (this instanceof Token) {
                 let token = this;
                 if (this.soundeffect == undefined) {
-                    token.soundeffect = AudioHelper.play({ src: audiofile, volume: volume }, true);
-                    token.soundeffect.on("end", () => {
-                        log('Finished playing', audiofile);
-                        delete token.soundeffect;
+                    AudioHelper.play({ src: audiofile, volume: volume }, true).then((sound) => {
+                        token.soundeffect = sound;
+                        token.soundeffect.on("end", () => {
+                            log('Finished playing', audiofile);
+                            delete token.soundeffect;
+                        });
                     });
 
                 } else {
-                    token.soundeffect.stop();
-                    game.socket.emit("stopAudio", {src: audiofile});
+                    if (token.soundeffect.playing) {
+                        token.soundeffect.stop();
+                        game.socket.emit("stopAudio", { src: audiofile }); //+++ this isn't a function with the new AudioHelper
+                    }
                     delete token.soundeffect;
                 }
-
-                //this.soundeffect = MonksLittleDetails.playSoundEffect(audiofile);
-                //this.soundeffect._onend
-                /*
-                game.socket.emit(
-                    MonksLittleDetails.SOCKET,
-                    {
-                        msgtype: 'playsoundeffect',
-                        senderId: game.user._id,
-                        actorid: this.actor.id,
-                        audiofile: audiofile
-                    },
-                    (resp) => { }
-                );*/
             } else
                 AudioHelper.play({ src: audiofile, volume: volume }, true);
         }
@@ -930,15 +734,6 @@ export class MonksLittleDetails {
         }
     }
 
-    /*
-    static onMessage(data) {
-        switch (data.msgtype) {
-            case 'playsoundeffect': {
-                MonksLittleDetails.playSoundEffect(data.audiofile);
-            } break;
-        }
-    }*/
-
     static doDisplayTurn() {
         if (!setting("showcurrentup")) {
             return;
@@ -977,19 +772,6 @@ export class MonksLittleDetails {
         if (combat && combat.started) {
             let entry = combat.combatant;
 
-            /*
-            // next combatant
-            let nxtturn = (curCombat.turn || 0) + 1;
-            if (nxtturn > curCombat.turns.length - 1) nxtturn = 0;
-
-            //find the next one that hasn't been defeated
-            let nxtentry = curCombat.turns[nxtturn];
-            while (nxtentry.defeated && nxtturn != curCombat.turn) {
-                nxtturn++;
-                if (nxtturn > curCombat.turns.length - 1) nxtturn = 0;
-                nxtentry = curCombat.turns[nxtturn];
-            }*/
-
             let findNext = function (from) {
                 let next = null;
                 if (skip) {
@@ -1013,13 +795,13 @@ export class MonksLittleDetails {
             if (next == undefined || next >= combat.turns.length)
                 next = findNext(-1);
 
-            let isActive = entry.actor?.owner;
+            let isActive = entry.actor?.isOwner;
             let nxtentry = null;
             let isNext = false;
 
             if (next != null) {
                 nxtentry = combat.turns[next];
-                isNext = nxtentry.actor?.owner; //_id === game.users.current.character?._id;
+                isNext = nxtentry.actor?.isOwner; //_id === game.users.current.character?._id;
             }
 
             log('Check combat turn', entry.name, nxtentry?.name, !game.user.isGM, isActive, isNext, entry, nxtentry);
@@ -1038,12 +820,11 @@ export class MonksLittleDetails {
         let sidebar = document.getElementById("sidebar");
         let players = document.getElementById("players");
 
-        let butHeight = (!game.user.isGM && !app.combat.getCombatantByToken(app.combat.current.tokenId)?.owner ? 40 : 0);
-
         app.position.left = (combatposition().endsWith('left') ? 120 : (sidebar.offsetLeft - app.position.width));
         app.position.top = (combatposition().startsWith('top') ?
             (combatposition().endsWith('left') ? 70 : (sidebar.offsetTop - 3)) :
-            (combatposition().endsWith('left') ? (players.offsetTop - app.position.height - 3) : (sidebar.offsetTop + sidebar.offsetHeight - app.position.height - 3)) - butHeight);
+            (combatposition().endsWith('left') ? (players.offsetTop - app.position.height - 3) : (sidebar.offsetTop + sidebar.offsetHeight - app.position.height - 3)));
+
         $(app._element).css({ top: app.position.top, left: app.position.left });
     }
 
@@ -1051,9 +832,9 @@ export class MonksLittleDetails {
         if (MonksLittleDetails.canDo("alter-hud") && setting("alter-hud")) {
             $('#token-hud').addClass('monks-little-details').toggleClass('highlight-image', setting('alter-hud-colour'));
             const statuses = this._getStatusEffectChoices();
-
-            for (let img of $('.col.right .control-icon.effects .status-effects > img')) {
-                const status = statuses[img.getAttribute("src")] || {};
+             
+            for (let img of $('.col.right .control-icon[data-action="effects"] .status-effects > img')) {
+                //const status = statuses[img.getAttribute("src")] || {};
                 let title = $(img).attr('title') || $(img).attr('data-condition');
                 let div = $('<div>')
                     .addClass('effect-container')//$(img).attr('class'))
@@ -1066,24 +847,24 @@ export class MonksLittleDetails {
                 );
             };
 
-            $('.col.right .control-icon.effects .status-effects > div.pf2e-effect-img-container', html).each(function () {
+            $('.col.right .control-icon[data-action="effects"] .status-effects > div.pf2e-effect-img-container', html).each(function () {
                 let img = $('img', this);
                 let title = img.attr('data-condition');
                 let div = $('<div>').addClass('effect-name').attr('title', title).html(title).insertAfter(img);
                 //$(this).append(div);
-                const status = statuses[img.attr('src')] || {};
+                //const status = statuses[img.attr('src')] || {};
                 //$(this).attr('src', img.attr('src')).toggleClass('active', !!status.isActive);
             });
 
-            if (game.world.system !== 'pf2e') {
-                $('.col.right .control-icon.effects .status-effects', html).append(
+            if (game.system.id !== 'pf2e') {
+                $('.col.right .control-icon[data-action="effects"] .status-effects', html).append(
                     $('<div>').addClass('clear-all').html('<i class="fas fa-times-circle"></i> clear all').click($.proxy(MonksLittleDetails.clearAll, this))
                 );
             }
         }
     }
 
-    static async clearAll() {
+    static async clearAll(e) {
         //find the tokenhud, get the TokenHUD.object  ...assuming it's a token?
         const statuses = this._getStatusEffectChoices();
 
@@ -1092,6 +873,8 @@ export class MonksLittleDetails {
                 await this.object.toggleEffect({ id: status.id, icon: status.src });
             }
         }
+
+        e.preventDefault();
 
         /*
         let selectedEffects = $('#token-hud .col.right .control-icon.effects .status-effects .effect-control.active');
@@ -1109,11 +892,12 @@ export class MonksLittleDetails {
 
     static getCRText (cr) {
         switch (cr) {
-            case 0.13: return '1/8';
-            case 0.17: return '1/6';
-            case 0.25: return '1/4';
-            case 0.33: return '1/3';
-            case 0.5: return '1/2';
+            case 0.13: return '⅛';
+            case 0.17: return '⅙';
+            case 0:
+            case 0.25: return '¼';
+            case 0.33: return '⅓';
+            case 0.5: return '½';
             default: return cr;
         }
     }
@@ -1142,23 +926,30 @@ export class MonksLittleDetails {
         var xp = 0;
 
         //get the APL of friendly combatants
-        $(combat.data.combatants).each(function (idx, combatant) {
+        for (let combatant of combat.combatants) {
             if (combatant.actor != undefined) {
-                if (combatant.token.disposition == 1) {
+                if (combatant.token.data.disposition == 1) {
                     apl.count = apl.count + 1;
-                    apl.levels = apl.levels + (combatant.actor.data.data.details.level?.value || combatant.actor.data.data.details.level || 0);
+                    let levels = 0;
+                    if (combatant.actor.data.data?.classes) {
+                        levels = Object.values(combatant.actor.data.data?.classes).reduce((a, b) => (a?.data?.levels || 0) + (b?.data?.levels || 0), 0);
+                    } else {
+                        levels = combatant?.actor.data.data.details?.level || combatant?.actor.data.data.details?.level?.value || 0;
+                    }
+
+                    apl.levels += levels;
                 } else {
-                    xp += (combatant?.actor.data.data.details?.xp?.value || MonksLittleDetails.xpchart[Math.clamped(parseInt(combatant?.actor.data.data.details?.level?.value), 0, MonksLittleDetails.xpchart.length - 1)] || 0);
+                    xp += (combatant?.actor.data.data.details?.xp?.value || MonksLittleDetails.xpchart[Math.clamped(parseInt(combatant?.actor.data.data.details?.level?.value) || combatant.actor.data.data?.classes?.reduce(c => { return c.data.levels; }), 0, MonksLittleDetails.xpchart.length - 1)] || 0);
                 }
             }
-        });
+        };
 
         var calcAPL = 0;
         if (apl.count > 0)
             calcAPL = Math.round(apl.levels / apl.count) + (apl.count < 4 ? -1 : (apl.count > 5 ? 1 : 0));
 
         //get the CR of any unfriendly/neutral
-        let cr = Math.clamped(MonksLittleDetails.xpchart.findIndex(cr => cr >= xp), 0, 29);
+        let cr = Math.clamped(MonksLittleDetails.xpchart.findIndex(cr => cr >= xp) - 1, 0, 29);
 
         return { cr: cr, apl: calcAPL };
     }
@@ -1205,7 +996,6 @@ export class MonksLittleDetails {
 
     static getPalette(src, element) {
         // Create custom CanvasImage object
-        //if (VideoHelper.hasVideoExtension(url)) {
         if (src != undefined) {
             loadTexture(src).then((texture) => {
                 if (texture != undefined) {
@@ -1230,85 +1020,7 @@ export class MonksLittleDetails {
                 }
             })
         }
-        /*} else {
-            MonksLittleDetails.canvasImage = new Image();
-            MonksLittleDetails.canvasImage.addEventListener('load', () => {
-                MonksLittleDetails.processPalette();
-            });
-            MonksLittleDetails.canvasImage.src = url + '?' + new Date().getTime();
-            MonksLittleDetails.canvasImage.setAttribute('crossOrigin', '');
-        }*/
     };
-
-    /*
-    static processPalette() {
-        let canvas = document.createElement('canvas');
-        let context = canvas.getContext('2d');
-        let width = canvas.width = MonksLittleDetails.canvasImage.naturalWidth;
-        let height = canvas.height = MonksLittleDetails.canvasImage.naturalHeight;
-        if (width == 0 || height == 0)
-            return;
-
-        context.drawImage(MonksLittleDetails.canvasImage, 0, 0, width, height);
-
-        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        const pixelCount = MonksLittleDetails.canvasImage.width * MonksLittleDetails.canvasImage.height;
-
-        const pixelArray = MonksLittleDetails.createPixelArray(imageData.data, pixelCount, 10);
-
-        canvas.remove();
-
-        // Send array to quantize function which clusters values
-        // using median cut algorithm
-        const cmap = MMCQ.quantize(pixelArray, 5);
-        const palette = cmap ? cmap.palette() : null;
-
-        let element = $('.palette-fields');
-
-        $(element).empty();
-        for (let i = 0; i < palette.length; i++) {
-            var hexCode = MonksLittleDetails.rgbToHex(palette[i][0], palette[i][1], palette[i][2]);
-            $(element).append($('<div>').addClass('background-palette').attr('title', hexCode).css({ backgroundColor: hexCode }).on('click', $.proxy(MonksLittleDetails.updateSceneBackground, MonksLittleDetails, hexCode)));
-        }
-
-        //const dominantColor = palette[0];
-    }*/
-    /*
-    static async createThumbnail(img) {
-        const newImage = img !== undefined;
-
-        // Load required textures to create the thumbnail
-        img = img ?? this.data.img;
-        const toLoad = [img];
-        await TextureLoader.loader.load(toLoad);
-
-        // First load the background texture to get dimensions
-        const bg = img ? await loadTexture(img) : null;
-
-        // Get the target dimensions for the canvas
-        const dims = duplicate(this.data);
-        if (newImage) {
-            dims.width = bg.width;
-            dims.height = bg.height;
-        }
-        const d = Canvas.getDimensions(dims);
-
-        // Create a container and add a transparent graphic to enforce the size
-        const c = new PIXI.Container();
-        const g = c.addChild(new PIXI.Graphics());
-        g.beginFill(0xFFFFFF, 0.0).drawRect(0, 0, d.sceneWidth, d.sceneHeight);
-
-        // Add the background image
-        if (bg) {
-            const s = new PIXI.Sprite(bg);
-            s.width = d.sceneWidth;
-            s.height = d.sceneHeight;
-            c.addChild(s);
-        }
-
-        // Render the container to a thumbnail
-        return ImageHelper.createThumbnail(c, { width, height });
-    }*/
 
     static async updateSceneBackground(hexCode) {
         $('.background-palette-container').remove();
@@ -1479,11 +1191,12 @@ Hooks.once('init', async function () {
     MonksLittleDetails.init();
 
     if (setting("token-combat-highlight")) {
-        Hooks.on("updateCombatant", function (context, parentId, data) {
-            const combat = game.combats.get(parentId);
+        Hooks.on("updateCombatant", function (combatant, data, options, userId) {
+            const combat = combatant.parent;
             if (combat && combat.started) {
-                const combatant = combat.data.combatants.find((o) => o.id === data.id);
-                let token = canvas.tokens.get(combatant.token._id);
+                //const combatant = combat.data.combatants.find((o) => o.id === data.id);
+                //let token = canvas.tokens.get(combatant.token._id);
+                let token = combatant.token.object;
                 MonksLittleDetails.toggleTurnMarker(token, token.id == combat.current.tokenId);
             }
         });
@@ -1491,11 +1204,12 @@ Hooks.once('init', async function () {
         /**
          * Handle combatant delete
          */
-        Hooks.on("deleteCombatant", function (context, parentId, data) {
-            let combat = game.combats.get(parentId);
+        Hooks.on("deleteCombatant", function (combatant, data, options, userId) {
+            let combat = combatant.parent;
             if (combat && combat.started) {
-                const combatant = combat.data.combatants.find((o) => o.id === data.id);
-                let token = canvas.tokens.get(combatant.token._id);
+                //const combatant = combat.data.combatants.find((o) => o.id === data.id);
+                //let token = canvas.tokens.get(combatant.token._id);
+                let token = combatant.token.object;
                 MonksLittleDetails.removeTurnMarker(token);
             }
         });
@@ -1503,17 +1217,18 @@ Hooks.once('init', async function () {
         /**
          * Handle combatant added
          */
-        Hooks.on("addCombatant", function (context, parentId, data) {
-            let combat = game.combats.get(parentId);
+        Hooks.on("createCombatant", function (combatant, options, userId) {
+            let combat = combatant.parent;
             if (combat && combat.started) {
-                let combatant = combat.data.combatants.find((o) => o.id === data.id);
-                let token = canvas.tokens.get(combatant.token._id);
+                //let combatant = combat.data.combatants.find((o) => o.id === data.id);
+                //let token = canvas.tokens.get(combatant.token._id);
+                let token = combatant.token.object;
                 MonksLittleDetails.toggleTurnMarker(token, token.id == combat.current.tokenId);
             }
         });
 
-        Hooks.on("updateToken", function (scene, tkn, data, options, userid) {
-            let token = canvas.tokens.get(tkn._id);
+        Hooks.on("updateToken", function (document, data, options, userid) {
+            let token = document.object;
             if (data.img != undefined) {
                 let activeCombats = game.combats.filter(c => {
                     return c?.scene?.id == game.scenes.viewed.id && c.started;
@@ -1529,56 +1244,42 @@ Hooks.once('init', async function () {
             }
         });
 
-        Hooks.on("updateScene", function (scene, data, options, userid) {
-            if (scene.isView) {
-                let activeCombats = game.combats.filter(c => {
-                    return c?.scene?.id == scene.id && c.started;
-                });
+        //check on the turn marker if the scene changes
+        Hooks.on("canvasReady", function (canvas) {
+            let activeCombats = game.combats.filter(c => {
+                return c?.scene?.id == canvas.scene.id && c.started;
+            });
 
-                if (activeCombats.length) {
-                    for (let combat of activeCombats) {
-                        let token = canvas.tokens.get(combat.current.tokenId);
-                        MonksLittleDetails.toggleTurnMarker(token, true);
-                    }
+            if (activeCombats.length) {
+                for (let combat of activeCombats) {
+                    MonksLittleDetails.toggleTurnMarker(combat.combatant.token.object, true);
                 }
             }
         });
-    }
-});
-/**
- * Handle combatant update
- */
-Hooks.on("updateCombatant", function (context, parentId, data) {
-    const combat = game.combats.get(parentId);
-    if (combat) {
-        const combatant = combat.data.combatants.find((o) => o.id === data.id);
-
-        if (combatant.actor.owner)
-            MonksLittleDetails.checkCombatTurn(combat);
     }
 });
 
 /**
  * Handle combatant delete
  */
-Hooks.on("deleteCombatant", function (context, parentId, data) {
-    let combat = game.combats.get(parentId);
+Hooks.on("deleteCombatant", function (combatant, data, userId) {
+    let combat = combatant.parent;
     MonksLittleDetails.checkCombatTurn(combat);
 });
 
 /**
  * Handle combatant added
  */
-Hooks.on("addCombatant", function (context, parentId, data) {
-    let combat = game.combats.get(parentId);
-    let combatant = combat.data.combatants.find((o) => o.id === data.id);
+Hooks.on("createCombatant", function (combatant, data, options) {
+    let combat = combatant.parent;
+    //let combatant = combat.data.combatants.find((o) => o.id === data.id);
 
-    if (combatant.actor.owner) 
+    if (combatant.actor.isOwner) 
         MonksLittleDetails.checkCombatTurn(combat);
 
     //set the blood glyph if this is the GM
     if (setting('show-bloodsplat') && combatant && game.user.isGM) {
-        let token = canvas.tokens.placeables.find(t => { return t.id == combatant.tokenId; });
+        let token = combatant.token; //canvas.tokens.placeables.find(t => { return (t.id == combatant._token.id); });
         let glyph = token.getFlag('monks-little-details', 'glyph');
         if (glyph == undefined) {
             glyph = MonksLittleDetails.availableGlyphs.charAt(Math.floor(Math.random() * MonksLittleDetails.availableGlyphs.length));
@@ -1599,6 +1300,7 @@ Hooks.on("createCombat", function (data, delta) {
 Hooks.on("deleteCombat", function (combat) {
     MonksLittleDetails.tracker = false;   //if the combat gets deleted, make sure to clear this out so that the next time the combat popout gets rendered it repositions the dialog
 
+    //if there are no more combats left, then close the combat window
     if (game.combats.combats.length == 0 && game.settings.get("monks-little-details", 'close-combat-when-done')) {
         const tabApp = ui["combat"];
         if (tabApp._popout != undefined) {
@@ -1620,11 +1322,12 @@ Hooks.on("deleteCombat", function (combat) {
         }
     }
 
+    //remove the combat highlight from any token in this combat
     if (combat.started == true) {
         if (setting("token-combat-highlight")) {
             for (let combatant of combat.combatants) {
-                let token = canvas.tokens.get(combatant.token._id);
-                MonksLittleDetails.removeTurnMarker(token);
+                let token = combatant.token; //canvas.tokens.get(combatant.token._id);
+                MonksLittleDetails.removeTurnMarker(token.object);
             }
         }
     }
@@ -1632,16 +1335,18 @@ Hooks.on("deleteCombat", function (combat) {
     //if we're using combat bars and the combat starts or stops, we need to refresh the tokens
     if (setting('add-combat-bars') && combat) {
         for (let combatant of combat.combatants) {
-            let token = canvas.tokens.placeables.find(t => { return t.id == combatant.tokenId; });
-            let displayBars = token.data.displayBars;
-            let combatBar = token.getFlag('monks-little-details', 'displayBarsCombat');
-            combatBar = (combatBar == undefined || combatBar == -1 ? displayBars : combatBar);
+            let token = combatant.token; //canvas.tokens.placeables.find(t => { return t.id == combatant._token.id; });
+            if (token) {
+                let displayBars = token.data.displayBars;
+                let combatBar = token.getFlag('monks-little-details', 'displayBarsCombat');
+                combatBar = (combatBar == undefined || combatBar == -1 ? displayBars : combatBar);
 
-            if (token.bars.alpha != 1) {
-                token.bars.alpha = 1;
-                token.refresh();
-            } else if (combatBar != displayBars)
-                token.refresh();
+                if (token.object.bars.alpha != 1) {
+                    token.object.bars.alpha = 1;
+                    token.object.refresh();
+                } else if (combatBar != displayBars)
+                    token.object.refresh();
+            }
         }
     }
 });
@@ -1667,11 +1372,13 @@ Hooks.on("updateCombat", async function (combat, delta) {
     //set the bloodsplat glyph when the combat starts to maintain consistency
     if (setting('show-bloodsplat') && game.user.isGM && combatStarted) {
         for (let combatant of combat.combatants) {
-            let token = canvas.tokens.placeables.find(t => { return t.id == combatant.tokenId; });
-            let glyph = token.getFlag('monks-little-details', 'glyph');
-            if (glyph == undefined) {
-                glyph = MonksLittleDetails.availableGlyphs.charAt(Math.floor(Math.random() * MonksLittleDetails.availableGlyphs.length));
-                await token.setFlag('monks-little-details', 'glyph', glyph);
+            let token = combatant.token; //canvas.tokens.placeables.find(t => { return t.id == combatant._token.id; });
+            if (token) {
+                let glyph = token.getFlag('monks-little-details', 'glyph');
+                if (glyph == undefined) {
+                    glyph = MonksLittleDetails.availableGlyphs.charAt(Math.floor(Math.random() * MonksLittleDetails.availableGlyphs.length));
+                    await token.setFlag('monks-little-details', 'glyph', glyph);
+                }
             }
         }
     }
@@ -1679,21 +1386,23 @@ Hooks.on("updateCombat", async function (combat, delta) {
     //if we're using combat bars and the combat starts or stops, we need to refresh the tokens
     if (setting('add-combat-bars') && combatStarted) {
         for (let combatant of combat.combatants) {
-            let token = canvas.tokens.placeables.find(t => { return t.id == combatant.tokenId; });
-            let displayBars = token.data.displayBars;
-            let combatBar = token.getFlag('monks-little-details', 'displayBarsCombat');
-            combatBar = (combatBar == undefined || combatBar == -1 ? displayBars : combatBar);
+            let token = combatant.token; //canvas.tokens.placeables.find(t => { return t.id == combatant._token.id; });
+            if (token) {
+                let displayBars = token.data.displayBars;
+                let combatBar = token.getFlag('monks-little-details', 'displayBarsCombat');
+                combatBar = (combatBar == undefined || combatBar == -1 ? displayBars : combatBar);
 
-            if (combatBar != displayBars)
-                token.refresh();
+                if (combatBar != displayBars)
+                    token.object.refresh();
+            }
         }
     }
 
-    log("update combat", combat);
+    //log("update combat", combat);
     let opencombat = setting("opencombat");
     if ((opencombat == "everyone" || (game.user.isGM && opencombat == "gmonly") || (!game.user.isGM && opencombat == "playersonly"))
         && !game.settings.get("monks-little-details", "disable-opencombat")
-        && delta.round === 1 && combat.turn === 0 && combat.started === true) {
+        && combatStarted) {
 		//new combat, pop it out
 		const tabApp = ui["combat"];
 		tabApp.renderPopout(tabApp);
@@ -1716,8 +1425,8 @@ Hooks.on("updateCombat", async function (combat, delta) {
 
     if (setting("token-combat-highlight") && combat.started) {
         for (let combatant of combat.combatants) {
-            let token = canvas.tokens.get(combatant.token._id);
-            MonksLittleDetails.toggleTurnMarker(token, token.id == combat?.current?.tokenId);
+            let token = combatant.token; //canvas.tokens.get(combatant.token.id);
+            MonksLittleDetails.toggleTurnMarker(token.object, token.id == combat?.current?.tokenId);
         }
         //let token = canvas?.tokens.get(combat?.current?.tokenId);
         //MonksLittleDetails.removeTurnMarker(token);
@@ -1742,16 +1451,6 @@ Hooks.on("canvasReady", () => {
     });
 });
 
-Hooks.on('renderCombatTracker', async (app, html, options) => {
-    if (!MonksLittleDetails.tracker && app.options.id == "combat-popout"){
-        MonksLittleDetails.tracker = true;
-		
-		if(combatposition() !== ''){
-            MonksLittleDetails.repositionCombat(app);
-		}
-	}
-});
-
 Hooks.on('closeCombatTracker', async (app, html) => {
     MonksLittleDetails.tracker = false;
 });
@@ -1760,7 +1459,7 @@ Hooks.on('renderTokenHUD', async (app, html, options) => {
     MonksLittleDetails.element = html;
     MonksLittleDetails.tokenHUD = app;
     if (game.settings.get("monks-little-details", "swap-buttons")) {
-        $('.col.left .control-icon.target', html).insertBefore($('#token-hud .col.left .control-icon.config'));
+        $('.col.left .control-icon[data-action="target"]', html).insertBefore($('.col.left .control-icon[data-action="config"]', html));
     }
 
     if (app.object.actor.data.flags['monks-little-details'] != undefined && game.settings.get("monks-little-details", "actor-sounds")) {
@@ -1771,28 +1470,37 @@ Hooks.on('renderTokenHUD', async (app, html, options) => {
     }
 });
 
-Hooks.on('renderCombatTracker', async (app, html, options) => {
-    if (game.user.isGM && game.combat && !game.combat.started && game.settings.get("monks-little-details", 'show-combat-cr') && MonksLittleDetails.canDo('show-combat-cr') && MonksLittleDetails.xpchart != undefined) {
-        //calculate CR
-        let data = MonksLittleDetails.getCR(game.combat);
+Hooks.on('renderCombatTracker', async (app, html, data) => {
+    if (!MonksLittleDetails.tracker && app.options.id == "combat-popout") {
+        MonksLittleDetails.tracker = true;
 
-        if ($('#combat-round .encounter-cr-row').length == 0 && game.combat.data.combatants.length > 0) {
-            let crChallenge = MonksLittleDetails.crChallenge[Math.clamped(data.cr - data.apl, -1, 3) + 1];
-            let epicness = Math.clamped((data.cr - data.apl - 3), 0, 5);
+        if (combatposition() !== '') {
+            MonksLittleDetails.repositionCombat(app);
+        }
+    }
+
+    if (game.user.isGM && data.combat && !data.combat.started && setting('show-combat-cr') && MonksLittleDetails.canDo('show-combat-cr') && MonksLittleDetails.xpchart != undefined) {
+        //calculate CR
+        let crdata = MonksLittleDetails.getCR(data.combat);
+
+        if ($('#combat-round .encounter-cr-row').length == 0 && data.combat.combatants.size > 0) {
+            let crChallenge = MonksLittleDetails.crChallenge[Math.clamped(crdata.cr - crdata.apl, -1, 3) + 1];
+            let epicness = Math.clamped((crdata.cr - crdata.apl - 3), 0, 5);
 
             $('<nav>').addClass('encounters flexrow encounter-cr-row')
-                .append($('<h3>').html('CR: ' + MonksLittleDetails.getCRText(data.cr)))
+                .append($('<h3>').html('CR: ' + MonksLittleDetails.getCRText(crdata.cr)))
                 .append($('<div>').addClass('encounter-cr').attr('rating', crChallenge.rating).html(i18n(crChallenge.text) + "!".repeat(epicness)))
                 .insertAfter($('#combat-round .encounters:last'));
         }
     }
 
-    if (game.combat == undefined) {
+    if (data.combat == undefined) {
         //+++ if the sound module is active
         $('#combat-round h3', html).css({ fontSize: '16px', lineHeight: '15px'});
     }
 
-    if (!game.user.isGM && game.combat && game.combat.started) {
+    //don't show the previous or next turn if this isn't the GM
+    if (!game.user.isGM && data.combat && data.combat.started) {
         $('.combat-control[data-control="previousTurn"],.combat-control[data-control="nextTurn"]:last').css({visibility:'hidden'});
     }
 });
@@ -1813,34 +1521,6 @@ Hooks.on('renderSceneConfig', async (app, html, options) => {
             }
             e.preventDefault();
         }).insertAfter(backgroundColor);
-
-        /*
-        if (MonksLittleDetails.currentScene.img != undefined) {
-            let backgroundColor = $('input[name="backgroundColor"]').parents('.form-group:first');
-
-            $('<div>')
-                .addClass('form-group')
-                .append($('<label>').html('Background Palette'))
-                .append($('<div>').addClass('form-fields palette-fields'))
-                .insertAfter(backgroundColor);
-
-            MonksLittleDetails.getPalette(MonksLittleDetails.currentScene.img);
-        }*/
-
-        /*
-        $('<div>')
-            .addClass('background-size width')
-            .insertAfter($('input[name="width"]'));
-        $('<div>')
-            .addClass('background-size height')
-            .insertAfter($('input[name="height"]'));
-            */
-
-        /*
-        $('input.image[name="img"]').on('change', function () {
-            let img = $(this).val();
-            MonksLittleDetails.getPalette(img);
-        })*/
     }
 });
 
@@ -1858,34 +1538,32 @@ Hooks.on("getSceneControlButtons", (controls) => {
     }
 });
 
-Hooks.on("preUpdateWall", (scene, wall, update, options) => {
+Hooks.on("preUpdateWall", (document, update, options) => {
+    let wall = document.object;
+    let scene = document.parent;
+
     let dragtogether = ui.controls.control.tools.find(t => { return t.name == "toggledragtogether" });
     if (dragtogether != undefined && dragtogether.active && options.ignore == undefined && update.c != undefined) {
         let updates = [];
-        let oldcoord = ((wall.c[0] != update.c[0] || wall.c[1] != update.c[1]) && wall.c[2] == update.c[2] && wall.c[3] == update.c[3] ? [wall.c[0], wall.c[1], update.c[0], update.c[1]] :
-            ((wall.c[2] != update.c[2] || wall.c[3] != update.c[3]) && wall.c[0] == update.c[0] && wall.c[1] == update.c[1] ? [wall.c[2], wall.c[3], update.c[2], update.c[3]] : null));
+        let oldcoord = ((wall.coords[0] != update.c[0] || wall.coords[1] != update.c[1]) && wall.coords[2] == update.c[2] && wall.coords[3] == update.c[3] ? [wall.coords[0], wall.coords[1], update.c[0], update.c[1]] :
+            ((wall.coords[2] != update.c[2] || wall.coords[3] != update.c[3]) && wall.coords[0] == update.c[0] && wall.coords[1] == update.c[1] ? [wall.coords[2], wall.coords[3], update.c[2], update.c[3]] : null));
         if (oldcoord != null) {
             scene.data.walls.forEach(w => {
-                if (w._id != wall._id) {
-                    if (w.c[0] == oldcoord[0] && w.c[1] == oldcoord[1])
+                if (w.id != wall.id) {
+                    if (w.data.c[0] == oldcoord[0] && w.data.c[1] == oldcoord[1])
                         //scene.updateEmbeddedEntity("Wall", { c: [oldcoord[2], oldcoord[3], w.c[2], w.c[3]], _id: w._id }, { ignore: true });
-                        updates.push({ c: [oldcoord[2], oldcoord[3], w.c[2], w.c[3]], _id: w._id });
-                    else if (w.c[2] == oldcoord[0] && w.c[3] == oldcoord[1])
+                        updates.push({ c: [oldcoord[2], oldcoord[3], w.data.c[2], w.data.c[3]], _id: w.id });
+                    else if (w.data.c[2] == oldcoord[0] && w.data.c[3] == oldcoord[1])
                         //scene.updateEmbeddedEntity("Wall", { c: [w.c[0], w.c[1], oldcoord[2], oldcoord[3]], _id: w._id }, { ignore: true });
-                        updates.push({ c: [w.c[0], w.c[1], oldcoord[2], oldcoord[3]], _id: w._id });
+                        updates.push({ c: [w.data.c[0], w.data.c[1], oldcoord[2], oldcoord[3]], _id: w.id });
                 }
             });
         }
         if(updates.length)
-            scene.updateEmbeddedEntity("Wall", updates, { ignore: true });
+            scene.updateEmbeddedDocuments("Wall", updates, { ignore: true });
     }
     //let thewall = scene.data.walls.find(w => w._id === wall._id);
     //log('preupdatewall', thewall.c, wall.c, update);
-});
-
-Hooks.on("updateWall", (scene, wall, update, options) => {
-    //let thewall = scene.data.walls.find(w => w._id === wall._id);
-    //log('updatewall', thewall);
 });
 
 Hooks.on("renderSettingsConfig", (app, html, data) => {
@@ -1940,63 +1618,66 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
     $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.AddedFeatures")).insertBefore($('[name="monks-little-details.actor-sounds"]').parents('div.form-group:first'));
 });
 
-Hooks.on("updateToken", function (scene, tkn, data, options, userid) {
+Hooks.on("updateToken", function (document, data, options, userid) {
     //actorData.data.attributes.hp
     if (['npc', 'all'].includes(setting('auto-defeated')) && game.user.isGM) {
-        let token = canvas.tokens.get(tkn._id);
+        let token = document.object;
         let hp = getProperty(data, 'actorData.data.attributes.hp');
-        if (hp != undefined && (setting('auto-defeated') == 'all' || (setting('auto-defeated') == 'npc' && token.data.disposition != 1))) {
+        if (hp != undefined && (setting('auto-defeated') == 'all' || (setting('auto-defeated') == 'npc' && document.data.disposition != 1))) {
             let combatant;
+            //find the combat this token is involved in, and the combatant
             let combat = game.combats.find(c => {
                 if (c.started)
-                    combatant = c.combatants.find(t => {
-                        return t.tokenId == token.id;
+                    combatant = c.combatants.find(cbt => {
+                        return document.id == cbt.token.id;
                     });
                 return c.started && combatant != undefined;
             });
 
+            //check to see if the combatant has been defeated
             let defeated = (hp.value == 0);
             if (combatant != undefined && combatant.defeated != defeated) {
-                combat.updateCombatant({ _id: combatant._id, defeated: defeated }).then(() => {
+                combatant.update({ defeated: defeated }).then(() => {
                     token.refresh();
                 });
-                //combatant.update({ defeated: defeated });
             }
         }
     }
 
     if (setting('auto-reveal') && game.user.isGM && data.hidden === false) {
-        let token = canvas.tokens.get(tkn._id);
+        let token = document.object;
         let combatant;
         let combat = game.combats.find(c => {
             if (c.started)
-                combatant = c.combatants.find(t => {
-                    return t.tokenId == token.id;
+                combatant = c.combatants.find(cbt => {
+                    return document.id == cbt.token.id;
                 });
             return c.started && combatant != undefined;
         });
 
         if (combatant?.hidden === true) {
-            combat.updateCombatant({ _id: combatant._id, hidden: false }).then(() => {
+            combatant.update({ hidden: false }).then(() => {
                 token.refresh();
             });
         }
     }
 });
 
-Hooks.on("updateCombatant", async function (context, parentId, data) {
-    const combat = game.combats.get(parentId);
+Hooks.on("updateCombatant", async function (combatant, data, options, userId) {
+    const combat = combatant.parent;
     if (combat && combat.started && data.defeated != undefined && ['npc', 'all'].includes(setting('auto-defeated')) && game.user.isGM) {
-        const combatant = combat.data.combatants.find((o) => o.id === data.id);
-
-        let t = canvas.tokens.get(combatant.token.data._id);
-        const a = t.actor;
+        let t = combatant.token
+        const a = combatant.token.actor;
 
         let status = CONFIG.statusEffects.find(e => e.id === CONFIG.Combat.defeatedStatusId);
         let effect = a && status ? status : CONFIG.controlIcons.defeated;
         const exists = (effect.icon == undefined ? (t.data.overlayEffect == effect) : (a.effects.find(e => e.getFlag("core", "statusId") === effect.id) != undefined));
         if (exists != data.defeated)
-            await t.toggleEffect(effect, { overlay: true, active: data.defeated });
+            await t.object.toggleEffect(effect, { overlay: true, active: data.defeated });
+    }
+
+    if (combat && combatant.actor.isOwner) {
+        MonksLittleDetails.checkCombatTurn(combat);
     }
 });
 
@@ -2014,14 +1695,15 @@ Hooks.on('renderTokenConfig', function (app, html, options) {
 
 Hooks.on("renderCompendium", (compendium, html, data) => {
     if (setting('compendium-view-artwork')) {
-        if (compendium.entity == 'Scene') {
+        if (compendium.metadata.entity == 'Scene') {
             html.find('li.directory-item h4 a').click(ev => {
                 ev.preventDefault();
                 ev.cancelBubble = true;
                 if (ev.stopPropagation)
                     ev.stopPropagation();
-                let entryId = $(ev.currentTarget).parents('li:first').attr('data-entry-id');
-                compendium.getEntity(entryId).then(entry => {
+
+                let documentId = ev.currentTarget.closest('li').dataset.documentId;
+                compendium.collection.getDocument(documentId).then(entry => {
                     let img = entry.data.img;
                     if (VideoHelper.hasVideoExtension(img))
                         ImageHelper.createThumbnail(img, { width: entry.data.width, height: entry.data.height }).then(img => {
@@ -2098,7 +1780,7 @@ Hooks.on("renderCompendium", (compendium, html, data) => {
     }*/
 });
 
-Hooks.on("preUpdateToken", (scene, token, update, options) => {
+Hooks.on("preUpdateToken", (document, update, options, userId) => {
     let movechar = game.settings.get("monks-little-details", "movement-key");
     if (movechar.length == 0) movechar = "m";
     if (movechar.length > 1) movechar = movechar[0];

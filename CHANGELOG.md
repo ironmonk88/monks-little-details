@@ -1,3 +1,6 @@
+# Version 1.0.29
+Added support for version 0.8.x
+
 # Version 1.0.28
 Added option for GM to hear the next round sound
 
