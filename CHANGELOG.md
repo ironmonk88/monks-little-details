@@ -1,3 +1,6 @@
+# Version 1.0.31
+Fixing an issue with PF2 status labels
+
 # Version 1.0.30
 Added support for a chat command to set a timer, /timer 5 will show a chat message with a timer that counts down from 5s.
 

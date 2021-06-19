@@ -173,6 +173,7 @@ export class MonksLittleDetails {
             let tokenHUDRender = function (wrapped, ...args) {
                 let result = wrapped(...args).then((a, b) => {
                     MonksLittleDetails.alterHUD.call(this, MonksLittleDetails.element);
+                    CONFIG.statusEffects = CONFIG.statusEffects.filter(e => e.id != "");
                 });
 
                 return result;
@@ -905,8 +906,8 @@ background-color: rgba(0, 0, 0, 0.5);
             const statuses = this._getStatusEffectChoices();
              
             for (let img of $('.col.right .control-icon[data-action="effects"] .status-effects > img')) {
-                let id = $(img).attr('data-status-id');
-                if (id == '') {
+                let src = $(img).attr('src');
+                if (src == '') {
                     $(img).css({ 'visibility': 'hidden' });
                 } else {
                     //const status = statuses[img.getAttribute("src")] || {};
