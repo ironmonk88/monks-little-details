@@ -1,3 +1,12 @@
+# Version 1.0.30
+Added support for a chat command to set a timer, /timer 5 will show a chat message with a timer that counts down from 5s.
+
+Fixing some small errors
+
+Fixed issue with detecting combatant
+
+Adding libWrapper support
+
 # Version 1.0.29
 Added support for version 0.8.x
 

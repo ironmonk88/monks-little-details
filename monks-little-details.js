@@ -36,20 +36,6 @@ export class MonksLittleDetails {
         return true;
     };
 
-    static inCombat(token, combat = game.combats) {
-        let combatant;
-        combat = (combat instanceof Combat ? [combat] : combat);
-        combat.find(c => {
-            if (c.started)
-                combatant = c.combatants.find(cbt => {
-                    return (cbt.token.id == token.id);
-                });
-            return c.started && combatant != undefined;
-        });
-
-        return combatant;
-    }
-
     static canViewCombatMode(mode) {
         if (mode === CONST.TOKEN_DISPLAY_MODES.NONE) return false;
         else if (mode === CONST.TOKEN_DISPLAY_MODES.ALWAYS) return true;
@@ -184,21 +170,85 @@ export class MonksLittleDetails {
         }*/
 
         if (game.settings.get("monks-little-details", "alter-hud")) {
-            let oldTokenHUDRender = TokenHUD.prototype._render;
-            TokenHUD.prototype._render = function (force = false, options = {}) {
-                let result = oldTokenHUDRender.call(this, force, options).then((a, b) => {
+            let tokenHUDRender = function (wrapped, ...args) {
+                let result = wrapped(...args).then((a, b) => {
                     MonksLittleDetails.alterHUD.call(this, MonksLittleDetails.element);
                 });
 
                 return result;
             }
-            TokenHUD.prototype.refreshStatusIcons = function () {
+            if (game.modules.get("lib-wrapper")?.active) {
+                libWrapper.register("monks-little-details", "TokenHUD.prototype._render", tokenHUDRender, "WRAPPER");
+            } else {
+                const oldTokenHUDRender = TokenHUD.prototype._render;
+                TokenHUD.prototype._render = function (event) {
+                    return tokenHUDRender.call(this, oldTokenHUDRender.bind(this), ...arguments);
+                }
+            }
+
+            let getStatusEffectChoices = function (wrapped, ...args) {
+                CONFIG.statusEffects = CONFIG.statusEffects.sort(function (a, b) {
+                    let aid = (a.label != undefined ? i18n(a.label) : a.id);
+                    let bid = (b.label != undefined ? i18n(b.label) : b.id);
+                    return (aid > bid ? 1 : (aid < bid ? -1 : 0));
+                    //return (a.id == undefined || a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)); //(a.label == undefined || i18n(a.label) > i18n(b.label) ? 1 : (i18n(a.label) < i18n(b.label) ? -1 : 0));
+                });
+
+                if (setting('sort-by-columns')) {
+                    /*
+                    let [blanks, temp] = CONFIG.statusEffects.partition(f => f.label != undefined);
+                    let effects = [];
+                    let mid = Math.ceil(temp.length / 4);
+                    let offset = (4 - ((mid * 4) - temp.length));
+                    for (let i = 0; i < mid; i++) {
+                        for (let j = 0; j < 4; j++) {
+                            let spot = (i + (mid * j) - (j > offset ? 1 : 0));
+                            if (spot < temp.length) {
+                                effects.push(temp[spot]);
+                            }
+                        }
+                    }
+                    CONFIG.statusEffects = effects.concat(blanks);
+                    */
+                    let effects = [];
+                    let temp = CONFIG.statusEffects.filter(e => e.id != "");
+                    let mid = Math.ceil(temp.length / 4);
+                    for (let i = 0; i < mid; i++) {
+                        for (let j = 0; j < 4; j++) {
+                            let spot = i + (j * mid)
+                            effects.push((spot < temp.length ? temp[spot] : { id: "", icon: "", label: "" }));
+                        }
+                    }
+                    CONFIG.statusEffects = effects;
+                }
+
+                return wrapped(...args);
+            }
+
+            if (game.modules.get("lib-wrapper")?.active) {
+                libWrapper.register("monks-little-details", "TokenHUD.prototype._getStatusEffectChoices", getStatusEffectChoices, "WRAPPER");
+            } else {
+                const oldGetStatusEffectChoices = TokenHUD.prototype._getStatusEffectChoices;
+                TokenHUD.prototype._getStatusEffectChoices = function () {
+                    return getStatusEffectChoices.call(this, oldGetStatusEffectChoices.bind(this), ...arguments);
+                }
+            }
+
+            let refreshStatusIcons = function () {
                 const effects = this.element.find(".status-effects")[0];
                 const statuses = this._getStatusEffectChoices();
                 for (let img of $('[src]', effects)) {
                     const status = statuses[img.getAttribute("src")] || {};
                     img.classList.toggle("overlay", !!status.isOverlay);
                     img.classList.toggle("active", !!status.isActive);
+                }
+            }
+
+            if (game.modules.get("lib-wrapper")?.active) {
+                libWrapper.register("monks-little-details", "TokenHUD.prototype.refreshStatusIcons", refreshStatusIcons, "OVERRIDE");
+            } else {
+                TokenHUD.prototype.refreshStatusIcons = function (event) {
+                    return refreshStatusIcons.call(this);
                 }
             }
         }
@@ -225,88 +275,9 @@ export class MonksLittleDetails {
                 document.fonts.add(MonksLittleDetails.splatfont);
             });
 
-            let oldTokenRefresh = Token.prototype.refresh;
-            Token.prototype.refresh = function () {
-                oldTokenRefresh.call(this);
-
-                //find defeated state
-                let combatant = MonksLittleDetails.inCombat(this);
-                if (((combatant && combatant.defeated) || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId)) && this.actor?.data.type !== 'character') {
-                    this.bars.visible = false;
-                    for (let effect of this.effects.children) {
-                        effect.alpha = 0;
-                    }
-                    if (this.actor?.getFlag("core", "sheetClass") != 'dnd5e.LootSheet5eNPC') {
-                        if (this.data._id != undefined) {
-                            this.icon.alpha = (game.user.isGM ? 0.2 : 0);
-                            if (this.bloodsplat == undefined) {
-                                let glyph = this.document.getFlag('monks-little-details', 'glyph');
-                                if (glyph == undefined) {
-                                    glyph = MonksLittleDetails.availableGlyphs.charAt(Math.floor(Math.random() * MonksLittleDetails.availableGlyphs.length));
-                                    if(game.user.isGM)
-                                        this.document.setFlag('monks-little-details', 'glyph', glyph);
-                                }
-                                /*
-                                this.splat = new PIXI.Text(' ' + glyph + ' ', { fontFamily: 'Times New Roman', fontSize: this.h * 1.5, fill: 0xff0000, align: 'center' }); //WC Rhesus A Bta
-                                this.splat.alpha = 0.7;
-                                this.splat.blendMode = PIXI.BLEND_MODES.OVERLAY;
-                                this.splat.anchor.set(0.5, 0.5);
-                                this.splat.x = this.w / 2;
-                                this.splat.y = this.h / 2;
-                                this.addChild(this.splat);*/
-
-                                this.bloodsplat = new PIXI.Text(' ' + glyph + ' ', { fontFamily: 'WC Rhesus A Bta', fontSize: this.h * 1.5, fill: 0xff0000, align: 'center' });
-                                this.bloodsplat.alpha = 0.7;
-                                this.bloodsplat.blendMode = PIXI.BLEND_MODES.OVERLAY;
-                                this.bloodsplat.anchor.set(0.5, 0.5);
-                                this.bloodsplat.x = this.w / 2;
-                                this.bloodsplat.y = this.h / 2;
-                                this.addChild(this.bloodsplat);
-
-                                log('Font: ', this.id, (this.h * 1.5), this.bloodsplat.x, this.bloodsplat.y);
-                            }
-                        }
-                    } else {
-                        this.icon.alpha = 0.5;
-                        if (this.bloodsplat) {
-                            //this.removeChild(this.splat);
-                            //delete this.splat;
-
-                            this.removeChild(this.bloodsplat);
-                            delete this.bloodsplat;
-                        }
-                        if (this.tresurechest == undefined) {
-                            loadTexture("icons/svg/chest.svg").then((tex) => { //"modules/monks-little-details/img/chest.png"
-                                const icon = new PIXI.Sprite(tex);
-                                const size = Math.min(canvas.grid.grid.w, canvas.grid.grid.h);
-                                icon.width = icon.height = size;
-                                icon.position.set((this.w - size) / 2, (this.h - size) / 2);
-                                icon.alpha = 0.8;
-                                this.tresurechest = icon;
-                                this.addChild(this.tresurechest);
-                            });
-                        } else
-                            this.tresurechest.alpha = (this._hover ? 1 : 0.8);
-                    }
-                } else {
-                    if (this.bloodsplat) {
-                        //this.removeChild(this.splat);
-                        //delete this.splat;
-
-                        this.removeChild(this.bloodsplat);
-                        delete this.bloodsplat;
-                    }
-                    if (this.tresurechest) {
-                        this.removeChild(this.tresurechest);
-                        delete this.tresurechest;
-                    }
-                }
-            }
-
             let oldTokenDrawOverlay = Token.prototype._drawOverlay;
             Token.prototype._drawOverlay = async function ({ src, tint } = {}) {
-                let combatant = MonksLittleDetails.inCombat(this);
-                if (((combatant && combatant.defeated) || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId)) && this.actor?.data.type !== 'character') {
+                if (((this.combatant && this.combatant.data.defeated) || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId)) && this.actor?.data.type !== 'character') {
                     //this should be showing the bloodsplat, so don't show the skull overlay
                     return;
                 } else
@@ -314,14 +285,100 @@ export class MonksLittleDetails {
             }
         }
 
-        //if this token is part of a combat, then always show the bar, but at 0.5 opacity, unless controlled
-        if (setting('add-combat-bars')) {
-            let oldTokenRefresh = Token.prototype.refresh;
-            Token.prototype.refresh = function () {
-                oldTokenRefresh.call(this);
+        if (setting("show-bloodsplat") || setting('add-combat-bars')) {
+            let tokenRefresh = function (wrapped, ...args) {
+                wrapped.call(this);
 
-                let combatant = MonksLittleDetails.inCombat(this);
-                if (combatant) {
+                if (setting("show-bloodsplat")){
+                    //find defeated state
+                    let combatant = this.combatant;
+                    if (((combatant && combatant.data.defeated) || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId)) && this.actor?.data.type !== 'character') {
+                        this.bars.visible = false;
+                        for (let effect of this.effects.children) {
+                            effect.alpha = 0;
+                        }
+                        if (this.actor?.getFlag("core", "sheetClass") != 'dnd5e.LootSheet5eNPC') {
+                            if (this.data._id != undefined) {
+                                this.icon.alpha = (game.user.isGM ? 0.2 : 0);
+                                if (this.bloodsplat == undefined) {
+                                    let glyph = this.document.getFlag('monks-little-details', 'glyph');
+                                    if (glyph == undefined) {
+                                        glyph = MonksLittleDetails.availableGlyphs.charAt(Math.floor(Math.random() * MonksLittleDetails.availableGlyphs.length));
+                                        if (game.user.isGM)
+                                            this.document.setFlag('monks-little-details', 'glyph', glyph);
+                                    }
+
+                                    this.bloodsplat = new PIXI.Text(' ' + glyph + ' ', { fontFamily: 'WC Rhesus A Bta', fontSize: this.h * 1.5, fill: 0xff0000, align: 'center' });
+                                    this.bloodsplat.alpha = 0.7;
+                                    this.bloodsplat.blendMode = PIXI.BLEND_MODES.OVERLAY;
+                                    this.bloodsplat.anchor.set(0.5, 0.5);
+                                    this.bloodsplat.x = this.w / 2;
+                                    this.bloodsplat.y = this.h / 2;
+                                    this.addChild(this.bloodsplat);
+
+                                    log('Font: ', this.id, (this.h * 1.5), this.bloodsplat.x, this.bloodsplat.y);
+                                }
+                            }
+                        } else {
+                            this.icon.alpha = 0.5;
+                            if (this.bloodsplat) {
+                                this.removeChild(this.bloodsplat);
+                                delete this.bloodsplat;
+                            }
+                            if (this.tresurechest == undefined) {
+                                loadTexture("icons/svg/chest.svg").then((tex) => { //"modules/monks-little-details/img/chest.png"
+                                    const icon = new PIXI.Sprite(tex);
+                                    const size = Math.min(canvas.grid.grid.w, canvas.grid.grid.h);
+                                    icon.width = icon.height = size;
+                                    icon.position.set((this.w - size) / 2, (this.h - size) / 2);
+                                    icon.alpha = 0.8;
+                                    this.tresurechest = icon;
+                                    this.addChild(this.tresurechest);
+                                });
+                            } else
+                                this.tresurechest.alpha = (this._hover ? 1 : 0.8);
+                        }
+                    } else {
+                        if (this.bloodsplat) {
+                            this.removeChild(this.bloodsplat);
+                            delete this.bloodsplat;
+                        }
+                        if (this.tresurechest) {
+                            this.removeChild(this.tresurechest);
+                            delete this.tresurechest;
+                        }
+                    }
+                }
+
+                //if this token is part of a combat, then always show the bar, but at 0.5 opacity, unless controlled
+                if (setting('add-combat-bars')) {
+                    if (this.inCombat) {
+                        let combatBar = this.document.getFlag('monks-little-details', 'displayBarsCombat');
+                        if (combatBar != undefined && combatBar != -1) {
+                            this.bars.visible = MonksLittleDetails.canViewCombatMode.call(this, combatBar);
+                            this.bars.alpha = ((this._controlled && (combatBar == CONST.TOKEN_DISPLAY_MODES.CONTROL || combatBar == CONST.TOKEN_DISPLAY_MODES.OWNER || combatBar == CONST.TOKEN_DISPLAY_MODES.ALWAYS)) ||
+                                (this._hover && (combatBar == CONST.TOKEN_DISPLAY_MODES.HOVER || combatBar == CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER)) ? 1 : 0.3);
+                        }
+                    } else
+                        this.bars.alpha = 1;
+                }
+            }
+            if (game.modules.get("lib-wrapper")?.active) {
+                libWrapper.register("monks-little-details", "Token.prototype.refresh", tokenRefresh, "WRAPPER");
+            } else {
+                const oldTokenRefresh = Token.prototype.refresh;
+                Token.prototype.refresh = function () {
+                    return tokenRefresh.call(this, oldTokenRefresh.bind(this), ...arguments);
+                }
+            }
+        }
+
+        /*
+        if (setting('add-combat-bars')) {
+            let tokenRefresh = function (wrapped, ...args) {
+                wrapped(...args);
+
+                if (this.inCombat) {
                     let combatBar = this.document.getFlag('monks-little-details', 'displayBarsCombat');
                     if (combatBar != undefined && combatBar != -1) {
                         this.bars.visible = MonksLittleDetails.canViewCombatMode.call(this, combatBar);
@@ -331,11 +388,19 @@ export class MonksLittleDetails {
                 } else
                     this.bars.alpha = 1;
             }
-        }
+
+            if (game.modules.get("lib-wrapper")?.active) {
+                libWrapper.register("monks-little-details", "Token.prototype.refresh", tokenRefresh, "WRAPPER");
+            } else {
+                const oldTokenRefresh = Token.prototype.refresh;
+                Token.prototype.refresh = function () {
+                    return tokenRefresh.call(this, oldTokenRefresh.bind(this), ...arguments);
+                }
+            }
+        }*/
 
         if (game.settings.get("monks-little-details", "show-notify")) {
-            let oldChatLogNotify = ChatLog.prototype.notify;
-            ChatLog.prototype.notify = function (message) {
+            let chatLogNotify = function () {
                 this._lastMessageTime = new Date();
                 if (!this.rendered) return;
 
@@ -351,7 +416,38 @@ export class MonksLittleDetails {
                 // Play a notification sound effect
                 if (message.data.sound) AudioHelper.play({ src: message.data.sound });
             }
+
+            if (game.modules.get("lib-wrapper")?.active) {
+                libWrapper.register("monks-little-details", "ChatLog.prototype.notify", chatLogNotify, "OVERRIDE");
+            } else {
+                ChatLog.prototype.notify = function (event) {
+                    return chatLogNotify.call(this);
+                }
+            }
         }
+
+        /*
+        let oldSync = AmbientSound.prototype.sync;
+        AmbientSound.prototype.sync = function sync(isAudible, volume, options) {
+            let result = oldSync.call(this, isAudible, volume, options);
+
+            let delay = this.document.getFlag('monks-little-details', 'loop-delay');
+            if (delay && delay != 0) {
+                this.sound.loop = false;
+
+                if (delay > 0) {
+                    if (this.sound.loopdelay == null) {
+                        $(this.sound).on('ended', function () {
+                            this.sound.loopdelay = window.setTimeout(function () {
+                                this.sound.play();
+                            }, delay * 1000);
+                        });
+                    }
+                }
+            }
+
+            return result;
+        }*/
     }
 
     static ready() {
@@ -377,31 +473,6 @@ export class MonksLittleDetails {
                 }
             } else {
                 MonksLittleDetails.registerHotKeys();
-            }
-        }
-
-        if (game.settings.get("monks-little-details", "alter-hud")) {
-            CONFIG.statusEffects = CONFIG.statusEffects.sort(function (a, b) {
-                let aid = (a.label != undefined ? i18n(a.label) : a.id);
-                let bid = (b.label != undefined ? i18n(b.label) : b.id);
-                return (aid > bid ? 1 : (aid < bid ? -1 : 0));
-                //return (a.id == undefined || a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)); //(a.label == undefined || i18n(a.label) > i18n(b.label) ? 1 : (i18n(a.label) < i18n(b.label) ? -1 : 0));
-            });
-
-            if (setting('sort-by-columns')) {
-                let [blanks, temp] = CONFIG.statusEffects.partition(f => f.label != undefined);
-                let effects = [];
-                let mid = Math.ceil(temp.length / 4);
-                let offset = (4 - ((mid * 4) - temp.length));
-                for (let i = 0; i < mid; i++) {
-                    for (let j = 0; j < 4; j++) {
-                        let spot = (i + (mid * j) - (j > offset ? 1 : 0));
-                        if (spot < temp.length) {
-                            effects.push(temp[spot]);
-                        }
-                    }
-                }
-                CONFIG.statusEffects = effects.concat(blanks);
             }
         }
     }
@@ -474,7 +545,7 @@ export class MonksLittleDetails {
         style.id = "monks-css-changes";
         if (setting("core-css-changes")) {
             innerHTML += `
-.sidebar-tab .directory-list .directory-item img {
+.directory .directory-list .directory-item img {
     object-fit: contain !important;
 }
 
@@ -776,9 +847,9 @@ background-color: rgba(0, 0, 0, 0.5);
                 let next = null;
                 if (skip) {
                     for (let [i, t] of combat.turns.entries()) {
-                        if (i <= from) continue;
-                        if (t.defeated) continue;
-                        if (t.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId)) continue;
+                        if (i <= from ||
+                            t.data.defeated ||
+                            t.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId)) continue;
                         next = i;
                         break;
                     }
@@ -834,17 +905,22 @@ background-color: rgba(0, 0, 0, 0.5);
             const statuses = this._getStatusEffectChoices();
              
             for (let img of $('.col.right .control-icon[data-action="effects"] .status-effects > img')) {
-                //const status = statuses[img.getAttribute("src")] || {};
-                let title = $(img).attr('title') || $(img).attr('data-condition');
-                let div = $('<div>')
-                    .addClass('effect-container')//$(img).attr('class'))
-                    //.toggleClass('active', !!status.isActive)
-                    .attr('title', title)
-                    //.attr('src', $(img).attr('src'))
-                    .insertAfter(img)
-                    .append(img)//.removeClass('effect-control'))
-                    .append($('<div>').addClass('effect-name').html(title)
-                );
+                let id = $(img).attr('data-status-id');
+                if (id == '') {
+                    $(img).css({ 'visibility': 'hidden' });
+                } else {
+                    //const status = statuses[img.getAttribute("src")] || {};
+                    let title = $(img).attr('title') || $(img).attr('data-condition');
+                    let div = $('<div>')
+                        .addClass('effect-container')//$(img).attr('class'))
+                        //.toggleClass('active', !!status.isActive)
+                        .attr('title', title)
+                        //.attr('src', $(img).attr('src'))
+                        .insertAfter(img)
+                        .append(img)//.removeClass('effect-control'))
+                        .append($('<div>').addClass('effect-name').html(title)
+                        );
+                }
             };
 
             $('.col.right .control-icon[data-action="effects"] .status-effects > div.pf2e-effect-img-container', html).each(function () {
@@ -934,7 +1010,7 @@ background-color: rgba(0, 0, 0, 0.5);
                     if (combatant.actor.data.data?.classes) {
                         levels = Object.values(combatant.actor.data.data?.classes).reduce((a, b) => (a?.data?.levels || 0) + (b?.data?.levels || 0), 0);
                     } else {
-                        levels = combatant?.actor.data.data.details?.level || combatant?.actor.data.data.details?.level?.value || 0;
+                        levels = combatant?.actor.data.data.details?.level?.value || combatant?.actor.data.data.details?.level || 0;
                     }
 
                     apl.levels += levels;
@@ -1027,15 +1103,40 @@ background-color: rgba(0, 0, 0, 0.5);
         await MonksLittleDetails.currentScene.update({ backgroundColor: hexCode });
     }
 
-    static fixImages() {
-        var dnd5emonsters = game.packs.get("dnd5e.monsters");
-        dnd5emonsters.locked = false;
+    static async fixImages({ wildcards = true } = {}) {
+        let getFiles = async function(filename) {
+            let source = "data";
+            let pattern = filename;
+            const browseOptions = { wildcard: true };
 
-        dnd5emonsters.getContent().then(entries => {
-            debugger;
+            // Support S3 matching
+            if (/\.s3\./.test(pattern)) {
+                source = "s3";
+                const { bucket, keyPrefix } = FilePicker.parseS3URL(pattern);
+                if (bucket) {
+                    browseOptions.bucket = bucket;
+                    pattern = keyPrefix;
+                }
+            }
+
+            // Retrieve wildcard content
+            try {
+                const content = await FilePicker.browse(source, pattern, browseOptions);
+                return content.files;
+            } catch (err) {
+                return null;
+                error(err);
+            }
+            return [];
+        }
+
+        var dnd5emonsters = game.packs.get("dnd5e.monsters");
+        dnd5emonsters.configure({ locked: false });
+
+        dnd5emonsters.getDocuments().then(async(entries) => {
             for (var i = 0; i < entries.length; i++) {
                 var entry = entries[i];
-                var montype = entry.data.data.details.type.toLowerCase();
+                var montype = entry.data.data.details.type.value.toLowerCase();
                 montype = montype.replace(/\(.*\)/, '').replace(/\s/g, '');
                 var monname = entry.name.toLowerCase();
                 if (monname.startsWith('ancient'))
@@ -1047,75 +1148,29 @@ background-color: rgba(0, 0, 0, 0.5);
                 monname = monname.replace(/\s/g, '').replace(/-/g, '').replace(/'/g, '').replace(/\(.*\)/, '');
 
                 var imgname = 'images/avatar/dnd/' + montype + '/' + monname + '.png';
-                if (entry.data.img != imgname) {
-                    var data = { _id: entry._id, img: imgname };
-                    var fetchname = window.location.protocol + "//" + window.location.host + '/' + imgname;
-                    $.get(imgname)
-                        .done(function () {
-                            // Do something now you know the image exists.
-                            xhr.dnd5emonsters.updateEntity(xhr.entity);
-                        }).fail(function () {
-                            // Image doesn't exist - do something else.
-
-                        });
-                    /*
-                    let xhr = new XMLHttpRequest();
-                    xhr.dnd5emonsters = dnd5emonsters;
-                    xhr.entity = data;
-                    xhr.onload = () => {
-                        if (xhr.status == 200) {
-                            xhr.dnd5emonsters.updateEntity(xhr.entity);
-                            log('Fixing:' + xhr.entity.img);
-                        } else {
-                            log('Image does not exist:' + xhr.entity.img);
-                        }
-                    };
-                    xhr.open('HEAD', fetchname);
-                    xhr.send();*/
+                if (entry.data.img.toLowerCase() != imgname) {
+                    let files = await getFiles(imgname);
+                    if (files && files.length > 0) {
+                        await entry.update({ img: files[0] });
+                        log('Fixing:', entry.name, files[0]);
+                    }
                 }
 
-                /*
-                var tokentype = 'overhead';
-                var tokenname = 'images/tokens/' + tokentype + '/' + montype + '/' + monname + '.png';
-                if (entry.data.token.img != '' && entry.data.token.img != tokenname) {
-                    var data = { _id: entry._id, token: { img: tokenname } };
-                    var fetchname = window.location.protocol + "//" + window.location.host + '/' + tokenname;
-                    var img = new Image();
-                    img.dnd5emonsters = dnd5emonsters;
-                    img.entity = data;
-                    img.tokentype = tokentype;
-                    img.montype = montype;
-                    img.monname = monname;
+                for (let tokentype of ['overhead', 'disc', 'artwork']) {
+                    var tokenname = 'images/tokens/' + tokentype + '/' + montype + '/' + monname + '.png'; // + (wildcards ? "*" : '')
+                    if (entry.data.token.img == tokenname)
+                        break;
 
-                    img.onload = function () {
-                        this.dnd5emonsters.updateEntity(this.entity);
-                        console.log('Fixing token:' + this.entity.token.img);
+                    let files = await getFiles(tokenname);
+                    if (files && files.length > 0) {
+                        await entry.update({ token : { img: files[0] } });
+                        log('Fixing Token:', entry.name, files[0]);
+                        break;
                     }
-
-                    img.onerror = function () {
-                        if (this.tokentype == 'overhead')
-                            this.tokentype = 'disc';
-                        else if (this.tokentype == 'disc')
-                            this.tokentype = 'artwork';
-                        else
-                            return;
-                        var tokenname = 'images/tokens/' + this.tokentype + '/' + this.montype + '/' + this.monname + '.png';
-                        this.entity.token.img = tokenname;
-                        this.src = tokenname;
-                    }
-                    img.src = fetchname;
-                }*/
-                /*
-                var token = new Image();
-                token.onload = function(){
-                    dnd5emonsters.updateEntity({
-                        _id:entry._id,
-                        token:{img:tokenname}
-                    });
                 }
-                token.src = tokenname;
-                */
             }
+
+            dnd5emonsters.configure({ locked: true });
         });
     }
 
@@ -1624,19 +1679,11 @@ Hooks.on("updateToken", function (document, data, options, userid) {
         let token = document.object;
         let hp = getProperty(data, 'actorData.data.attributes.hp');
         if (hp != undefined && (setting('auto-defeated') == 'all' || (setting('auto-defeated') == 'npc' && document.data.disposition != 1))) {
-            let combatant;
-            //find the combat this token is involved in, and the combatant
-            let combat = game.combats.find(c => {
-                if (c.started)
-                    combatant = c.combatants.find(cbt => {
-                        return document.id == cbt.token.id;
-                    });
-                return c.started && combatant != undefined;
-            });
+            let combatant = document.combatant;
 
             //check to see if the combatant has been defeated
             let defeated = (hp.value == 0);
-            if (combatant != undefined && combatant.defeated != defeated) {
+            if (combatant != undefined && combatant.data.defeated != defeated) {
                 combatant.update({ defeated: defeated }).then(() => {
                     token.refresh();
                 });
@@ -1646,14 +1693,7 @@ Hooks.on("updateToken", function (document, data, options, userid) {
 
     if (setting('auto-reveal') && game.user.isGM && data.hidden === false) {
         let token = document.object;
-        let combatant;
-        let combat = game.combats.find(c => {
-            if (c.started)
-                combatant = c.combatants.find(cbt => {
-                    return document.id == cbt.token.id;
-                });
-            return c.started && combatant != undefined;
-        });
+        let combatant = document.combatant;;
 
         if (combatant?.hidden === true) {
             combatant.update({ hidden: false }).then(() => {
@@ -1676,7 +1716,7 @@ Hooks.on("updateCombatant", async function (combatant, data, options, userId) {
             await t.object.toggleEffect(effect, { overlay: true, active: data.defeated });
     }
 
-    if (combat && combatant.actor.isOwner) {
+    if (combat && combat.started && combatant.actor.isOwner && data.defeated != undefined) {
         MonksLittleDetails.checkCombatTurn(combat);
     }
 });
@@ -1789,4 +1829,63 @@ Hooks.on("preUpdateToken", (document, update, options, userId) => {
         options.animate = false;
     }
 });
+
+Hooks.on("chatCommandsReady", (chatCommands) => {
+    chatCommands.registerCommand(chatCommands.createCommandFromData({
+        commandKey: "/timer",
+        invokeOnCommand: (chatlog, messageText, chatdata) => {
+            log(chatlog, messageText, chatdata);
+            let time = parseInt(messageText) * 1000;
+            chatdata.flags = { 'monks-little-details': { time: time, start: Date.now() } };
+            return '<div class="timer-msg"><div class="timer-time">' + (time / 1000) + ' sec</div><div class="timer-bar"><div></div></div><div class="complete-msg">Complete</div></div>';
+        },
+        shouldDisplayToChat: true,
+        iconClass: "fa-clock",
+        description: "Set countdown"
+    }));
+});
+
+Hooks.on("renderChatMessage", (message, html, data) => {
+    if (message.getFlag('monks-little-details', 'time') && !message.getFlag('monks-little-details', 'complete')) {
+        let time = message.getFlag('monks-little-details', 'time');
+        let start = message.getFlag('monks-little-details', 'start');
+        
+        if ((Date.now() - start) >= time) {
+            //the timer is finished
+            let content = $(message.data.content);
+            $(content).addClass('completed');
+            $('.timer-time', content).html(parseInt(time / 1000) + ' sec');
+            message.update({ content: content[0].outerHTML, flags: { 'monks-little-details': { 'complete': true } } });
+        } else {
+            //start that timer up!
+            let dif = (Date.now() - start);
+            $('.timer-time', html).html(parseInt(dif / 1000) + ' sec');
+            $('.timer-bar div', html).css({ width: ((dif / time) * 100) + '%' });
+
+            let timer = window.setInterval(function () {
+                let dif = (Date.now() - start);
+                $('.timer-time', html).html(parseInt(dif / 1000) + ' sec');
+                $('.timer-bar div', html).css({width: ((dif / time) * 100) + '%'});
+                if (dif > time) {
+                    //the timer is finished
+                    let content = $(message.data.content);
+                    $(content).addClass('complete');
+                    $('.timer-time', content).html(parseInt(time / 1000) + ' sec');
+                    message.update({ content: content[0].outerHTML, flags: { 'monks-little-details': { 'complete': true } } });
+                    window.clearInterval(timer);
+                }
+            }, 100);
+        }
+    }
+})
+
+/*
+Hooks.on('renderAmbientSoundConfig', (app, html, data) => {
+    $('<div>')
+        .addClass('form-group')
+        .append($('<label>').html('Repeat Delay'))
+        .append($('<div>').addClass('form-fields').append($('<input>').attr('type', 'number').attr('name', 'flags.monks-little-details.loop-delay').attr('step', '1').val(app.document.getFlag('monks-little-details', 'loop-delay'))))
+        .append($('<p>').addClass('hint').html('Specify the time between loops, set to -1 to have this play only once'))
+        .insertBefore($('button[name="submit"]', html));
+})*/
 
