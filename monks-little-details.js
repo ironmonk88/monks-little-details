@@ -401,7 +401,8 @@ export class MonksLittleDetails {
         }*/
 
         if (game.settings.get("monks-little-details", "show-notify")) {
-            let chatLogNotify = function () {
+            let chatLogNotify = function (...args) {
+                let message = args[0]
                 this._lastMessageTime = new Date();
                 if (!this.rendered) return;
 
@@ -422,7 +423,7 @@ export class MonksLittleDetails {
                 libWrapper.register("monks-little-details", "ChatLog.prototype.notify", chatLogNotify, "OVERRIDE");
             } else {
                 ChatLog.prototype.notify = function (event) {
-                    return chatLogNotify.call(this);
+                    return chatLogNotify.call(this, ...arguments);
                 }
             }
         }

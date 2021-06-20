@@ -1,3 +1,7 @@
+# Version 1.0.32
+
+Fixing issue with libWrapper integration
+
 # Version 1.0.31
 Fixing an issue with PF2 status labels
 
