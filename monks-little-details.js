@@ -1684,7 +1684,7 @@ Hooks.on("updateToken", function (document, data, options, userid) {
             let combatant = document.combatant;
 
             //check to see if the combatant has been defeated
-            let defeated = (setting('auto-defeated-negative') ? (hp.value < 0) : hp.value == 0);
+            let defeated = (setting('auto-defeated-negative') ? (hp.value < 0) : (hp.value == 0));
             if (combatant != undefined && combatant.data.defeated != defeated) {
                 combatant.update({ defeated: defeated }).then(() => {
                     token.refresh();

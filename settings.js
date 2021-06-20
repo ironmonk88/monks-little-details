@@ -164,14 +164,14 @@ export const registerSettings = function () {
 		default: 'npc',
 		type: String,
 	});
-    game.settings.register(modulename, "auto-defeated-negative", {
-        name: i18n("MonksLittleDetails.auto-defeated-negative.name"),
-        hint: i18n("MonksLittleDetails.auto-defeated-negative.hint"),
-        scope: "world",
-        config: true,
-        default: false,
-        type: Boolean,
-    });
+	game.settings.register(modulename, "auto-defeated-negative", {
+		name: i18n("MonksLittleDetails.auto-defeated-negative.name"),
+		hint: i18n("MonksLittleDetails.auto-defeated-negative.hint"),
+		scope: "world",
+		config: true,
+		default: false,
+		type: Boolean,
+	});
 	game.settings.register(modulename, "auto-reveal", {
 		name: i18n("MonksLittleDetails.auto-reveal.name"),
 		hint: i18n("MonksLittleDetails.auto-reveal.hint"),
