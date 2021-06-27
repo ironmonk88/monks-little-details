@@ -65,7 +65,7 @@
 	"MonksLittleDetails.compendium-view-artwork.name": "Compendium Scene view artwork",
 	"MonksLittleDetails.compendium-view-artwork.hint": "Open the scene artwork if you click on the scene name",
 	"MonksLittleDetails.auto-defeated.name": "Automatically set defeated",
-	"MonksLittleDetails.auto-defeated.hint": "When an NPC reaches 0 HP in combat, set it to defeated automatically.",
+	"MonksLittleDetails.auto-defeated.hint": "Set a token to be defeated automatically when certain conditions are met.",
 	"MonksLittleDetails.auto-reveal.name": "Automatically reveal combat tracker character",
 	"MonksLittleDetails.auto-reveal.hint": "Automatically reveal characters on the combat tracker when they become visible, saving you from having to do it twice.",
 	"MonksLittleDetails.key-swap-tool.name": "Use keys to swap tools",
@@ -134,7 +134,9 @@
 	"MonksLittleDetails.combatopen.gm": "GM Only",
 	"MonksLittleDetails.combatopen.players": "Players Only",
 
-	"MonksLittleDetails.autodefeated.none": "None",
-	"MonksLittleDetails.autodefeated.npc": "NPC",
-	"MonksLittleDetails.autodefeated.all": "All"
+	"MonksLittleDetails.autodefeated.none": "No one",
+	"MonksLittleDetails.autodefeated.npc-zero": "NPC Zero HP",
+	"MonksLittleDetails.autodefeated.npc-negative": "NPC Negative HP",
+	"MonksLittleDetails.autodefeated.all-zero": "Everyone Zero HP",
+	"MonksLittleDetails.autodefeated.all-negative": "Everyone Negative HP"
 }

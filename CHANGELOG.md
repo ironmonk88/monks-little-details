@@ -14,6 +14,10 @@ Updated the /timer chat command so you can now have it count up or down, set it 
 
 Removed the disable open combat setting as there are modules out there that can help you set players settings.
 
+Tried to fix issue with defeated not setting the token status to dead.
+
+MERGE CODE: Added option to set autodefeated on negative rather than 0.  Thank you pseudocode.
+
 # Version 1.0.32
 
 Fixing issue with libWrapper integration

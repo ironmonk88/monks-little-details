@@ -1756,18 +1756,18 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
     $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.AddedFeatures")).insertBefore($('[name="monks-little-details.actor-sounds"]').parents('div.form-group:first'));
 });
 
-Hooks.on("updateToken", function (document, data, options, userid) {
+Hooks.on("updateToken", async function (document, data, options, userid) {
     //actorData.data.attributes.hp
-    if (['npc', 'all'].includes(setting('auto-defeated')) && game.user.isGM) {
+    if (setting('auto-defeated') != 'none' && game.user.isGM) {
         let token = document.object;
         let hp = getProperty(data, 'actorData.data.attributes.hp');
-        if (hp != undefined && (setting('auto-defeated') == 'all' || (setting('auto-defeated') == 'npc' && document.data.disposition != 1))) {
+        if (hp != undefined && (setting('auto-defeated').startsWith('all') || document.data.disposition != 1)) {
             let combatant = document.combatant;
 
             //check to see if the combatant has been defeated
-            let defeated = (hp.value == 0);
+            let defeated = (setting('auto-defeated').endsWith('negative') ? hp.value < 0 : hp.value == 0);
             if (combatant != undefined && combatant.data.defeated != defeated) {
-                combatant.update({ defeated: defeated }).then(() => {
+                await combatant.update({ defeated: defeated }).then(() => {
                     token.refresh();
                 });
             }
@@ -1779,7 +1779,7 @@ Hooks.on("updateToken", function (document, data, options, userid) {
         let combatant = document.combatant;;
 
         if (combatant?.hidden === true) {
-            combatant.update({ hidden: false }).then(() => {
+            await combatant.update({ hidden: false }).then(() => {
                 token.refresh();
             });
         }
@@ -1788,7 +1788,7 @@ Hooks.on("updateToken", function (document, data, options, userid) {
 
 Hooks.on("updateCombatant", async function (combatant, data, options, userId) {
     const combat = combatant.parent;
-    if (combat && combat.started && data.defeated != undefined && ['npc', 'all'].includes(setting('auto-defeated')) && game.user.isGM) {
+    if (combat && combat.started && data.defeated != undefined && setting('auto-defeated') != 'none' && game.user.isGM) {
         let t = combatant.token
         const a = combatant.token.actor;
 

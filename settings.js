@@ -23,8 +23,10 @@ export const registerSettings = function () {
 
 	let autodefeated = {
 		'none': i18n("MonksLittleDetails.autodefeated.none"),
-		'npc': i18n("MonksLittleDetails.autodefeated.npc"),
-		'all': i18n("MonksLittleDetails.autodefeated.all")
+		'npc-zero': i18n("MonksLittleDetails.autodefeated.npc-zero"),
+		'npc-negative': i18n("MonksLittleDetails.autodefeated.npc-negative"),
+		'all-zero': i18n("MonksLittleDetails.autodefeated.all-zero"),
+		'all-negative': i18n("MonksLittleDetails.autodefeated.all-negative")
 	};
 
 	//System changes
@@ -161,7 +163,7 @@ export const registerSettings = function () {
 		scope: "world",
 		config: true,
 		choices: autodefeated,
-		default: 'npc',
+		default: (game.system.id == 'D35E' || game.system.id == 'pf1' ? 'npc-negative' : 'npc-zero'),
 		type: String,
 	});
 	game.settings.register(modulename, "auto-reveal", {
