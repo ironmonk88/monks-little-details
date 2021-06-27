@@ -430,3 +430,14 @@ body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details
 .timer-msg.complete .complete-msg {
     display: block;
 }
+
+.timer-msg .timer-flavor {
+    border-top: 2px groove #FFF;
+    border-bottom: 2px groove #FFF;
+    padding: 4px 0px;
+}
+
+.timer-msg .timer-flavor:empty{
+    border-bottom:none;
+    height:1px;
+}

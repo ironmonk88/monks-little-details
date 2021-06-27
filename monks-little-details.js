@@ -15,9 +15,10 @@ export let i18n = key => {
 export let setting = key => {
     return game.settings.get("monks-little-details", key);
 };
+/*
 export let volume = () => {
     return game.settings.get("monks-little-details", "volume") / 100.0;
-};
+};*/
 export let combatposition = () => {
     return game.settings.get("monks-little-details", "combat-position");
 };
@@ -450,10 +451,79 @@ export class MonksLittleDetails {
 
             return result;
         }*/
+
+        let oldWallDragStart = Wall.prototype._onDragLeftStart;
+        Wall.prototype._onDragLeftStart = function (event) {
+            let result = oldWallDragStart.call(this, event);
+
+            let dragtogether = ui.controls.control.tools.find(t => { return t.name == "toggledragtogether" });
+            if (dragtogether != undefined && dragtogether.active) {
+                MonksLittleDetails.dragpoints = [];
+                let fixed = event.data.fixed;
+                let oldcoord = (fixed ? this.coords.slice(0, 2) : this.coords.slice(2, 4));
+                if (oldcoord != null) {
+                    this.scene.data.walls.forEach(w => {
+                        if (w.id != this.id) {
+                            if (w.data.c[0] == oldcoord[0] && w.data.c[1] == oldcoord[1])
+                                //scene.updateEmbeddedEntity("Wall", { c: [oldcoord[2], oldcoord[3], w.c[2], w.c[3]], _id: w._id }, { ignore: true });
+                                MonksLittleDetails.dragpoints.push({ wall: w.object, fixed: 1 });
+                            else if (w.data.c[2] == oldcoord[0] && w.data.c[3] == oldcoord[1])
+                                //scene.updateEmbeddedEntity("Wall", { c: [w.c[0], w.c[1], oldcoord[2], oldcoord[3]], _id: w._id }, { ignore: true });
+                                MonksLittleDetails.dragpoints.push({ wall: w.object, fixed: 0 });
+                        }
+                    });
+                }
+            }
+
+            return result;
+        }
+
+        let oldWallDragMove = Wall.prototype._onDragLeftMove;
+        Wall.prototype._onDragLeftMove = function (event) {
+            const { clones, destination, fixed, origin, originalEvent } = event.data;
+
+            let dragtogether = ui.controls.control.tools.find(t => { return t.name == "toggledragtogether" });
+            if (dragtogether != undefined && dragtogether.active && MonksLittleDetails.dragpoints?.length > 0 && clones.length === 1 ) {
+                for (let dragpoint of MonksLittleDetails.dragpoints) {
+                    const w = dragpoint.wall;
+                    const pt = [destination.x, destination.y];
+                    w.data.c = dragpoint.fixed ? pt.concat(w.coords.slice(2, 4)) : w.coords.slice(0, 2).concat(pt);
+                    w._hover = false;
+                    w.refresh();
+                }
+            }
+
+            return oldWallDragMove.call(this, event);
+        }
+
+        let oldWallDragDrop = Wall.prototype._onDragLeftDrop;
+        Wall.prototype._onDragLeftDrop = function (event) {
+            let result = oldWallDragDrop.call(this, event);
+            const { clones, destination, fixed, originalEvent } = event.data;
+            const layer = this.layer;
+            const snap = layer._forceSnap || !originalEvent.shiftKey;
+
+            const pt = this.layer._getWallEndpointCoordinates(destination, { snap });
+
+            if (clones.length === 1 && MonksLittleDetails.dragpoints?.length > 0) {
+                for (let dragpoint of MonksLittleDetails.dragpoints) {
+                    const p0 = dragpoint.fixed ? dragpoint.wall.coords.slice(2, 4) : dragpoint.wall.coords.slice(0, 2);
+                    const coords = dragpoint.fixed ? pt.concat(p0) : p0.concat(pt);
+                    if ((coords[0] === coords[2]) && (coords[1] === coords[3])) {
+                        return dragpoint.wall.document.delete(); // If we collapsed the wall, delete it
+                    }
+                    dragpoint.wall.document.update({ c: coords });
+                }
+                MonksLittleDetails.dragpoints = [];
+            }
+
+            return result;
+        }
     }
 
     static ready() {
-        game.settings.settings.get("monks-little-details.volume").default = (game.user.isGM ? 0 : 60); //set the default when we have the users loaded
+        game.settings.settings.get("monks-little-details.play-turn-sound").default = !game.user.isGM; //(game.user.isGM ? 0 : 60); //set the default when we have the users loaded
+        game.settings.settings.get("monks-little-details.play-next-sound").default = !game.user.isGM;
 
         if(setting("actor-sounds"))
             MonksLittleDetails.injectSoundCtrls();
@@ -808,33 +878,26 @@ background-color: rgba(0, 0, 0, 0.5);
     }
 
     static doDisplayTurn() {
-        if (!setting("showcurrentup")) {
-            return;
-        }
-
-        if (!MonksLittleDetails.READY) {
+        if (!MonksLittleDetails.READY)
             MonksLittleDetails.init();
-        }
-        ui.notifications.warn(i18n("MonksLittleDetails.Turn"));
+
+        if (setting("showcurrentup") && !game.user.isGM)
+            ui.notifications.warn(i18n("MonksLittleDetails.Turn"));
 
         // play a sound
-        if (volume() > 0 && !setting("disablesounds") && setting('turn-sound') != '')
-            AudioHelper.play({ src: setting('turn-sound'), volume: volume() });
+        if (setting('play-turn-sound') && setting('turn-sound') != '') //volume() > 0 && !setting("disablesounds") && 
+            AudioHelper.play({ src: setting('turn-sound') }); //, volume: volume()
     }
 
     static doDisplayNext() {
-        if (!setting("shownextup")) {
-            return;
-        }
-
-        if (!MonksLittleDetails.READY) {
+        if (!MonksLittleDetails.READY)
             MonksLittleDetails.init();
-        }
 
-        ui.notifications.info(i18n("MonksLittleDetails.Next"));
+        if (setting("shownextup") && !game.user.isGM)
+            ui.notifications.info(i18n("MonksLittleDetails.Next"));
         // play a sound
-        if (volume() > 0 && !setting("disablesounds") && setting('next-sound') != '')
-            AudioHelper.play({ src: setting('next-sound'), volume: volume() });
+        if (setting('play-next-sound') && setting('next-sound') != '') //volume() > 0 && !setting("disablesounds") && 
+            AudioHelper.play({ src: setting('next-sound') }); //, volume: volume()
     }
 
     /**
@@ -878,7 +941,7 @@ background-color: rgba(0, 0, 0, 0.5);
             }
 
             log('Check combat turn', entry.name, nxtentry?.name, !game.user.isGM, isActive, isNext, entry, nxtentry);
-            if (entry !== undefined && !game.user.isGM) {
+            if (entry !== undefined) {
                 if (isActive) {
                     MonksLittleDetails.doDisplayTurn();
                 } else if (isNext) {
@@ -1010,7 +1073,9 @@ background-color: rgba(0, 0, 0, 0.5);
                     apl.count = apl.count + 1;
                     let levels = 0;
                     if (combatant.actor.data.data?.classes) {
-                        levels = Object.values(combatant.actor.data.data?.classes).reduce((a, b) => (a?.data?.levels || 0) + (b?.data?.levels || 0), 0);
+                        levels = Object.values(combatant.actor.data.data?.classes).reduce((a, b) => {
+                            return a + (b?.levels || 0);
+                        }, 0);
                     } else {
                         levels = combatant?.actor.data.data.details?.level?.value || combatant?.actor.data.data.details?.level || 0;
                     }
@@ -1458,7 +1523,7 @@ Hooks.on("updateCombat", async function (combat, delta) {
     //log("update combat", combat);
     let opencombat = setting("opencombat");
     if ((opencombat == "everyone" || (game.user.isGM && opencombat == "gmonly") || (!game.user.isGM && opencombat == "playersonly"))
-        && !game.settings.get("monks-little-details", "disable-opencombat")
+        && game.settings.get("monks-little-details", "popout-combat")
         && combatStarted) {
 		//new combat, pop it out
 		const tabApp = ui["combat"];
@@ -1473,11 +1538,8 @@ Hooks.on("updateCombat", async function (combat, delta) {
         MonksLittleDetails.tracker = false;   //delete this so that the next render will reposition the popout, changing between combats changes the height
     }
 
-    if (volume() > 0 && !setting("disablesounds") && setting('round-sound') && Object.keys(delta).some((k) => k === "round")) {
-		AudioHelper.play({
-            src: game.settings.get('monks-little-details', 'round-sound'),
-		    volume: volume()
-		});
+    if (setting('play-round-sound') && setting('round-sound') && Object.keys(delta).some((k) => k === "round")) { //volume() > 0 && !setting("disablesounds") && 
+		AudioHelper.play({ src: game.settings.get('monks-little-details', 'round-sound') });//, volume: volume()
     }
 
     if (setting("token-combat-highlight") && combat.started) {
@@ -1595,6 +1657,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
     }
 });
 
+/*
 Hooks.on("preUpdateWall", (document, update, options) => {
     let wall = document.object;
     let scene = document.parent;
@@ -1621,7 +1684,7 @@ Hooks.on("preUpdateWall", (document, update, options) => {
     }
     //let thewall = scene.data.walls.find(w => w._id === wall._id);
     //log('preupdatewall', thewall.c, wall.c, update);
-});
+});*/
 
 Hooks.on("renderSettingsConfig", (app, html, data) => {
     let btn = $('<button>')
@@ -1643,9 +1706,27 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
             return fp.browse();
         });
 
+    let parent = $('input[name="monks-little-details.next-sound"]', html).closest('.form-group');
+    $('input[name="monks-little-details.next-sound"]', html).insertAfter($('input[name="monks-little-details.play-next-sound"]', html));
+    parent.remove();
+
     btn.clone(true).insertAfter($('input[name="monks-little-details.next-sound"]', html));
+
+    parent = $('input[name="monks-little-details.turn-sound"]', html).closest('.form-group');
+    $('input[name="monks-little-details.turn-sound"]', html).insertAfter($('input[name="monks-little-details.play-turn-sound"]', html));
+    parent.remove();
+
     btn.clone(true).insertAfter($('input[name="monks-little-details.turn-sound"]', html));
+
+    parent = $('input[name="monks-little-details.round-sound"]', html).closest('.form-group');
+    $('input[name="monks-little-details.round-sound"]', html).insertAfter($('input[name="monks-little-details.play-round-sound"]', html));
+    parent.remove();
+
     btn.clone(true).insertAfter($('input[name="monks-little-details.round-sound"]', html));
+
+    parent = $('[name="monks-little-details.opencombat"]', html).closest('.form-group');
+    $('[name="monks-little-details.opencombat"]', html).insertAfter($('input[name="monks-little-details.popout-combat"]', html));
+    parent.remove();
 
     let btn2 = $('<button>')
         .addClass('file-picker')
@@ -1836,10 +1917,27 @@ Hooks.on("chatCommandsReady", (chatCommands) => {
     chatCommands.registerCommand(chatCommands.createCommandFromData({
         commandKey: "/timer",
         invokeOnCommand: (chatlog, messageText, chatdata) => {
-            log(chatlog, messageText, chatdata);
-            let time = parseInt(messageText) * 1000;
-            chatdata.flags = { 'monks-little-details': { time: time, start: Date.now() } };
-            return '<div class="timer-msg"><div class="timer-time">' + (time / 1000) + ' sec</div><div class="timer-bar"><div></div></div><div class="complete-msg">Complete</div></div>';
+            let regex = /^(?:(?:(-?[01]?\d|2[0-3]):)?(-?[0-5]?\d):)?(-?[0-5]?\d)|((.*?))?$/g;
+            let found = messageText.match(regex);
+            
+            let timePart = (found[0] || '5').split(':').reverse();
+            let time = ((Math.abs(timePart[0]) + (timePart.length > 1 ? Math.abs(timePart[1]) * 60 : 0) + (timePart.length > 2 ? Math.abs(timePart[2]) * 3600 : 0)) * 1000) * (found[0].startsWith('-') ? -1 : 1);
+
+            let flavor = null;
+            if (found.length > 1)
+                flavor = found[1].trim();
+            regex = /(\((.*?)\))?$/g;
+            found = messageText.match(regex);
+            let followup = null;
+            if (found.length > 0) {
+                followup = found[0]
+                flavor = flavor.replace(followup, '').trim();
+                followup = followup.substr(1, followup.length - 2).trim();
+            }
+
+            chatdata.flags = { 'monks-little-details': { time: time, start: Date.now(), flavor: flavor, followup: followup } };
+            let frmtTime = new Date(time < 0 ? 0 : time).toISOString().substr(11, 8);
+            return '<div class="timer-msg"><div class="timer-flavor">' + flavor + '</div><div class="timer-time">' + frmtTime + '</div><div class="timer-bar"><div></div></div><div class="complete-msg">Complete</div></div>';
         },
         shouldDisplayToChat: true,
         iconClass: "fa-clock",
@@ -1849,31 +1947,60 @@ Hooks.on("chatCommandsReady", (chatCommands) => {
 
 Hooks.on("renderChatMessage", (message, html, data) => {
     if (message.getFlag('monks-little-details', 'time') && !message.getFlag('monks-little-details', 'complete')) {
+        let updateTime = function (time, start) {
+            let dif = (Date.now() - start);
+            let realTime = Math.abs(time);
+            let remaining = (time < 0 ? realTime - dif : dif);
+            if (time < 0)
+                remaining = remaining + 1000;
+            
+            let frmtTime = new Date(remaining).toISOString().substr(11, 8);
+            $('.timer-time', html).html(frmtTime);
+            $('.timer-bar div', html).css({ width: ((dif / Math.abs(time)) * 100) + '%' });
+
+            return dif < Math.abs(time);
+        }
+
         let time = message.getFlag('monks-little-details', 'time');
         let start = message.getFlag('monks-little-details', 'start');
         
-        if ((Date.now() - start) >= time) {
+        if ((Date.now() - start) >= Math.abs(time)) {
             //the timer is finished
             let content = $(message.data.content);
             $(content).addClass('completed');
-            $('.timer-time', content).html(parseInt(time / 1000) + ' sec');
+            updateTime(time, start);
+            //$('.timer-time', content).html(parseInt(Math.abs(time) / 1000) + ' sec');
             message.update({ content: content[0].outerHTML, flags: { 'monks-little-details': { 'complete': true } } });
+            if (message.getFlag('monks-little-details', 'followup'))
+                ChatMessage.create({ user: game.user.id, content: message.getFlag('monks-little-details', 'followup') }, {});
         } else {
             //start that timer up!
+            updateTime(time, start);
+            /*
             let dif = (Date.now() - start);
-            $('.timer-time', html).html(parseInt(dif / 1000) + ' sec');
-            $('.timer-bar div', html).css({ width: ((dif / time) * 100) + '%' });
+            let remaining = parseInt(dif / 1000);
+            $('.timer-time', html).html((time < 0 ? Math.abs(time) - remaining : remaining) + ' sec');
+            $('.timer-bar div', html).css({ width: ((dif / Math.abs(time)) * 100) + '%' });
+            */
 
             let timer = window.setInterval(function () {
+                /*
                 let dif = (Date.now() - start);
-                $('.timer-time', html).html(parseInt(dif / 1000) + ' sec');
-                $('.timer-bar div', html).css({width: ((dif / time) * 100) + '%'});
-                if (dif > time) {
+                let remaining = parseInt(dif / 1000);
+                $('.timer-time', html).html((time < 0 ? Math.abs(time) - remaining : remaining) + ' sec');
+                $('.timer-bar div', html).css({ width: ((dif / Math.abs(time)) * 100) + '%'});
+                */
+                //+++ check if message still exists
+                if (!updateTime(time, start)) {
                     //the timer is finished
                     let content = $(message.data.content);
                     $(content).addClass('complete');
-                    $('.timer-time', content).html(parseInt(time / 1000) + ' sec');
+                    updateTime(time, start);
+                    //$('.timer-time', content).html((time < 0 ? Math.abs(time) - remaining : remaining) + ' sec');
                     message.update({ content: content[0].outerHTML, flags: { 'monks-little-details': { 'complete': true } } });
+                    if (message.getFlag('monks-little-details', 'followup'))
+                        ChatMessage.create({ user: game.user.id, content: message.getFlag('monks-little-details', 'followup') }, {});
+
                     window.clearInterval(timer);
                 }
             }, 100);

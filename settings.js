@@ -113,6 +113,14 @@ export const registerSettings = function () {
 		type: Boolean,
 		onChange: debouncedReload
 	});
+	game.settings.register(modulename, "popout-combat", {
+		name: i18n("MonksLittleDetails.opencombat.name"),
+		hint: i18n("MonksLittleDetails.opencombat.hint"),
+		scope: "client",
+		config: true,
+		default: true,
+		type: Boolean
+	});
 	game.settings.register(modulename, "opencombat", {
 		name: i18n("MonksLittleDetails.opencombat.name"),
 		hint: i18n("MonksLittleDetails.opencombat.hint"),
@@ -121,14 +129,6 @@ export const registerSettings = function () {
 		choices: opencombatoptions,
 		default: "everyone",
 		type: String
-	});
-	game.settings.register(modulename, "disable-opencombat", {
-		name: i18n("MonksLittleDetails.disable-opencombat.name"),
-		hint: i18n("MonksLittleDetails.disable-opencombat.hint"),
-		scope: "client",
-		config: true,
-		default: false,
-		type: Boolean
 	});
 	game.settings.register(modulename, "combat-position", {
 		name: i18n("MonksLittleDetails.combat-position.name"),
@@ -198,6 +198,30 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean,
 	});
+	game.settings.register(modulename, "play-next-sound", {
+		name: i18n("MonksLittleDetails.next-sound.name"),
+		hint: i18n("MonksLittleDetails.next-sound.hint"),
+		scope: "client",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "play-turn-sound", {
+		name: i18n("MonksLittleDetails.turn-sound.name"),
+		hint: i18n("MonksLittleDetails.turn-sound.hint"),
+		scope: "client",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "play-round-sound", {
+		name: i18n("MonksLittleDetails.round-sound.name"),
+		hint: i18n("MonksLittleDetails.round-sound.hint"),
+		scope: "client",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
 	game.settings.register(modulename, "next-sound", {
 		name: i18n("MonksLittleDetails.next-sound.name"),
 		hint: i18n("MonksLittleDetails.next-sound.hint"),
@@ -222,6 +246,7 @@ export const registerSettings = function () {
 		default: "modules/monks-little-details/sounds/round.ogg",
 		type: String,
 	});
+	/*
 	game.settings.register(modulename, "volume", {
 		name: i18n("MonksLittleDetails.volume.name"),
 		hint: i18n("MonksLittleDetails.volume.hint"),
@@ -242,7 +267,7 @@ export const registerSettings = function () {
 		config: true,
 		default: false,
 		type: Boolean,
-	});
+	});*/
 	game.settings.register(modulename, "clear-targets", {
 		name: i18n("MonksLittleDetails.clear-targets.name"),
 		hint: i18n("MonksLittleDetails.clear-targets.hint"),

@@ -1,3 +1,19 @@
+# Version 1.0.33
+
+Enhanced the option to drag wall points together.  Before it just updated after you moved the wall, now it will drag the points together.
+
+Updated the sounds so that the GM is in charge of what sound is played but players (and GM) and choose what sounds they want to hear.  By default the Next Turn, and Your Turn sounds are turned off for the GM.
+
+Removed the volume setting for the combat sounds.  It should default to the system levels rather than being hidden in a module setting.
+
+Fixed an issue where estimating CR of a combat was listing the players levels as 0
+
+Changed the sound settings so that they're more compact.
+
+Updated the /timer chat command so you can now have it count up or down, set it to track minutes or hours. Have it display flavor text.  And have it display another chat message when the timer runs out.
+
+Removed the disable open combat setting as there are modules out there that can help you set players settings.
+
 # Version 1.0.32
 
 Fixing issue with libWrapper integration

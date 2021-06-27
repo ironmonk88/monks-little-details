@@ -82,6 +82,9 @@ When an Monster is killed, show it as a blood splat rather than the icon.  I fin
 ### Swap tools by holding down a key
 New to 1.0.17 Monks Little Details will let you briefly activate another tool by holding down a key.  Pressing Shift+key will change the tool.  This allows you to switch briefly to other layers such as the Tiles layer to update a tile to visible before releasing the key and switching back to whatever layer you were on before.  Requries the module Library: DF Hotkeys to be installed to work.
 
+### Timer
+If you have the module Library: Chat Commands installed you can use /timer as a chat command.  This will produce a count down timer.  `/timer 5` will add a timer that counts up 5 seconds.  `/timer -5` will count down 5 seconds.  `/timer 5:00 Send this message to the timer (Send this message after the timer is finished)` will add a timer that counts up 5 minutes and displays the first message to the chat message with the timer.  And once the timer it complete it will send a second chat message with the second message that's in parenthesis.
+
 ## Bug Reporting
 I'm sure there are lots of issues with it.  It's very much a work in progress.
 Please feel free to contact me on discord if you have any questions or concerns. ironmonk88#4075
