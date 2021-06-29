@@ -138,6 +138,8 @@
 	"MonksLittleDetails.combatopen.players": "Solo jugadores",
 
 	"MonksLittleDetails.autodefeated.none": "Ninguno",
-	"MonksLittleDetails.autodefeated.npc": "PNJs",
-	"MonksLittleDetails.autodefeated.all": "Todos"
+	"MonksLittleDetails.autodefeated.npc-zero": "PNJs con cero PVs",
+	"MonksLittleDetails.autodefeated.npc-negative": "PNJs con PVs negativos",
+	"MonksLittleDetails.autodefeated.all-zero": "Todos con cero PVs",
+	"MonksLittleDetails.autodefeated.all-negative": "Todos con PVs negativos"
 }
