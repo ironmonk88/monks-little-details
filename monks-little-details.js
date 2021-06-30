@@ -279,7 +279,7 @@ export class MonksLittleDetails {
 
             let oldTokenDrawOverlay = Token.prototype._drawOverlay;
             Token.prototype._drawOverlay = async function ({ src, tint } = {}) {
-                if (((this.combatant && this.combatant.data.defeated) || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId)) && this.actor?.data.type !== 'character') {
+                if (((this.combatant && this.combatant.data.defeated) || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId) || this.data.overlayEffect == CONFIG.controlIcons.defeated) && this.actor?.data.type !== 'character') {
                     //this should be showing the bloodsplat, so don't show the skull overlay
                     return;
                 } else
@@ -294,7 +294,7 @@ export class MonksLittleDetails {
                 if (setting("show-bloodsplat")){
                     //find defeated state
                     let combatant = this.combatant;
-                    if (((combatant && combatant.data.defeated) || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId)) && this.actor?.data.type !== 'character') {
+                    if (((combatant && combatant.data.defeated) || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId) || this.data.overlayEffect == CONFIG.controlIcons.defeated) && this.actor?.data.type !== 'character') {
                         this.bars.visible = false;
                         for (let effect of this.effects.children) {
                             effect.alpha = 0;
@@ -537,12 +537,10 @@ export class MonksLittleDetails {
             if(icon.is(":visible")) icon.fadeOut(100);
         });
 
-        if (game.settings.get("monks-little-details", "key-swap-tool")) {
+        if (game.settings.get("monks-little-details", "key-swap-tool") && game.user.isGM) {
             if (!game.modules.get('lib-df-hotkeys')?.active) {
-                if (game.user.isGM) {
-                    ui.notifications.error(i18n("MonksLittleDetails.HotKeysWarning"));
-                    warn(i18n("MonksLittleDetails.HotKeysWarning"));
-                }
+                ui.notifications.error(i18n("MonksLittleDetails.HotKeysWarning"));
+                warn(i18n("MonksLittleDetails.HotKeysWarning"));
             } else {
                 MonksLittleDetails.registerHotKeys();
             }
@@ -1170,7 +1168,7 @@ background-color: rgba(0, 0, 0, 0.5);
         await MonksLittleDetails.currentScene.update({ backgroundColor: hexCode });
     }
 
-    static async fixImages({ wildcards = true } = {}) {
+    static async fixImages({ wildcards = true, pack = "dnd5e.monsters", system = "dnd", whitespace = "" } = {}) {
         let getFiles = async function(filename) {
             let source = "data";
             let pattern = filename;
@@ -1197,34 +1195,44 @@ background-color: rgba(0, 0, 0, 0.5);
             return [];
         }
 
-        var dnd5emonsters = game.packs.get("dnd5e.monsters");
+        var dnd5emonsters = game.packs.get(pack);
         dnd5emonsters.configure({ locked: false });
 
         dnd5emonsters.getDocuments().then(async(entries) => {
             for (var i = 0; i < entries.length; i++) {
                 var entry = entries[i];
-                var montype = entry.data.data.details.type.value.toLowerCase();
+                var montype = entry.data.data.details.type?.value.toLowerCase() || entry.data.data.details.creatureType?.toLowerCase() || entry.data.data.traits.traits.value[0];
                 montype = montype.replace(/\(.*\)/, '').replace(/\s/g, '');
                 var monname = entry.name.toLowerCase();
-                if (monname.startsWith('ancient'))
-                    monname = monname.replace('ancient', '');
-                if (monname.startsWith('adult'))
-                    monname = monname.replace('adult', '');
-                if (monname.startsWith('young'))
-                    monname = monname.replace('young', '');
-                monname = monname.replace(/\s/g, '').replace(/-/g, '').replace(/'/g, '').replace(/\(.*\)/, '');
+                monname = monname.replace(/-/g, '').replace(/'/g, '').replace(/\(.*\)/, '').replace(/\s/g, whitespace);
 
-                var imgname = 'images/avatar/dnd/' + montype + '/' + monname + '.png';
+                var imgname = `images/avatar/${system}/${montype}/${monname}.png`;
                 if (entry.data.img.toLowerCase() != imgname) {
                     let files = await getFiles(imgname);
                     if (files && files.length > 0) {
                         await entry.update({ img: files[0] });
                         log('Fixing:', entry.name, files[0]);
+                    } else {
+                        if (monname.startsWith('ancient'))
+                            monname = monname.replace('ancient', '');
+                        if (monname.startsWith('adult'))
+                            monname = monname.replace('adult', '');
+                        if (monname.startsWith('young'))
+                            monname = monname.replace('young', '');
+
+                        imgname = `images/avatar/${system}/${montype}/${monname}.png`;
+                        if (entry.data.img.toLowerCase() != imgname) {
+                            let files = await getFiles(imgname);
+                            if (files && files.length > 0) {
+                                await entry.update({ img: files[0] });
+                                log('Fixing:', entry.name, files[0]);
+                            }
+                        }
                     }
                 }
 
                 for (let tokentype of ['overhead', 'disc', 'artwork']) {
-                    var tokenname = 'images/tokens/' + tokentype + '/' + montype + '/' + monname + '.png'; // + (wildcards ? "*" : '')
+                    var tokenname = `images/tokens/${tokentype}/${montype}/${monname}.png`; // + (wildcards ? "*" : '')
                     if (entry.data.token.img == tokenname)
                         break;
 

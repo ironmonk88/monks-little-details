@@ -1,3 +1,10 @@
+# Version 1.0.34
+Fixing issue with Pathfinder dead status and bloodsplats
+
+Fixed an issue where the layer swap keys were accesible to players
+
+Updated spanish translations, thank you lozalojo
+
 # Version 1.0.33
 
 Enhanced the option to drag wall points together.  Before it just updated after you moved the wall, now it will drag the points together.
