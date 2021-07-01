@@ -452,6 +452,42 @@ export class MonksLittleDetails {
             return result;
         }*/
 
+        let wallDragStart = function (wrapped, ...args) {
+            let result = wrapped(...args);
+
+            let event = args[0];
+
+            let dragtogether = ui.controls.control.tools.find(t => { return t.name == "toggledragtogether" });
+            if (dragtogether != undefined && dragtogether.active) {
+                MonksLittleDetails.dragpoints = [];
+                let fixed = event.data.fixed;
+                let oldcoord = (fixed ? this.coords.slice(0, 2) : this.coords.slice(2, 4));
+                if (oldcoord != null) {
+                    this.scene.data.walls.forEach(w => {
+                        if (w.id != this.id) {
+                            if (w.data.c[0] == oldcoord[0] && w.data.c[1] == oldcoord[1])
+                                //scene.updateEmbeddedEntity("Wall", { c: [oldcoord[2], oldcoord[3], w.c[2], w.c[3]], _id: w._id }, { ignore: true });
+                                MonksLittleDetails.dragpoints.push({ wall: w.object, fixed: 1 });
+                            else if (w.data.c[2] == oldcoord[0] && w.data.c[3] == oldcoord[1])
+                                //scene.updateEmbeddedEntity("Wall", { c: [w.c[0], w.c[1], oldcoord[2], oldcoord[3]], _id: w._id }, { ignore: true });
+                                MonksLittleDetails.dragpoints.push({ wall: w.object, fixed: 0 });
+                        }
+                    });
+                }
+            }
+
+            return result;
+        }
+        if (game.modules.get("lib-wrapper")?.active) {
+            libWrapper.register("monks-little-details", "Wall.prototype._onDragLeftStart", wallDragStart, "WRAPPER");
+        } else {
+            const oldWallDragStart = Wall.prototype._onDragLeftStart;
+            Wall.prototype._onDragLeftStart = function (event) {
+                return wallDragStart.call(this, oldWallDragStart.bind(this), ...arguments);
+            }
+        }
+
+        /*
         let oldWallDragStart = Wall.prototype._onDragLeftStart;
         Wall.prototype._onDragLeftStart = function (event) {
             let result = oldWallDragStart.call(this, event);
@@ -476,8 +512,36 @@ export class MonksLittleDetails {
             }
 
             return result;
+        }*/
+
+        let wallDragMove = function (wrapped, ...args) {
+            let event = args[0];
+            const { clones, destination, fixed, origin, originalEvent } = event.data;
+
+            let dragtogether = ui.controls.control.tools.find(t => { return t.name == "toggledragtogether" });
+            if (dragtogether != undefined && dragtogether.active && MonksLittleDetails.dragpoints?.length > 0 && clones.length === 1) {
+                for (let dragpoint of MonksLittleDetails.dragpoints) {
+                    const w = dragpoint.wall;
+                    const pt = [destination.x, destination.y];
+                    w.data.c = dragpoint.fixed ? pt.concat(w.coords.slice(2, 4)) : w.coords.slice(0, 2).concat(pt);
+                    w._hover = false;
+                    w.refresh();
+                }
+            }
+
+            return wrapped(...args);
         }
 
+        if (game.modules.get("lib-wrapper")?.active) {
+            libWrapper.register("monks-little-details", "Wall.prototype._onDragLeftMove", wallDragMove, "WRAPPER");
+        } else {
+            const oldWallDragMove = Wall.prototype._onDragLeftMove;
+            Wall.prototype._onDragLeftMove = function (event) {
+                return wallDragMove.call(this, oldWallDragMove.bind(this), ...arguments);
+            }
+        }
+
+        /*
         let oldWallDragMove = Wall.prototype._onDragLeftMove;
         Wall.prototype._onDragLeftMove = function (event) {
             const { clones, destination, fixed, origin, originalEvent } = event.data;
@@ -494,8 +558,44 @@ export class MonksLittleDetails {
             }
 
             return oldWallDragMove.call(this, event);
+        }*/
+
+        let wallDragDrop = function (wrapped, ...args) {
+            let result = wrapped(...args);
+
+            let event = args[0];
+
+            const { clones, destination, fixed, originalEvent } = event.data;
+            const layer = this.layer;
+            const snap = layer._forceSnap || !originalEvent.shiftKey;
+
+            const pt = this.layer._getWallEndpointCoordinates(destination, { snap });
+
+            if (clones.length === 1 && MonksLittleDetails.dragpoints?.length > 0) {
+                for (let dragpoint of MonksLittleDetails.dragpoints) {
+                    const p0 = dragpoint.fixed ? dragpoint.wall.coords.slice(2, 4) : dragpoint.wall.coords.slice(0, 2);
+                    const coords = dragpoint.fixed ? pt.concat(p0) : p0.concat(pt);
+                    if ((coords[0] === coords[2]) && (coords[1] === coords[3])) {
+                        return dragpoint.wall.document.delete(); // If we collapsed the wall, delete it
+                    }
+                    dragpoint.wall.document.update({ c: coords });
+                }
+                MonksLittleDetails.dragpoints = [];
+            }
+
+            return result;
         }
 
+        if (game.modules.get("lib-wrapper")?.active) {
+            libWrapper.register("monks-little-details", "Wall.prototype._onDragLeftDrop", wallDragDrop, "WRAPPER");
+        } else {
+            const oldWallDragDrop = Wall.prototype._onDragLeftDrop;
+            Wall.prototype._onDragLeftDrop = function (event) {
+                return wallDragDrop.call(this, oldWallDragDrop.bind(this), ...arguments);
+            }
+        }
+
+        /*
         let oldWallDragDrop = Wall.prototype._onDragLeftDrop;
         Wall.prototype._onDragLeftDrop = function (event) {
             let result = oldWallDragDrop.call(this, event);
@@ -518,7 +618,7 @@ export class MonksLittleDetails {
             }
 
             return result;
-        }
+        }*/
     }
 
     static ready() {
@@ -1168,7 +1268,7 @@ background-color: rgba(0, 0, 0, 0.5);
         await MonksLittleDetails.currentScene.update({ backgroundColor: hexCode });
     }
 
-    static async fixImages({ wildcards = true, pack = "dnd5e.monsters", system = "dnd", whitespace = "" } = {}) {
+    static async fixImages({ wildcards = true, packs = "dnd5e.monsters", system = "dnd", tokentypes = ['overhead', 'disc', 'artwork'] } = {}) {
         let getFiles = async function(filename) {
             let source = "data";
             let pattern = filename;
@@ -1195,58 +1295,89 @@ background-color: rgba(0, 0, 0, 0.5);
             return [];
         }
 
-        var dnd5emonsters = game.packs.get(pack);
-        dnd5emonsters.configure({ locked: false });
+        let alltypes = [];
 
-        dnd5emonsters.getDocuments().then(async(entries) => {
-            for (var i = 0; i < entries.length; i++) {
-                var entry = entries[i];
-                var montype = entry.data.data.details.type?.value.toLowerCase() || entry.data.data.details.creatureType?.toLowerCase() || entry.data.data.traits.traits.value[0];
-                montype = montype.replace(/\(.*\)/, '').replace(/\s/g, '');
-                var monname = entry.name.toLowerCase();
-                monname = monname.replace(/-/g, '').replace(/'/g, '').replace(/\(.*\)/, '').replace(/\s/g, whitespace);
+        packs = (packs instanceof Array ? packs : [packs]);
 
-                var imgname = `images/avatar/${system}/${montype}/${monname}.png`;
-                if (entry.data.img.toLowerCase() != imgname) {
-                    let files = await getFiles(imgname);
-                    if (files && files.length > 0) {
-                        await entry.update({ img: files[0] });
-                        log('Fixing:', entry.name, files[0]);
-                    } else {
-                        if (monname.startsWith('ancient'))
-                            monname = monname.replace('ancient', '');
-                        if (monname.startsWith('adult'))
-                            monname = monname.replace('adult', '');
-                        if (monname.startsWith('young'))
-                            monname = monname.replace('young', '');
+        for (let pack of packs) {
 
-                        imgname = `images/avatar/${system}/${montype}/${monname}.png`;
-                        if (entry.data.img.toLowerCase() != imgname) {
-                            let files = await getFiles(imgname);
-                            if (files && files.length > 0) {
-                                await entry.update({ img: files[0] });
-                                log('Fixing:', entry.name, files[0]);
+            var monsters = game.packs.get(pack);
+            if (monsters) {
+                await monsters.configure({ locked: false });
+
+                await monsters.getDocuments().then(async (entries) => {
+                    for (var i = 0; i < entries.length; i++) {
+                        var entry = entries[i];
+                        var monname = entry.name.toLowerCase();
+                        monname = monname.replace(/-/g, '').replace(/'/g, '').replace(/\(.*\)/, '').replace(/\s/g, '');
+                        /*if (monname == 'ettin')
+                            log('Ettin');
+                        var mtype = entry.data.data.details.type?.value.toLowerCase() || entry.data.data.traits.traits.value; //|| entry.data.data.details.creatureType?.toLowerCase()
+                        mtype = (mtype instanceof Array ? mtype : [mtype]);
+                        for (let i = 0; i < mtype.length; i++) {
+                            if (mtype[i].indexOf(',') > 0) {
+                                let temp = mtype[i].split(',');
+                                mtype[i] = temp[0];
+                                for (let j = 1; j < temp.length; j++)
+                                    mtype.push(temp[j]);
                             }
+                            mtype[i] = mtype[i].replace(/\(.*\)/, '').replace(/\s/g, '');
                         }
-                    }
-                }
+                        //mtype = mtype.replace(/\(.*\)/, '').replace(/\s/g, '').split(',');
 
-                for (let tokentype of ['overhead', 'disc', 'artwork']) {
-                    var tokenname = `images/tokens/${tokentype}/${montype}/${monname}.png`; // + (wildcards ? "*" : '')
-                    if (entry.data.token.img == tokenname)
-                        break;
+                        for (let montype of mtype) {*/
+                            //if (!alltypes.find(t => t == montype))
+                            //    alltypes.push(montype);
 
-                    let files = await getFiles(tokenname);
-                    if (files && files.length > 0) {
-                        await entry.update({ token : { img: files[0] } });
-                        log('Fixing Token:', entry.name, files[0]);
-                        break;
-                    }
-                }
+                            var imgname = `images/avatar/${system}/${monname}.png`;
+                            if (entry.data.img.toLowerCase() != imgname) {
+                                let files = await getFiles(imgname);
+                                if (files && files.length > 0) {
+                                    await entry.update({ img: files[0] });
+                                    log('Fixing:', entry.name, files[0]);
+                                } else {
+                                    if (monname.startsWith('ancient'))
+                                        monname = monname.replace('ancient', '');
+                                    if (monname.startsWith('adult'))
+                                        monname = monname.replace('adult', '');
+                                    if (monname.startsWith('young'))
+                                        monname = monname.replace('young', '');
+
+                                    imgname = `images/avatar/${system}/${monname}.png`;
+                                    if (entry.data.img.toLowerCase() != imgname) {
+                                        let files = await getFiles(imgname);
+                                        if (files && files.length > 0) {
+                                            await entry.update({ img: files[0] });
+                                            log('Fixing:', entry.name, files[0]);
+                                        } //else {
+                                            //log('Cant find:' + monname + ', ' + montype);
+                                        //}
+                                    }
+                                }
+                            }
+                        /*
+                            for (let tokentype of tokentypes) {
+                                var tokenname = `images/tokens/${tokentype}/${montype}/${monname}.png`; // + (wildcards ? "*" : '')
+                                if (entry.data.token.img == tokenname)
+                                    break;
+
+                                let files = await getFiles(tokenname);
+                                if (files && files.length > 0) {
+                                    await entry.update({ token: { img: files[0] } });
+                                    log('Fixing Token:', entry.name, files[0]);
+                                    break;
+                                }
+                            }*/
+                        }
+                    //}
+
+                    monsters.configure({ locked: true });
+                    log("Completed: " + monsters.metadata.label);
+                });
             }
+        }
 
-            dnd5emonsters.configure({ locked: true });
-        });
+        log('All monster types:' + alltypes);
     }
 
     static toggleTurnMarker(token, visible) {
