@@ -29,6 +29,14 @@ export const registerSettings = function () {
 		'all-negative': i18n("MonksLittleDetails.autodefeated.all-negative")
 	};
 
+	let animation = {
+		'clockwise': i18n("MonksLittleDetails.animation.clockwise"),
+		'counterclockwise': i18n("MonksLittleDetails.animation.counterclockwise"),
+		'pulse': i18n("MonksLittleDetails.animation.pulse"),
+		'fadeout': i18n("MonksLittleDetails.animation.fadeout"),
+		'fadein': i18n("MonksLittleDetails.animation.fadein")
+	};
+
 	//System changes
 	game.settings.register(modulename, "swap-buttons", {
 		name: i18n("MonksLittleDetails.swap-buttons.name"),
@@ -273,7 +281,7 @@ export const registerSettings = function () {
 	game.settings.register(modulename, "clear-targets", {
 		name: i18n("MonksLittleDetails.clear-targets.name"),
 		hint: i18n("MonksLittleDetails.clear-targets.hint"),
-		scope: "world",
+		scope: "client",
 		config: true,
 		default: true,
 		type: Boolean
@@ -324,6 +332,15 @@ export const registerSettings = function () {
 			step: 0.1
 		},
 		onChange: debouncedReload
+	});
+	game.settings.register(modulename, "token-combat-animation", {
+		name: i18n("MonksLittleDetails.token-combat-animation.name"),
+		hint: i18n("MonksLittleDetails.token-combat-animation.hint"),
+		scope: "world",
+		default: 'clockwise',
+		type: String,
+		choices: animation,
+		config: true
 	});
 
 	//Added Features

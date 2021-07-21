@@ -52,6 +52,9 @@ export class MonksLittleDetails {
 
         //CONFIG.Playlist.sheetClass = MonksPlaylistConfig;
 
+        MonksLittleDetails.angleTollerance = 0.4;
+        MonksLittleDetails.distanceCheck = 10;
+
         if (game.MonksLittleDetails == undefined)
             game.MonksLittleDetails = MonksLittleDetails;
 
@@ -68,11 +71,11 @@ export class MonksLittleDetails {
         }
 
         MonksLittleDetails.crChallenge = [
-            { text: "MonksLittleDetails.easy", rating: 'easy' },
-            { text: "MonksLittleDetails.average", rating: 'average' },
-            { text: "MonksLittleDetails.challenging", rating: 'challenging' },
-            { text: "MonksLittleDetails.hard", rating: 'hard' },
-            { text: "MonksLittleDetails.epic", rating: 'epic' }
+            { text: (game.system.id == 'pf2e' ? "MonksLittleDetails.trivial" : "MonksLittleDetails.easy"), rating: 'easy' },
+            { text: (game.system.id == 'pf2e' ? "MonksLittleDetails.low" : "MonksLittleDetails.average"), rating: 'average' },
+            { text: (game.system.id == 'pf2e' ? "MonksLittleDetails.moderate" : "MonksLittleDetails.challenging"), rating: 'challenging' },
+            { text: (game.system.id == 'pf2e' ? "MonksLittleDetails.severe" : "MonksLittleDetails.hard"), rating: 'hard' },
+            { text: (game.system.id == 'pf2e' ? "MonksLittleDetails.extreme" : "MonksLittleDetails.epic"), rating: 'epic' }
         ];
 
         MonksLittleDetails._rejectlist = {
@@ -329,12 +332,12 @@ export class MonksLittleDetails {
                             }
                             if (this.tresurechest == undefined) {
                                 loadTexture("icons/svg/chest.svg").then((tex) => { //"modules/monks-little-details/img/chest.png"
-                                    const icon = new PIXI.Sprite(tex);
+                                    const chesticon = new PIXI.Sprite(tex);
                                     const size = Math.min(canvas.grid.grid.w, canvas.grid.grid.h);
-                                    icon.width = icon.height = size;
-                                    icon.position.set((this.w - size) / 2, (this.h - size) / 2);
-                                    icon.alpha = 0.8;
-                                    this.tresurechest = icon;
+                                    chesticon.width = chesticon.height = size;
+                                    chesticon.position.set((this.w - size) / 2, (this.h - size) / 2);
+                                    chesticon.alpha = 0.8;
+                                    this.tresurechest = chesticon;
                                     this.addChild(this.tresurechest);
                                 });
                             } else
@@ -596,34 +599,134 @@ export class MonksLittleDetails {
         }
 
         /*
-        let oldWallDragDrop = Wall.prototype._onDragLeftDrop;
-        Wall.prototype._onDragLeftDrop = function (event) {
-            let result = oldWallDragDrop.call(this, event);
-            const { clones, destination, fixed, originalEvent } = event.data;
-            const layer = this.layer;
-            const snap = layer._forceSnap || !originalEvent.shiftKey;
+        let oldWallDragMove = WallsLayer.prototype._onDragLeftMove;
+        WallsLayer.prototype._onDragLeftMove = async function (event) {
+            const { createState, origin, destination, originalEvent, preview } = event.data;
 
-            const pt = this.layer._getWallEndpointCoordinates(destination, { snap });
+            if (MonksLittleDetails.lastWall == undefined) {
+                MonksLittleDetails.lastWall = [{ x: origin.x, y: origin.y }];
 
-            if (clones.length === 1 && MonksLittleDetails.dragpoints?.length > 0) {
-                for (let dragpoint of MonksLittleDetails.dragpoints) {
-                    const p0 = dragpoint.fixed ? dragpoint.wall.coords.slice(2, 4) : dragpoint.wall.coords.slice(0, 2);
-                    const coords = dragpoint.fixed ? pt.concat(p0) : p0.concat(pt);
-                    if ((coords[0] === coords[2]) && (coords[1] === coords[3])) {
-                        return dragpoint.wall.document.delete(); // If we collapsed the wall, delete it
-                    }
-                    dragpoint.wall.document.update({ c: coords });
+                MonksLittleDetails.gr = new PIXI.Graphics();
+                this.addChild(MonksLittleDetails.gr);
+                MonksLittleDetails.gr.beginFill(0xff0000).drawCircle(origin.x, origin.y, 4).endFill();
+                
+            } else {
+                //log(MonksLittleDetails.lastWall, destination);
+                let dist = Math.sqrt(Math.pow(MonksLittleDetails.lastWall[MonksLittleDetails.lastWall.length - 1].x - destination.x, 2) + Math.pow(MonksLittleDetails.lastWall[MonksLittleDetails.lastWall.length - 1].y - destination.y, 2));
+                if (dist > MonksLittleDetails.distanceCheck) {
+                    MonksLittleDetails.lastWall.push({ x: destination.x, y: destination.y });
+                    MonksLittleDetails.gr.beginFill(0xff0000).drawCircle(destination.x, destination.y, 4).endFill();
                 }
-                MonksLittleDetails.dragpoints = [];
             }
 
-            return result;
+            //return oldWallDragMove.call(this, event);
+        }
+
+        let oldWallDragDrop = WallsLayer.prototype._onDragLeftDrop;
+        WallsLayer.prototype._onDragLeftDrop = async function (event) {
+            const { createState, destination, originalEvent, preview } = event.data;
+
+            let wallpoints = MonksLittleDetails.simplify(MonksLittleDetails.lastWall, 25);
+            const cls = getDocumentClass(this.constructor.documentName);
+            const snap = this._forceSnap || !originalEvent.shiftKey;
+            let docs = [];
+
+            for (let i = 0; i < wallpoints.length - 1; i++) {
+                //const gr = new PIXI.Graphics();
+                //gr.beginFill(0x00ff00).drawCircle(wallpoints[i].x, wallpoints[i].y, 4).endFill();
+                
+                if (i < wallpoints.length - 1) {
+                    let src = this._getWallEndpointCoordinates({ x: wallpoints[i].x, y: wallpoints[i].y }, { snap });
+                    let dest = this._getWallEndpointCoordinates({ x: wallpoints[i + 1].x, y: wallpoints[i + 1].y }, { snap });
+                    let coords = src.concat(dest);
+                    preview.data.c = coords;
+
+                    if ((coords[0] === coords[2]) && (coords[1] === coords[3])) continue;
+
+                    //await cls.create(preview.data.toObject(false), { parent: canvas.scene });
+                    docs.push(preview.data.toObject(false));
+                }
+            }
+
+            await cls.createDocuments(docs, { parent: canvas.scene });
+
+            this.preview.removeChild(preview);
+
+            MonksLittleDetails.lastWall = null;
+            this.removeChild(MonksLittleDetails.gr);
+            return this._onDragLeftCancel(event);
+
+            //return oldWallDragDrop.call(this, event);
         }*/
+
+        //WallsLayer.prototype._onClickLeft2 = function (event) {
+        //
+        //}
+    }
+
+    static simplify(points, tolerance = 20) {
+        if (points.length <= 2) return points;
+
+        let getSqSegDist = function(p, p1, p2) {
+
+            var x = p1.x,
+                y = p1.y,
+                dx = p2.x - x,
+                dy = p2.y - y;
+
+            if (dx !== 0 || dy !== 0) {
+
+                var t = ((p.x - x) * dx + (p.y - y) * dy) / (dx * dx + dy * dy);
+
+                if (t > 1) {
+                    x = p2.x;
+                    y = p2.y;
+
+                } else if (t > 0) {
+                    x += dx * t;
+                    y += dy * t;
+                }
+            }
+
+            dx = p.x - x;
+            dy = p.y - y;
+
+            return dx * dx + dy * dy;
+        }
+
+        let simplifyDPStep = function (points, first, last, sqTolerance, simplified) {
+            var maxSqDist = sqTolerance,
+                index;
+
+            for (var i = first + 1; i < last; i++) {
+                var sqDist = getSqSegDist(points[i], points[first], points[last]);
+
+                if (sqDist > maxSqDist) {
+                    index = i;
+                    maxSqDist = sqDist;
+                }
+            }
+
+            if (maxSqDist > sqTolerance) {
+                if (index - first > 1) simplifyDPStep(points, first, index, sqTolerance, simplified);
+                simplified.push(points[index]);
+                if (last - index > 1) simplifyDPStep(points, index, last, sqTolerance, simplified);
+            }
+        }
+
+        var last = points.length - 1;
+
+        var simplified = [points[0]];
+        simplifyDPStep(points, 0, last, tolerance, simplified);
+        simplified.push(points[last]);
+
+        return simplified;
     }
 
     static ready() {
         game.settings.settings.get("monks-little-details.play-turn-sound").default = !game.user.isGM; //(game.user.isGM ? 0 : 60); //set the default when we have the users loaded
         game.settings.settings.get("monks-little-details.play-next-sound").default = !game.user.isGM;
+        game.settings.settings.get("monks-little-details.clear-targets").default = game.user.isGM;
 
         if(setting("actor-sounds"))
             MonksLittleDetails.injectSoundCtrls();
@@ -725,6 +828,15 @@ export class MonksLittleDetails {
 
 .control-icon.active > img {
     filter: sepia(100%) saturate(2000%) hue-rotate(-50deg);
+}
+
+.control-icon.active > i {
+    color: #ffc163;
+    opacity: 0.7;
+}
+
+.control-icon.active:hover > i {
+    opacity:1;
 }
 
 #context-menu li.context-item{
@@ -1172,7 +1284,7 @@ background-color: rgba(0, 0, 0, 0.5);
                     let levels = 0;
                     if (combatant.actor.data.data?.classes) {
                         levels = Object.values(combatant.actor.data.data?.classes).reduce((a, b) => {
-                            return a + (b?.levels || 0);
+                            return a + (b?.levels || b?.level || 0);
                         }, 0);
                     } else {
                         levels = combatant?.actor.data.data.details?.level?.value || combatant?.actor.data.data.details?.level || 0;
@@ -1385,13 +1497,14 @@ background-color: rgba(0, 0, 0, 0.5);
             if (token.turnmarker == undefined) {
                 loadTexture(setting("token-highlight-picture")).then((tex) => { //"modules/monks-little-details/img/chest.png"
                     if (token.turnmarker == undefined) {
-                        const icon = new PIXI.Sprite(tex);
-                        icon.pivot.set(icon.width / 2, icon.height / 2);//.set(-(token.w / 2), -(token.h / 2));
+                        const markericon = new PIXI.Sprite(tex);
+                        markericon.pivot.set(markericon.width / 2, markericon.height / 2);//.set(-(token.w / 2), -(token.h / 2));
                         const size = Math.max(token.w, token.h) * setting("token-highlight-scale");
-                        icon.width = icon.height = size;
-                        icon.position.set(token.w / 2, token.h / 2);
-                        icon.alpha = 0.8;
-                        token.turnmarker = icon;
+                        markericon.width = markericon.height = size;
+                        markericon.position.set(token.w / 2, token.h / 2);
+                        markericon.alpha = 0.8;
+                        markericon.pulse = { value: 0, dir: 1 };
+                        token.turnmarker = markericon;
                         token.addChildAt(token.turnmarker, 0);
                     }
                     token.turnmarker.visible = visible;
@@ -1417,6 +1530,9 @@ background-color: rgba(0, 0, 0, 0.5);
     }
 
     static removeTurnMarker(token) {
+        if (token == undefined)
+            return;
+
         if (token?.turnmarker) {
             token.removeChild(token.turnmarker);
             delete token.turnmarker;
@@ -1430,7 +1546,53 @@ background-color: rgba(0, 0, 0, 0.5);
             if (token && token.turnmarker) {
                 let delta = interval / 10000;
                 try {
-                    token.turnmarker.rotation += (delta * dt);
+                    if (setting('token-combat-animation') == 'clockwise')
+                        token.turnmarker.rotation += (delta * dt);
+                    else if (setting('token-combat-animation') == 'counterclockwise')
+                        token.turnmarker.rotation -= (delta * dt);
+                    else if (setting('token-combat-animation') == 'pulse') {
+                        let tokenscale = setting("token-highlight-scale");
+                        let change = tokenscale / 6;
+                        token.turnmarker.pulse.value = Math.max(token.turnmarker.pulse.value + (token.turnmarker.pulse.dir * (delta * dt)), 0);
+                        if (token.turnmarker.pulse.value > tokenscale + change) {
+                            token.turnmarker.pulse.value = (tokenscale + change) + ((tokenscale + change) - token.turnmarker.pulse.value);
+                            token.turnmarker.pulse.dir = -1;
+                        } else if (token.turnmarker.pulse.value < tokenscale - change || token.turnmarker.pulse.value == 0) {
+                            token.turnmarker.pulse.value = (tokenscale - change) + ((tokenscale - change) - token.turnmarker.pulse.value);
+                            token.turnmarker.pulse.dir = 1;
+                        }
+                        const size = (Math.max(token.w, token.h) * token.turnmarker.pulse.value);
+                        token.turnmarker.width = token.turnmarker.height = size;
+                    }
+                    else if (setting('token-combat-animation') == 'fadeout') {
+                        let tokenscale = setting("token-highlight-scale");
+                        token.turnmarker.pulse.value = token.turnmarker.pulse.value + (delta * dt);
+                        let change = tokenscale / 6;
+                        if (token.turnmarker.pulse.value > tokenscale + change) {
+                            token.turnmarker.pulse.value = 0;
+                            token.turnmarker.alpha = 1
+                        } else if (token.turnmarker.pulse.value > tokenscale) {
+                            token.turnmarker.alpha = 1 - ((token.turnmarker.pulse.value - tokenscale) / change);
+                        }
+                        const size = (Math.max(token.w, token.h) * token.turnmarker.pulse.value);
+                        token.turnmarker.width = token.turnmarker.height = size;
+                        //token.turnmarker.alpha = 1 - (token.turnmarker.pulse.value / tokenscale);
+                    } else if (setting('token-combat-animation') == 'fadein') {
+                        let tokenscale = setting("token-highlight-scale");
+                        token.turnmarker.pulse.value = token.turnmarker.pulse.value - (delta * dt);
+                        let change = tokenscale / 4;
+                        if (token.turnmarker.pulse.value > tokenscale - change) {
+                            token.turnmarker.alpha = ((tokenscale - token.turnmarker.pulse.value) / change);
+                        } else
+                            token.turnmarker.alpha = 1
+                        if (token.turnmarker.pulse.value < 0) {
+                            token.turnmarker.pulse.value = tokenscale;
+                            token.turnmarker.alpha = 0;
+                        }
+                        const size = (Math.max(token.w, token.h) * token.turnmarker.pulse.value);
+                        token.turnmarker.width = token.turnmarker.height = size;
+                        //token.turnmarker.alpha = (token.turnmarker.pulse.value / tokenscale);
+                    }
                 } catch (err) {
                     // skip lost frames if the tile is being updated by the server
                 }
@@ -1470,7 +1632,7 @@ Hooks.once('init', async function () {
             if (combat && combat.started) {
                 //const combatant = combat.data.combatants.find((o) => o.id === data.id);
                 //let token = canvas.tokens.get(combatant.token._id);
-                let token = combatant.token.object;
+                let token = combatant.token._object;
                 MonksLittleDetails.removeTurnMarker(token);
             }
         });
@@ -1617,7 +1779,7 @@ Hooks.on("updateCombat", async function (combat, delta) {
 
     let combatStarted = (combat && (delta.round === 1 && combat.turn === 0 && combat.started === true));
 
-    if (combat && combat.started && game.user.isGM && setting('clear-targets')) {
+    if (combat && combat.started && setting('clear-targets')) {
         //clear the targets
         game.user.targets.forEach(t => t.setTarget(false, { user: game.user, releaseOthers: true, groupSelection: false }));
 

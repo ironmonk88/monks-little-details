@@ -1,3 +1,19 @@
+# Version 1.0.35
+
+Added proper challenge rating lables for Pathfinder.  The calulations were corrected but the terminology was DnD5e rather than Pathfinder.
+
+Updated the code to use different variable names than icon as I thought it might be causing a conflict.  Turns out it wasn't but it's probably more readable anyways.
+
+Changed the Clear Targets setting so that players could also use this.  Default is one for GM and off for Players.
+
+Added styling for the new Tile HUD icons.  They aren't in quite the same format as the old ones so the highlighting was being missed.
+
+Fixed issues with PF2E getting encounter ratings.  There was a change with how to find character levels.
+
+Added combat turn marker animation options, now you can have the animation go counter-clockwise, pulse, fade in, and fade out.  No more boring clockwise rotation.
+
+Fixed issue where deleting a combatant token would prevent it from being added back to the scene.
+
 # Version 1.0.34
 Fixing issue with Pathfinder dead status and bloodsplats
 
