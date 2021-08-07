@@ -63,6 +63,8 @@
 	"MonksLittleDetails.token-highlight-picture.hint": "Imagen que se usará como animación en el combate",
 	"MonksLittleDetails.token-highlight-scale.name": "Tamaño de resaltado",
 	"MonksLittleDetails.token-highlight-scale.hint": "Tamaño de la imagen de resaltado en relación al icono",
+	"MonksLittleDetails.token-combat-animation.name": "Animación de destacados en combate",
+	"MonksLittleDetails.token-combat-animation.hint": "Escoja cómo animar los destacados en combate",																		
 	"MonksLittleDetails.hide-enemies.name": "Ocultar enemigos",
 	"MonksLittleDetails.hide-enemies.hint": "Ocultar a los jugadores los enemigos cuando se está creando antes de que comience",
 	"MonksLittleDetails.compendium-view-artwork.name": "Ver arte de escena en compendio",
@@ -132,6 +134,12 @@
 	"MonksLittleDetails.hard": "Duro",
 	"MonksLittleDetails.epic": "Épico",
 
+	"MonksLittleDetails.trivial": "Trivial",
+	"MonksLittleDetails.low": "Bajo",
+	"MonksLittleDetails.moderate": "Moderado",
+	"MonksLittleDetails.severe": "Fuerte",
+	"MonksLittleDetails.extreme": "Extremo",
+
 	"MonksLittleDetails.combatopen.none": "No abrir ventana de combate",
 	"MonksLittleDetails.combatopen.everyone": "Todos",
 	"MonksLittleDetails.combatopen.gm": "Solo GM",
@@ -141,5 +149,11 @@
 	"MonksLittleDetails.autodefeated.npc-zero": "PNJs con cero PG",
 	"MonksLittleDetails.autodefeated.npc-negative": "PNJs con PG negativos",
 	"MonksLittleDetails.autodefeated.all-zero": "Todos con cero PG",
-	"MonksLittleDetails.autodefeated.all-negative": "Todos con PG negativos"
+	"MonksLittleDetails.autodefeated.all-negative": "Todos con PG negativos",
+
+	"MonksLittleDetails.animation.clockwise": "Sentido horario",
+	"MonksLittleDetails.animation.counterclockwise": "Sentido antihorario",
+	"MonksLittleDetails.animation.pulse": "Pulso",
+	"MonksLittleDetails.animation.fadein": "Entrada",
+	"MonksLittleDetails.animation.fadeout": "Salida"
 }
