@@ -441,3 +441,26 @@ body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details
     border-bottom:none;
     height:1px;
 }
+
+.round-marker {
+    background: none;
+    border: none;
+    border-radius: 0px;
+    border-bottom: 1px solid #ff6400;
+    padding: 0pc 5px;
+}
+
+.round-marker .message-header {
+    flex-direction: row-reverse;
+}
+
+.round-marker .message-header .message-sender,
+.round-marker .message-header .message-timestamp,
+.round-marker .message-content {
+    display: none;
+}
+
+.round-marker .message-header .flavor-text {
+    flex: 1;
+    color: #f0f0e0;
+}

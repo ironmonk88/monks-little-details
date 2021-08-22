@@ -1,3 +1,23 @@
+# Version 1.0.36
+
+Split some of the functionality into separate files to make debugging a little easier.
+
+Fixed compatibility issue with Hidden Initiative.  Hidden Initiative is doing some strange things with getting the Combat Tracker data that locks out other modules from modifying the data.  I did my best to work around it.
+
+Disabled the next turn notification when Hidden Initiative is active.
+
+Added round markers, so a small chat message is added at the start, end, and when a round changes so you can see what happened during what round.
+
+Added 'none' animation so you can display a solid image that doesn't move.
+
+Fixed issue with CR calculations.  It was having a hard time with single creatures.
+
+Added option to change the default bloodsplat colour, and to change the bloodsplat colour for individuals.
+
+Made the layer switching keys a little more generic so that any module that adds a layer can be included.
+
+Added a placeholder for tokens to denote the starting spot of their combat turn.
+
 # Version 1.0.35
 
 Added proper challenge rating lables for Pathfinder.  The calulations were corrected but the terminology was DnD5e rather than Pathfinder.

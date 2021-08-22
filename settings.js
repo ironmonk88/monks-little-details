@@ -30,6 +30,7 @@ export const registerSettings = function () {
 	};
 
 	let animation = {
+		'none': i18n("MonksLittleDetails.animation.none"),
 		'clockwise': i18n("MonksLittleDetails.animation.clockwise"),
 		'counterclockwise': i18n("MonksLittleDetails.animation.counterclockwise"),
 		'pulse': i18n("MonksLittleDetails.animation.pulse"),
@@ -239,6 +240,7 @@ export const registerSettings = function () {
 		config: true,
 		default: "modules/monks-little-details/sounds/next.ogg",
 		type: String,
+		//filePicker: 'audio',
 	});
 	game.settings.register(modulename, "turn-sound", {
 		name: i18n("MonksLittleDetails.turn-sound.name"),
@@ -247,6 +249,7 @@ export const registerSettings = function () {
 		config: true,
 		default: "modules/monks-little-details/sounds/turn.ogg",
 		type: String,
+		//filePicker: 'audio',
 	});
 	game.settings.register(modulename, "round-sound", {
 		name: i18n("MonksLittleDetails.round-sound.name"),
@@ -255,6 +258,7 @@ export const registerSettings = function () {
 		config: true,
 		default: "modules/monks-little-details/sounds/round.ogg",
 		type: String,
+		//filePicker: 'audio',
 	});
 	/*
 	game.settings.register(modulename, "volume", {
@@ -282,6 +286,22 @@ export const registerSettings = function () {
 		name: i18n("MonksLittleDetails.clear-targets.name"),
 		hint: i18n("MonksLittleDetails.clear-targets.hint"),
 		scope: "client",
+		config: true,
+		default: true,
+		type: Boolean
+	});
+	game.settings.register(modulename, "round-chatmessages", {
+		name: i18n("MonksLittleDetails.round-chatmessages.name"),
+		hint: i18n("MonksLittleDetails.round-chatmessages.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean
+	});
+	game.settings.register(modulename, "show-start", {
+		name: i18n("MonksLittleDetails.show-start.name"),
+		hint: i18n("MonksLittleDetails.show-start.hint"),
+		scope: "world",
 		config: true,
 		default: true,
 		type: Boolean
@@ -361,14 +381,6 @@ export const registerSettings = function () {
 		type: Boolean,
 	});
 
-	game.settings.register(modulename, "show-drag-points-together", {
-		name: i18n("MonksLittleDetails.show-drag-points-together.name"),
-		hint: i18n("MonksLittleDetails.show-drag-points-together.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
 	game.settings.register(modulename, "movement-key", {
 		name: i18n("MonksLittleDetails.movement-key.name"),
 		hint: i18n("MonksLittleDetails.movement-key.hint"),
@@ -400,6 +412,14 @@ export const registerSettings = function () {
 		config: true,
 		default: false,
 		type: Boolean,
+		onChange: debouncedReload
+	});
+	game.settings.register(modulename, "bloodsplat-colour", {
+		name: i18n("MonksLittleDetails.bloodsplat-colour.name"),
+		scope: "world",
+		config: true,
+		default: '#FF0000',
+		type: String,
 		onChange: debouncedReload
 	});
 	game.settings.register(modulename, "key-swap-tool", {
