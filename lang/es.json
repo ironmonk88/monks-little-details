@@ -83,6 +83,11 @@
 	"MonksLittleDetails.add-combat-bars.hint": "Usar una configuración distinta de las barras de recursos cuando el icono esté en combate",
 	"MonksLittleDetails.move-pause.name": "Subir imagen de pausa",
 	"MonksLittleDetails.move-pause.hint": "Mueve hacia arriba la imagen de pausa para que quede más centrada y se evite el problema de no saber por qué no se pueden mover los iconos",
+	"MonksLittleDetails.round-chatmessages.name": "Mensajes de asalto de combate",
+	"MonksLittleDetails.round-chatmessages.hint": "Añade un mensaje en el chat cada asalto para delinear los mensajes de combate",
+	"MonksLittleDetails.bloodsplat-colour.name": "Color de las manchas de sangre",
+	"MonksLittleDetails.show-start.name": "Mostrar icono de inicio",
+	"MonksLittleDetails.show-start.hint": "Muestra dónde comenzó su turno el icono",
 
 	"MonksLittleDetails.PlayRoundSound": "Reproducir sonido de nuevo asalto",
 	"MonksLittleDetails.PlayRoundSoundHint": "Reproducir sonido cuando comienza un nuevo asalto",
@@ -151,6 +156,7 @@
 	"MonksLittleDetails.autodefeated.all-zero": "Todos con cero PG",
 	"MonksLittleDetails.autodefeated.all-negative": "Todos con PG negativos",
 
+	"MonksLittleDetails.animation.none": "Ninguno",
 	"MonksLittleDetails.animation.clockwise": "Sentido horario",
 	"MonksLittleDetails.animation.counterclockwise": "Sentido antihorario",
 	"MonksLittleDetails.animation.pulse": "Pulso",
