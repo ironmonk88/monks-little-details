@@ -1,3 +1,15 @@
+# Version 1.0.37
+
+Fixed libWrapper issues with Bloodsplats and Combat bars
+
+Added the volume option back to the settings.  Apparently the sound files were really loud.
+
+Added integration with changeLogs so that people are informed of breaking changes such as moving the drag points to a different module.
+
+Added Italian language, thank you Luisphigor
+
+Updated Spanish language, thank you as always Lozalojo
+
 # Version 1.0.36
 
 Split some of the functionality into separate files to make debugging a little easier.

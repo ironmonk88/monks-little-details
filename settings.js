@@ -260,7 +260,6 @@ export const registerSettings = function () {
 		type: String,
 		//filePicker: 'audio',
 	});
-	/*
 	game.settings.register(modulename, "volume", {
 		name: i18n("MonksLittleDetails.volume.name"),
 		hint: i18n("MonksLittleDetails.volume.hint"),
@@ -274,6 +273,7 @@ export const registerSettings = function () {
 		default: 60,
 		type: Number,
 	});
+	/*
 	game.settings.register(modulename, "disablesounds", {
 		name: i18n("MonksLittleDetails.disablesounds.name"),
 		hint: i18n("MonksLittleDetails.disablesounds.hint"),

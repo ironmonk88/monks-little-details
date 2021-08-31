@@ -176,6 +176,24 @@ export class MonksLittleDetails {
         if (setting('add-combat-bars'))
             CombatBars.init();
 
+        let tokenRefresh = function (wrapped, ...args) {
+            wrapped.call(this);
+
+            if (setting("show-bloodsplat"))
+                BloodSplats.tokenRefresh.call(this);
+            if (setting('add-combat-bars'))
+                CombatBars.tokenRefresh.call(this);
+        }
+
+        if (game.modules.get("lib-wrapper")?.active) {
+            libWrapper.register("monks-little-details", "Token.prototype.refresh", tokenRefresh, "WRAPPER");
+        } else {
+            const oldTokenRefresh = Token.prototype.refresh;
+            Token.prototype.refresh = function () {
+                return tokenRefresh.call(this, oldTokenRefresh.bind(this), ...arguments);
+            }
+        }
+
         if (setting("actor-sounds"))
             ActorSounds.init();
 
@@ -1068,6 +1086,9 @@ Hooks.on("preUpdateToken", (document, update, options, userId) => {
     }
 });
 
+Hooks.once('libChangelogsReady', function () {
+    libChangelogs.register("monks-little-details", "The option to drag wall points together has been removed from this module and has been added to it's own module, along with a handful of other improvements.  Please install Monk's Wall Enhancement to drag wall points together again.", "breaking")
+})
 
 
 /*

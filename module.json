@@ -2,7 +2,7 @@
   "name": "monks-little-details",
   "title": "Monk's Little Details",
   "description": "Things to tidy up the interface and flow",
-  "version": "1.0.36",
+  "version": "1.0.37",
   "author": "IronMonk, ironmonk88#4075",
   "socket": true,
   "languages": [
@@ -20,6 +20,17 @@
       "lang": "es",
       "name": "Español",
       "path": "lang/es.json"
+    },
+    {
+      "lang": "it",
+      "name": "Italiano",
+      "path": "lang/it.json"
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "lib-changelogs",
+      "manifest": "https://github.com/theripper93/libChangelogs/releases/latest/download/module.json"
     }
   ],
   "esmodules": [
@@ -37,7 +48,7 @@
     "css/monks-little-details.css"
   ],
   "url": "https://github.com/ironmonk88/monks-little-details",
-  "download": "https://github.com/ironmonk88/monks-little-details/archive/1.0.36.zip",
+  "download": "https://github.com/ironmonk88/monks-little-details/archive/1.0.37.zip",
   "manifest": "https://github.com/ironmonk88/monks-little-details/releases/latest/download/module.json",
   "bugs": "https://github.com/ironmonk88/monks-little-details/issues",
   "allowBugReporter": true,

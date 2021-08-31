@@ -59,8 +59,9 @@ export class CombatTurn {
                     ChatMessage.create({ user: null, flavor: `Round ${delta.round}` }, { roundmarker: true });
             }
 
-            if (setting('play-round-sound') && setting('round-sound') && Object.keys(delta).some((k) => k === "round")) { //volume() > 0 && !setting("disablesounds") && 
-                AudioHelper.play({ src: game.settings.get('monks-little-details', 'round-sound') });//, volume: volume()
+            if (setting('play-round-sound') && setting('round-sound') && Object.keys(delta).some((k) => k === "round")) {
+                let volume = (setting('volume') / 100) * game.settings.get("core", 'globalInterfaceVolume');
+                AudioHelper.play({ src: setting('round-sound'), volume: volume });
             }
         });
 
@@ -129,16 +130,20 @@ export class CombatTurn {
             ui.notifications.warn(i18n("MonksLittleDetails.Turn"));
 
         // play a sound
-        if (setting('play-turn-sound') && setting('turn-sound') != '') //volume() > 0 && !setting("disablesounds") && 
-            AudioHelper.play({ src: setting('turn-sound') }); //, volume: volume()
+        if (setting('play-turn-sound') && setting('turn-sound') != '') { //volume() > 0 && !setting("disablesounds") && 
+            let volume = (setting('volume') / 100) * game.settings.get("core", 'globalInterfaceVolume');
+            AudioHelper.play({ src: setting('turn-sound'), volume:volume }); //, volume: volume()
+        }
     }
 
     static doDisplayNext() {
         if (setting("shownextup") && !game.user.isGM)
             ui.notifications.info(i18n("MonksLittleDetails.Next"));
         // play a sound
-        if (setting('play-next-sound') && setting('next-sound') != '') //volume() > 0 && !setting("disablesounds") && 
-            AudioHelper.play({ src: setting('next-sound') }); //, volume: volume()
+        if (setting('play-next-sound') && setting('next-sound') != '') { //volume() > 0 && !setting("disablesounds") && 
+            let volume = (setting('volume') / 100) * game.settings.get("core", 'globalInterfaceVolume');
+            AudioHelper.play({ src: setting('next-sound'), volume: volume }); //, volume: volume()
+        }
     }
 
     /**
