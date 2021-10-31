@@ -80,6 +80,11 @@
 	"MonksLittleDetails.add-combat-bars.hint": "トークン設定から、戦闘中のみのリソース・バーの表示方法を指定できます。",
 	"MonksLittleDetails.move-pause.name": "一時停止アイコンを上に移動する",
 	"MonksLittleDetails.move-pause.hint": "一時停止のアイコンを画面の上に移動し、より中央に表示します。これはコマを動かせないことに、プレイヤーが疑問を感じないようにするためです。",
+	"MonksLittleDetails.round-chatmessages.name": "戦闘ラウンドメッセージ",
+	"MonksLittleDetails.round-chatmessages.hint": "ラウンド毎にチャットメッセージを追加し、戦闘メッセージを区分けします。",
+	"MonksLittleDetails.bloodsplat-colour.name": "血糊の色",
+	"MonksLittleDetails.show-start.name": "コマの開始位置表示",
+	"MonksLittleDetails.show-start.hint": "ターン開始時のコマの位置を表示します。",
 
 	"MonksLittleDetails.PlayRoundSound": "新しいラウンド開始時のサウンド",
 	"MonksLittleDetails.PlayRoundSoundHint": "次のラウンド開始時にサウンドを再生します。",
@@ -131,11 +136,11 @@
 	"MonksLittleDetails.hard": "死地",
 	"MonksLittleDetails.epic": "英雄的",
 
-	"MonksLittleDetails.trivial": "Trivial",
-	"MonksLittleDetails.low": "Low",
-	"MonksLittleDetails.moderate": "Moderate",
-	"MonksLittleDetails.severe": "Severe",
-	"MonksLittleDetails.extreme": "Extreme",
+	"MonksLittleDetails.trivial": "些末",
+	"MonksLittleDetails.low": "低い",
+	"MonksLittleDetails.moderate": "標準",
+	"MonksLittleDetails.severe": "厳しい",
+	"MonksLittleDetails.extreme": "極限",
 
 	"MonksLittleDetails.combatopen.none": "戦闘ウィンドウを開かない",
 	"MonksLittleDetails.combatopen.everyone": "全員",
@@ -148,6 +153,7 @@
 	"MonksLittleDetails.autodefeated.all-zero": "HPが0（すべて）",
 	"MonksLittleDetails.autodefeated.all-negative": "HPがマイナス（すべて）",
 
+	"MonksLittleDetails.animation.none": "なし",
 	"MonksLittleDetails.animation.clockwise": "時計回り",
 	"MonksLittleDetails.animation.counterclockwise": "反時計回り",
 	"MonksLittleDetails.animation.pulse": "パルス",
