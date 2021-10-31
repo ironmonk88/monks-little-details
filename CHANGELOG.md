@@ -1,3 +1,31 @@
+# Version 1.0.38
+
+Added a setting so that repositioning the collapse button of the sidebar menu isn't always on.  I liked having the collapse/expand button stay in the same general area, but there are a couple of UI stylings that aren't expecting this and put it in a weird location, making it difficult to expand the sidebar once collapsed.
+
+Turn marker has been updated with cleaner graphics.  Thank you Verthiss!
+
+Removed some debugging information and put others behind a debug setting so there's less chatter in the console log.
+
+Added option to remove the combat turn marker after the first move.
+
+Added option to have a custom turn marker image for individual tokens.
+
+Sort of fixed issue where the turn marker would disappear when the token was updated.  It still happens, but only on the first update, and if you havn't changed scenes, and comes back the next time through the combat turn.
+
+Fixed issue with the turn marker pulse animation
+
+Added option to remember the previous target per each token.  So you can clear targets as the turn changes, but when it comes back to that token it will retarget the last thing it had targetted.  Will not retarget a token that is now invisible, or has died/ been defeated.
+
+Added option to use wildcards with round and turn sounds
+
+Fixed issue where showing the start spot was only showing for the player that moved the token.  Now it will show for both the GM and that player.
+
+Added option to sort statuses.  So altering the Token HUD is now independant of sorting the statuses in the HUD.
+
+Added a "Find my Token" button to the Token menu.  Just in case you're not sure where your token is, you can click the button to find it.  Doesn't work for the GM as the GM owns all tokens.
+
+And the combat tracker will now popout for tokens that have been added mid-combat.
+
 # Version 1.0.37
 
 Fixed libWrapper issues with Bloodsplats and Combat bars

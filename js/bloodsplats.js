@@ -105,7 +105,7 @@ export class BloodSplats {
                         this.bloodsplat.y = this.h / 2;
                         this.addChild(this.bloodsplat);
 
-                        log('Font: ', this.id, (this.h * 1.5), this.bloodsplat.x, this.bloodsplat.y);
+                        //log('Font: ', this.id, (this.h * 1.5), this.bloodsplat.x, this.bloodsplat.y);
                     }
                 }
             } else {

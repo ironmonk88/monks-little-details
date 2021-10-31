@@ -38,6 +38,12 @@ export const registerSettings = function () {
 		'fadein': i18n("MonksLittleDetails.animation.fadein")
 	};
 
+	let sortstatus = {
+		'none': i18n("MonksLittleDetails.sortstatus.none"),
+		'rows': i18n("MonksLittleDetails.sortstatus.rows"),
+		'columns': i18n("MonksLittleDetails.sortstatus.columns")
+	};
+
 	//System changes
 	game.settings.register(modulename, "swap-buttons", {
 		name: i18n("MonksLittleDetails.swap-buttons.name"),
@@ -54,14 +60,25 @@ export const registerSettings = function () {
 		config: MonksLittleDetails.canDo("alter-hud"),
 		default: true,
 		type: Boolean,
+		onChange: debouncedReload
 	});
 	game.settings.register(modulename, "sort-by-columns", {
 		name: i18n("MonksLittleDetails.sort-by-columns.name"),
 		hint: i18n("MonksLittleDetails.sort-by-columns.hint"),
 		scope: "world",
-		config: MonksLittleDetails.canDo("sort-by-columns"),
+		config: false,
 		default: false,
 		type: Boolean,
+	});
+	game.settings.register(modulename, "sort-statuses", {
+		name: i18n("MonksLittleDetails.sort-statuses.name"),
+		hint: i18n("MonksLittleDetails.sort-statuses.hint"),
+		scope: "world",
+		config: MonksLittleDetails.canDo("sort-statuses"),
+		default: 'rows',
+		type: String,
+		choices: sortstatus,
+		onChange: debouncedReload
 	});
 	game.settings.register(modulename, "alter-hud-colour", {
 		name: i18n("MonksLittleDetails.alter-hud-colour.name"),
@@ -290,6 +307,14 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean
 	});
+	game.settings.register(modulename, "remember-previous", {
+		name: i18n("MonksLittleDetails.remember-previous.name"),
+		hint: i18n("MonksLittleDetails.remember-previous.hint"),
+		scope: "client",
+		config: true,
+		default: true,
+		type: Boolean
+	});
 	game.settings.register(modulename, "round-chatmessages", {
 		name: i18n("MonksLittleDetails.round-chatmessages.name"),
 		hint: i18n("MonksLittleDetails.round-chatmessages.hint"),
@@ -314,6 +339,14 @@ export const registerSettings = function () {
 		scope: "world",
 		config: true,
 		default: true,
+		type: Boolean
+	});
+	game.settings.register(modulename, "token-highlight-remove", {
+		name: i18n("MonksLittleDetails.token-highlight-remove.name"),
+		hint: i18n("MonksLittleDetails.token-highlight-remove.hint"),
+		scope: "world",
+		config: true,
+		default: false,
 		type: Boolean
 	});
 	game.settings.register(modulename, "token-highlight-animate", {
@@ -389,6 +422,14 @@ export const registerSettings = function () {
 		default: "m",
 		type: String,
 	});
+	game.settings.register(modulename, "find-my-token", {
+		name: i18n("MonksLittleDetails.find-my-token.name"),
+		hint: i18n("MonksLittleDetails.find-my-token.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
 	game.settings.register(modulename, "show-notify", {
 		name: i18n("MonksLittleDetails.show-notify.name"),
 		hint: i18n("MonksLittleDetails.show-notify.hint"),
@@ -404,6 +445,15 @@ export const registerSettings = function () {
 		config: true,
 		default: false,
 		type: Boolean,
+	});
+	game.settings.register(modulename, "reposition-collapse", {
+		name: i18n("MonksLittleDetails.reposition-collapse.name"),
+		hint: i18n("MonksLittleDetails.reposition-collapse.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+		onChange: debouncedReload
 	});
 	game.settings.register(modulename, "show-bloodsplat", {
 		name: i18n("MonksLittleDetails.show-bloodsplat.name"),

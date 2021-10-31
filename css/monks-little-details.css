@@ -174,17 +174,17 @@
     align-items: center;
 }
 
-#sidebar.collapsed #sidebar-tabs a:first-child{
-    margin-top:27px;
+body.reposition-collapse #sidebar.collapsed #sidebar-tabs a:first-child {
+    margin-top: 27px;
 }
 
-#sidebar.collapsed #sidebar-tabs a.collapse {
+body.reposition-collapse #sidebar.collapsed #sidebar-tabs a.collapse {
     position: absolute;
-    top: 0px;
+    /*top: 0px;*/
     left: 10px;
 }
 
-body.system-wfrp4e #sidebar.collapsed #sidebar-tabs a.collapse {
+body.reposition-collapse.system-wfrp4e #sidebar.collapsed #sidebar-tabs a.collapse {
     top: -135px;
     left: 90px;
 }

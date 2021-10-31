@@ -74,6 +74,8 @@
 	"MonksLittleDetails.key-swap-tool.hint": "Allow the swapping between tools by pressing a key.  Requires the module 'Library: DF Hotkeys' to work",
 	"MonksLittleDetails.clear-targets.name": "Clear targets after turn",
 	"MonksLittleDetails.clear-targets.hint": "Clear targets after your turn is over",
+	"MonksLittleDetails.remember-previous.name": "Remember Previous",
+	"MonksLittleDetails.remember-previous.hint": "Remember previous targets and re-target next turn",
 	"MonksLittleDetails.sort-by-columns.name": "Sort by columns",
 	"MonksLittleDetails.sort-by-columns.hint": "Sort token hud status effect by columns instead of rows",
 	"MonksLittleDetails.add-combat-bars.name": "Add Combat Bars",
@@ -85,6 +87,14 @@
 	"MonksLittleDetails.bloodsplat-colour.name": "Bloodsplat colour",
 	"MonksLittleDetails.show-start.name": "Show start token",
 	"MonksLittleDetails.show-start.hint": "Show where the token started it's turn",
+	"MonksLittleDetails.sort-statuses.name": "Sort Statues",
+	"MonksLittleDetails.sort-statuses.hint": "Sort the Token statuses in the Token HUD",
+	"MonksLittleDetails.token-highlight-remove.name": "Clear Token Highlight",
+	"MonksLittleDetails.token-highlight-remove.hint": "Clear token highlighter after the Token is first moved",
+	"MonksLittleDetails.find-my-token.name": "Find my Token",
+	"MonksLittleDetails.find-my-token.hint": "Show the Find my Token button",
+	"MonksLittleDetails.reposition-collapse.name": "Reposition Collapse Button",
+	"MonksLittleDetails.reposition-collapse.hint": "Reposition the sidebar collapse button so that it always stays in the same general location",
 
 	"MonksLittleDetails.PlayRoundSound": "Play new round sound",
 	"MonksLittleDetails.PlayRoundSoundHint": "Play a sound when the next round starts",
@@ -99,6 +109,8 @@
 	"MonksLittleDetails.AddedFeatures": "Added Features",
 
 	"MonksLittleDetails.CombatDisplayBars": "Combat Display Bars:",
+
+	"MonksLittleDetails.FindMyToken": "Find my Token",
 
 	"MonksLittleDetails.LatestChanges": "Latest Changes",
 
@@ -158,5 +170,9 @@
 	"MonksLittleDetails.animation.counterclockwise": "Counter-clockwise",
 	"MonksLittleDetails.animation.pulse": "Pulse",
 	"MonksLittleDetails.animation.fadein": "Fade-in",
-	"MonksLittleDetails.animation.fadeout": "Fade-out"
+	"MonksLittleDetails.animation.fadeout": "Fade-out",
+
+	"MonksLittleDetails.sortstatus.none": "None",
+	"MonksLittleDetails.sortstatus.rows": "Rows",
+	"MonksLittleDetails.sortstatus.columns": "Columns"
 }

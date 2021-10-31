@@ -22,7 +22,7 @@ export class ActorSounds {
             npcSheetNames.forEach((sheetName) => {
                 Hooks.on("render" + sheetName, (app, html, data) => {
                     // only for GMs or the owner of this npc
-                    if (!data.owner || !data.actor) return;
+                    if (!data.isOwner || !data.actor) return;
 
                     // don't add the button multiple times
                     if ($(html).find("#mldCharacterSound").length > 0) return;
@@ -82,7 +82,6 @@ export class ActorSounds {
     }
 
     static findSoundEffect(event) {
-        log('Click sound button');
         //Display the filepicker to save a sound
         const current = this.actor.getFlag('monks-little-details', 'sound-effect');
         const fp = new FilePicker({
@@ -112,7 +111,6 @@ export class ActorSounds {
                     AudioHelper.play({ src: audiofile, volume: volume }, true).then((sound) => {
                         token.soundeffect = sound;
                         token.soundeffect.on("end", () => {
-                            log('Finished playing', audiofile);
                             delete token.soundeffect;
                         });
                     });
@@ -170,7 +168,6 @@ export class ActorSounds {
     }*/
 
     static clearSoundEffect(event) {
-        log('Clear Sound effect');
         this.actor.unsetFlag('monks-little-details', 'sound-effect');
     }
 }

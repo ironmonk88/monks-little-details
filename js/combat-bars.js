@@ -96,7 +96,9 @@ export class CombatBars {
                 this.bars.alpha = ((this._controlled && (combatBar == CONST.TOKEN_DISPLAY_MODES.CONTROL || combatBar == CONST.TOKEN_DISPLAY_MODES.OWNER || combatBar == CONST.TOKEN_DISPLAY_MODES.ALWAYS)) ||
                     (this._hover && (combatBar == CONST.TOKEN_DISPLAY_MODES.HOVER || combatBar == CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER)) ? 1 : 0.3);
             }
-        } else
-            this.bars.alpha = 1;
+        } else {
+            if (this?.bars?.alpha)
+                this.bars.alpha = 1;
+        }
     }
 }

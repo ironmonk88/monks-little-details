@@ -10,12 +10,24 @@ import { ActorSounds } from "./js/actor-sounds.js";
 import { ChatTimer } from "./js/chat-timer.js";
 import { HUDChanges } from "./js/hud-changes.js";
 
+export let debugEnabled = 0;
+
 export let debug = (...args) => {
     if (debugEnabled > 1) console.log("DEBUG: monks-little-details | ", ...args);
 };
 export let log = (...args) => console.log("monks-little-details | ", ...args);
-export let warn = (...args) => console.warn("monks-little-details | ", ...args);
+export let warn = (...args) => {
+    if (debugEnabled > 0) console.warn("WARN: monks-little-details | ", ...args);
+};
 export let error = (...args) => console.error("monks-little-details | ", ...args);
+
+export const setDebugLevel = (debugText) => {
+    debugEnabled = { none: 0, warn: 1, debug: 2, all: 3 }[debugText] || 0;
+    // 0 = none, warnings = 1, debug = 2, all = 3
+    if (debugEnabled >= 3)
+        CONFIG.debug.hooks = true;
+};
+
 export let i18n = key => {
     return game.i18n.localize(key);
 };
@@ -44,8 +56,6 @@ export class MonksLittleDetails {
     };
 
     static init() {
-        log("initializing");
-
         if (game.MonksLittleDetails == undefined)
             game.MonksLittleDetails = MonksLittleDetails;
 
@@ -76,6 +86,9 @@ export class MonksLittleDetails {
         }
 
         registerSettings();
+
+        if (setting("reposition-collapse"))
+            $('body').addClass("reposition-collapse");
 
         MonksLittleDetails.injectCSS();
 
@@ -267,6 +280,7 @@ export class MonksLittleDetails {
 
     static ready() {
         CombatTurn.ready();
+        HUDChanges.ready();
 
         if(setting("actor-sounds"))
             ActorSounds.injectSoundCtrls();
@@ -624,6 +638,30 @@ background-color: rgba(0, 0, 0, 0.5);
         await MonksLittleDetails.currentScene.update({ backgroundColor: hexCode });
     }
 
+    static checkPopout(combat, delta) {
+        let combatStarted = (combat && combat.started === true && ((delta.round === 1 && combat.turn === 0 ) || delta.bypass));
+
+        //log("update combat", combat);
+        let opencombat = setting("opencombat");
+
+        //popout combat (if gm and opencombat is everyone or gm only), (if player and opencombat is everyone or players only and popout-combat)
+        if (((game.user.isGM && ['everyone', 'gmonly'].includes(opencombat)) ||
+            (!game.user.isGM && ['everyone', 'playersonly'].includes(opencombat) && game.settings.get("monks-little-details", "popout-combat")))
+            && combatStarted) {
+            //new combat, pop it out
+            const tabApp = ui["combat"];
+            tabApp.renderPopout(tabApp);
+
+            if (ui.sidebar.activeTab !== "chat")
+                ui.sidebar.activateTab("chat");
+        }
+
+        if (combatposition() !== '' && delta.active === true) {
+            //+++ make sure if it's not this players turn and it's not the GM to add padding for the button at the bottom
+            MonksLittleDetails.tracker = false;   //delete this so that the next render will reposition the popout, changing between combats changes the height
+        }
+    }
+
     static async fixImages({ wildcards = true, packs = "dnd5e.monsters", system = "dnd", tokentypes = ['overhead', 'disc', 'artwork'] } = {}) {
         let getFiles = async function(filename) {
             let source = "data";
@@ -738,7 +776,6 @@ background-color: rgba(0, 0, 0, 0.5);
 }
 
 Hooks.once('init', async function () {
-    log('Initializing Monks Little Details');
     MonksLittleDetails.init();
 });
 
@@ -775,6 +812,8 @@ Hooks.on("deleteCombat", function (combat) {
 });
 
 Hooks.on("updateCombat", async function (combat, delta) {
+    MonksLittleDetails.checkPopout(combat, delta);
+    /*
     let combatStarted = (combat && (delta.round === 1 && combat.turn === 0 && combat.started === true));
 
     //log("update combat", combat);
@@ -795,7 +834,11 @@ Hooks.on("updateCombat", async function (combat, delta) {
     if (combatposition() !== '' && delta.active === true) {
         //+++ make sure if it's not this players turn and it's not the GM to add padding for the button at the bottom
         MonksLittleDetails.tracker = false;   //delete this so that the next render will reposition the popout, changing between combats changes the height
-    }
+    }*/
+});
+
+Hooks.on("createCombatant", async function (combatant, delta, userId) {
+    MonksLittleDetails.checkPopout(combatant.combat, {active: true, bypass: true});
 });
 
 Hooks.on("ready", MonksLittleDetails.ready);
@@ -884,6 +927,7 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
         .click(function (event) {
             const fp = new FilePicker({
                 type: "audio",
+                wildcard: true,
                 current: $(event.currentTarget).prev().val(),
                 callback: path => {
                     $(event.currentTarget).prev().val(path);
@@ -893,19 +937,19 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
         });
 
     let parent = $('input[name="monks-little-details.next-sound"]', html).closest('.form-group');
-    $('input[name="monks-little-details.next-sound"]', html).insertAfter($('input[name="monks-little-details.play-next-sound"]', html));
+    $('input[name="monks-little-details.next-sound"]', html).css({ 'flex-basis': 'unset', 'flex-grow': 1 }).insertAfter($('input[name="monks-little-details.play-next-sound"]', html));
     parent.remove();
 
     btn.clone(true).insertAfter($('input[name="monks-little-details.next-sound"]', html));
 
     parent = $('input[name="monks-little-details.turn-sound"]', html).closest('.form-group');
-    $('input[name="monks-little-details.turn-sound"]', html).insertAfter($('input[name="monks-little-details.play-turn-sound"]', html));
+    $('input[name="monks-little-details.turn-sound"]', html).css({'flex-basis': 'unset', 'flex-grow': 1}).insertAfter($('input[name="monks-little-details.play-turn-sound"]', html));
     parent.remove();
 
     btn.clone(true).insertAfter($('input[name="monks-little-details.turn-sound"]', html));
 
     parent = $('input[name="monks-little-details.round-sound"]', html).closest('.form-group');
-    $('input[name="monks-little-details.round-sound"]', html).insertAfter($('input[name="monks-little-details.play-round-sound"]', html));
+    $('input[name="monks-little-details.round-sound"]', html).css({ 'flex-basis': 'unset', 'flex-grow': 1 }).insertAfter($('input[name="monks-little-details.play-round-sound"]', html));
     parent.remove();
 
     btn.clone(true).insertAfter($('input[name="monks-little-details.round-sound"]', html));
@@ -933,7 +977,7 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
             return fp.browse();
         });
 
-    btn2.clone(true).insertAfter($('input[name="monks-little-details.token-highlight-picture"]', html));
+    btn2.clone(true).insertAfter($('input[name="monks-little-details.token-highlight-picture"]', html).css({ 'flex-basis': 'unset', 'flex-grow': 1 }));
 
     let colour = setting("bloodsplat-colour");
     $('<input>').attr('type', 'color').attr('data-edit', 'monks-little-details.bloodsplat-colour').val(colour).insertAfter($('input[name="monks-little-details.bloodsplat-colour"]', html).addClass('color'));
@@ -1088,7 +1132,39 @@ Hooks.on("preUpdateToken", (document, update, options, userId) => {
 
 Hooks.once('libChangelogsReady', function () {
     libChangelogs.register("monks-little-details", "The option to drag wall points together has been removed from this module and has been added to it's own module, along with a handful of other improvements.  Please install Monk's Wall Enhancement to drag wall points together again.", "breaking")
-})
+});
+
+Hooks.on("getSceneControlButtons", (controls) => {
+    if (setting("find-my-token") && !game.user.isGM) {
+        let tokenControls = controls.find(control => control.name === "token")
+        tokenControls.tools.push({
+            name: "findtoken",
+            title: "MonksLittleDetails.FindMyToken",
+            icon: "fas fa-crosshairs",
+            onClick: async (away) => {
+                //Find token
+                let tokens = canvas.tokens.ownedTokens;
+                if (tokens.length == 0) return;
+
+                let lastTime = game.user.getFlag('monks-little-details', 'findTime');
+                let lastIdx = (lastTime == undefined || (Date.now() - lastTime) > 2000 ? 0 : game.user.getFlag('monks-little-details', 'findIdx') || 0);
+
+                if (lastIdx >= tokens.length)
+                    lastIdx = 0;
+
+                let token = tokens[lastIdx];
+                if (!token) return;
+
+                canvas.pan({ x: token.x, y: token.y });
+
+                lastIdx = (lastIdx + 1) % tokens.length;
+                await game.user.setFlag('monks-little-details', 'findTime', Date.now());
+                await game.user.setFlag('monks-little-details', 'findIdx', lastIdx);
+            },
+            button: true
+        });
+    }
+});
 
 
 /*

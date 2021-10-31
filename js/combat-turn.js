@@ -1,7 +1,8 @@
-import { MonksLittleDetails, i18n, log, setting } from "../monks-little-details.js";
+import { MonksLittleDetails, i18n, log, debug, setting } from "../monks-little-details.js";
 
 export class CombatTurn {
     static shadows = {};
+    static sounds = {};
 
     static init() {
         Hooks.on("deleteCombatant", function (combatant, data, userId) {
@@ -26,6 +27,20 @@ export class CombatTurn {
             }
         });
 
+        Hooks.on("targetToken", async function (user, token, target) {
+            if (setting('remember-previous')) {
+                let current = canvas.tokens.get(game.combats.active?.current?.tokenId);
+
+                if (current?.isOwner) {
+                    let targets = Array.from(game.user.targets).map(t => t.id);
+                    if (game.user.isGM)
+                        current.document.setFlag('monks-little-details', 'targets', targets);
+                    else
+                        game.user.setFlag('monks-little-details', 'targets', targets);
+                }
+            }
+        });
+
         Hooks.on("updateCombat", async function (combat, delta) {
             CombatTurn.checkCombatTurn(combat);
 
@@ -34,7 +49,7 @@ export class CombatTurn {
             if (combat && combat.started && setting('clear-targets')) {
                 let previous = canvas.tokens.get(combat?.previous?.tokenId);
 
-                if (previous?.owner) {
+                if (previous?.isOwner) {
                     //clear the targets
                     game.user.targets.forEach(t => t.setTarget(false, { user: game.user, releaseOthers: true, groupSelection: false }));
 
@@ -45,6 +60,24 @@ export class CombatTurn {
                         releaseOptions: {},
                         controlOptions: { releaseOthers: true, updateSight: true }
                     });
+                }
+            }
+
+            if (combat && combat.started && setting('remember-previous') && combat?.combatant?.token?.isOwner) {
+                let targets = [];
+                if (game.user.isGM)
+                    targets = combat.combatant.token.getFlag('monks-little-details', 'targets');
+                else
+                    targets = game.user.getFlag('monks-little-details', 'targets');
+
+                if (targets && targets.length > 0) {
+                    for (let id of targets) {
+                        let token = canvas.tokens.get(id);
+                        if (token
+                            && !token.data.hidden
+                            && !((token?.combatant && token?.combatant.data.defeated) || token.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId) || token.data.overlayEffect == CONFIG.controlIcons.defeated))
+                            token.setTarget(true, { user: game.user, releaseOthers: false, groupSelection: false })
+                    }
                 }
             }
 
@@ -60,8 +93,9 @@ export class CombatTurn {
             }
 
             if (setting('play-round-sound') && setting('round-sound') && Object.keys(delta).some((k) => k === "round")) {
-                let volume = (setting('volume') / 100) * game.settings.get("core", 'globalInterfaceVolume');
-                AudioHelper.play({ src: setting('round-sound'), volume: volume });
+                //let volume = (setting('volume') / 100) * game.settings.get("core", 'globalInterfaceVolume');
+                //AudioHelper.play({ src: setting('round-sound'), volume: volume });
+                CombatTurn.playTurnSounds('round');
             }
         });
 
@@ -85,8 +119,41 @@ export class CombatTurn {
             }
         });
 
+        /*
         Hooks.on("preUpdateToken", async (document, update, options, userId) => {
             if (setting('show-start') && document.combatant?.combat?.started && (update.x != undefined || update.y != undefined) && CombatTurn.shadows[document.id] == undefined) {
+                let token = document.object;
+                //create a shadow
+                if (token.data.hidden && !game.user.isGM) return;
+
+                let shadow = new PIXI.Container();
+                canvas.background.addChild(shadow);
+                let colorMatrix = new PIXI.filters.ColorMatrixFilter();
+                colorMatrix.sepia(0.6);
+                shadow.filters = [colorMatrix];
+                shadow.x = token.x;
+                shadow.y = token.y;
+                shadow.alpha = 0.5;
+
+                let tokenImage = await loadTexture(token.data.img)
+                let sprite = new PIXI.Sprite(tokenImage)
+                sprite.x = 0;
+                sprite.y = 0;
+                sprite.height = token.h;
+                sprite.width = token.w;
+                shadow.addChild(sprite);
+
+                CombatTurn.shadows[token.id] = shadow;
+            }
+        })*/
+
+        Hooks.on("updateToken", async (document, update, options, userId) => {
+            if (setting('show-start')
+                && (document.isOwner || game.user.isGM)
+                && (update.x != undefined || update.y != undefined)
+                && CombatTurn.shadows[document.id] == undefined
+                && document.combatant?.combat?.started) {
+
                 let token = document.object;
                 //create a shadow
                 if (token.data.hidden && !game.user.isGM) return;
@@ -131,8 +198,9 @@ export class CombatTurn {
 
         // play a sound
         if (setting('play-turn-sound') && setting('turn-sound') != '') { //volume() > 0 && !setting("disablesounds") && 
-            let volume = (setting('volume') / 100) * game.settings.get("core", 'globalInterfaceVolume');
-            AudioHelper.play({ src: setting('turn-sound'), volume:volume }); //, volume: volume()
+            //let volume = (setting('volume') / 100) * game.settings.get("core", 'globalInterfaceVolume');
+            //AudioHelper.play({ src: setting('turn-sound'), volume:volume }); //, volume: volume()
+            CombatTurn.playTurnSounds('turn');
         }
     }
 
@@ -141,8 +209,9 @@ export class CombatTurn {
             ui.notifications.info(i18n("MonksLittleDetails.Next"));
         // play a sound
         if (setting('play-next-sound') && setting('next-sound') != '') { //volume() > 0 && !setting("disablesounds") && 
-            let volume = (setting('volume') / 100) * game.settings.get("core", 'globalInterfaceVolume');
-            AudioHelper.play({ src: setting('next-sound'), volume: volume }); //, volume: volume()
+            //let volume = (setting('volume') / 100) * game.settings.get("core", 'globalInterfaceVolume');
+            //AudioHelper.play({ src: setting('next-sound'), volume: volume }); //, volume: volume()
+            CombatTurn.playTurnSounds('next');
         }
     }
 
@@ -150,7 +219,7 @@ export class CombatTurn {
     * Check if the current combatant needs to be updated
     */
     static checkCombatTurn(combat) {
-        log('checking combat started', combat, combat?.started);
+        debug('checking combat started', combat, combat?.started);
         if (combat && combat.started) {
             let entry = combat.combatant;
 
@@ -186,7 +255,7 @@ export class CombatTurn {
                 isNext = nxtentry.actor?.isOwner; //_id === game.users.current.character?._id;
             }
 
-            log('Check combat turn', entry.name, nxtentry?.name, !game.user.isGM, isActive, isNext, entry, nxtentry);
+            debug('Check combat turn', entry.name, nxtentry?.name, !game.user.isGM, isActive, isNext, entry, nxtentry);
             if (entry !== undefined) {
                 if (isActive) {
                     CombatTurn.doDisplayTurn();
@@ -198,5 +267,47 @@ export class CombatTurn {
                 }
             }
         }
+    }
+
+    static async playTurnSounds(turn) {
+        const audiofiles = await CombatTurn.getTurnSounds(turn);
+
+        //audiofiles = audiofiles.filter(i => (audiofiles.length === 1) || !(i === this._lastWildcard));
+        if (audiofiles.length > 0) {
+            const audiofile = audiofiles[Math.floor(Math.random() * audiofiles.length)];
+
+            let volume = (setting('volume') / 100) * game.settings.get("core", 'globalInterfaceVolume');
+            AudioHelper.play({ src: audiofile, volume: volume });
+        }
+    }
+
+    static async getTurnSounds(turn) {
+        const audiofile = setting(`${turn}-sound`);
+
+        if (!audiofile.includes('*')) return [audiofile];
+        if (CombatTurn.sounds[turn]) return CombatTurn.sounds[turn];
+        let source = "data";
+        let pattern = audiofile;
+        const browseOptions = { wildcard: true };
+
+        // Support S3 matching
+        if (/\.s3\./.test(pattern)) {
+            source = "s3";
+            const { bucket, keyPrefix } = FilePicker.parseS3URL(pattern);
+            if (bucket) {
+                browseOptions.bucket = bucket;
+                pattern = keyPrefix;
+            }
+        }
+
+        // Retrieve wildcard content
+        try {
+            const content = await FilePicker.browse(source, pattern, browseOptions);
+            CombatTurn.sounds[turn] = content.files;
+        } catch (err) {
+            CombatTurn.sounds[turn] = [];
+            ui.notifications.error(err);
+        }
+        return CombatTurn.sounds[turn];
     }
 }

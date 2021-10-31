@@ -21,14 +21,16 @@ export class HUDChanges {
             }
 
             let getStatusEffectChoices = function (wrapped, ...args) {
-                CONFIG.statusEffects = CONFIG.statusEffects.sort(function (a, b) {
-                    let aid = (a.label != undefined ? i18n(a.label) : a.id);
-                    let bid = (b.label != undefined ? i18n(b.label) : b.id);
-                    return (aid > bid ? 1 : (aid < bid ? -1 : 0));
-                    //return (a.id == undefined || a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)); //(a.label == undefined || i18n(a.label) > i18n(b.label) ? 1 : (i18n(a.label) < i18n(b.label) ? -1 : 0));
-                });
+                if (setting('sort-statuses') != 'none') {
+                    CONFIG.statusEffects = CONFIG.statusEffects.sort(function (a, b) {
+                        let aid = (a.label != undefined ? i18n(a.label) : a.id);
+                        let bid = (b.label != undefined ? i18n(b.label) : b.id);
+                        return (aid > bid ? 1 : (aid < bid ? -1 : 0));
+                        //return (a.id == undefined || a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)); //(a.label == undefined || i18n(a.label) > i18n(b.label) ? 1 : (i18n(a.label) < i18n(b.label) ? -1 : 0));
+                    });
+                }
 
-                if (setting('sort-by-columns')) {
+                if (setting('sort-statuses') == 'columns') {
                     /*
                     let [blanks, temp] = CONFIG.statusEffects.partition(f => f.label != undefined);
                     let effects = [];
@@ -86,6 +88,11 @@ export class HUDChanges {
                 }
             }
         }
+    }
+
+    static ready() {
+        if (setting('sort-by-columns'))
+            game.settings.settings.get("monks-little-details.sort-statuses").default = 'columns';
     }
 
     static async alterHUD(html) {
