@@ -1,3 +1,15 @@
+# Version 1.0.39
+
+Fixed issue where the Actor sound button disappear due to an update with the system.
+
+Fixed bloodsplats to that they'll check for either Loot sheet or Merchant sheet.
+
+Added option to use an animated webm file for turn markers.
+
+Fixed issue where start of turn shadows weren't being set to the correct position.
+
+Added option to turn tokens invisible after dying.
+
 # Version 1.0.38
 
 Added a setting so that repositioning the collapse button of the sidebar menu isn't always on.  I liked having the collapse/expand button stay in the same general area, but there are a couple of UI stylings that aren't expecting this and put it in a weird location, making it difficult to expand the sidebar once collapsed.

@@ -52,6 +52,8 @@
 	"MonksLittleDetails.show-notify.hint": "Leave the chat notify icon on if you're on a different tab and a message arrives.",
 	"MonksLittleDetails.show-bloodsplat.name": "Show Bloodsplat",
 	"MonksLittleDetails.show-bloodsplat.hint": "When a monster dies, display it as a blood splat, hiding the image and bars and effects.  It is dead after all.",
+	"MonksLittleDetails.invisible-dead.name": "Turn dead invisible",
+	"MonksLittleDetails.invisible-dead.hint": "When a monster dies, make it invisible to the player.",
 	"MonksLittleDetails.token-combat-highlight.name": "Show Token Highlight",
 	"MonksLittleDetails.token-combat-highlight.hint": "Show a highlight under the token that is currently active in combat",
 	"MonksLittleDetails.token-highlight-animate.name": "Combat highlight animation speed",

@@ -192,6 +192,15 @@ export const registerSettings = function () {
 		default: (game.system.id == 'D35E' || game.system.id == 'pf1' ? 'npc-negative' : 'npc-zero'),
 		type: String,
 	});
+	game.settings.register(modulename, "invisible-dead", {
+		name: i18n("MonksLittleDetails.invisible-dead.name"),
+		hint: i18n("MonksLittleDetails.invisible-dead.hint"),
+		scope: "world",
+		config: true,
+		default: false,
+		type: Boolean,
+		onChange: debouncedReload
+	});
 	game.settings.register(modulename, "auto-reveal", {
 		name: i18n("MonksLittleDetails.auto-reveal.name"),
 		hint: i18n("MonksLittleDetails.auto-reveal.hint"),

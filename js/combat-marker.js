@@ -120,7 +120,7 @@ export class CombatMarker {
                             .html('<i class="fas fa-file-import fa-fw"></i>')
                             .click(function (event) {
                                 const fp = new FilePicker({
-                                    type: "image",
+                                    type: "imagevideo",
                                     current: $(event.currentTarget).next().val(),
                                     callback: path => {
                                         $(event.currentTarget).next().val(path);
@@ -140,11 +140,21 @@ export class CombatMarker {
     static toggleTurnMarker(token, visible) {
         if (token && token.preventMarker !== true) {
             if (token?.ldmarker?.transform == undefined) {
-                loadTexture(token.document.getFlag('monks-little-details', 'token-highlight') || setting("token-highlight-picture")).then((tex) => { //"modules/monks-little-details/img/chest.png"
+                let highlightFile = token.document.getFlag('monks-little-details', 'token-highlight') || setting("token-highlight-picture");
+                loadTexture(highlightFile).then((tex) => { //"modules/monks-little-details/img/chest.png"
                     if (token.ldmarker != undefined) {
                         token.removeChild(token.ldmarker);
                     }
                     const markericon = new PIXI.Sprite(tex);
+                    if (highlightFile.endsWith('webm')) {
+                        tex.baseTexture.resource.source.autoplay = true;
+                        tex.baseTexture.resource.source.loop = true;
+                        try {
+                            tex.baseTexture.resource.source.play();
+                        } catch {
+                            window.setTimeout(function () { try { tex.baseTexture.resource.source.play(); } catch { } }, 100);
+                        }
+                    }
                     markericon.pivot.set(markericon.width / 2, markericon.height / 2);//.set(-(token.w / 2), -(token.h / 2));
                     const size = Math.max(token.w, token.h) * setting("token-highlight-scale");
                     markericon.width = markericon.height = size;

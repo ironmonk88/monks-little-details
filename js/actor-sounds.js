@@ -22,7 +22,7 @@ export class ActorSounds {
             npcSheetNames.forEach((sheetName) => {
                 Hooks.on("render" + sheetName, (app, html, data) => {
                     // only for GMs or the owner of this npc
-                    if (!data.isOwner || !data.actor) return;
+                    if (!app.object.isOwner || !data.actor) return;
 
                     // don't add the button multiple times
                     if ($(html).find("#mldCharacterSound").length > 0) return;

@@ -77,13 +77,12 @@ export class BloodSplats {
 
     static tokenRefresh () {
         //find defeated state
-        let combatant = this.combatant;
-        if (((combatant && combatant.data.defeated) || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId) || this.data.overlayEffect == CONFIG.controlIcons.defeated) && this.actor?.data.type !== 'character') {
+        if (MonksLittleDetails.isDefeated(this) && this.actor?.data.type !== 'character') {
             this.bars.visible = false;
             for (let effect of this.effects.children) {
                 effect.alpha = 0;
             }
-            if (this.actor?.getFlag("core", "sheetClass") != 'dnd5e.LootSheet5eNPC') {
+            if (!['dnd5e.LootSheet5eNPC', 'core.a'].includes(this.actor?.getFlag("core", "sheetClass"))) {
                 if (this.data._id != undefined) {
                     this.icon.alpha = (game.user.isGM ? 0.2 : 0);
                     if (this.bloodsplat?.transform == undefined) {

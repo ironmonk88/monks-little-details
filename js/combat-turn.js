@@ -119,34 +119,17 @@ export class CombatTurn {
             }
         });
 
-        /*
-        Hooks.on("preUpdateToken", async (document, update, options, userId) => {
-            if (setting('show-start') && document.combatant?.combat?.started && (update.x != undefined || update.y != undefined) && CombatTurn.shadows[document.id] == undefined) {
-                let token = document.object;
-                //create a shadow
-                if (token.data.hidden && !game.user.isGM) return;
-
-                let shadow = new PIXI.Container();
-                canvas.background.addChild(shadow);
-                let colorMatrix = new PIXI.filters.ColorMatrixFilter();
-                colorMatrix.sepia(0.6);
-                shadow.filters = [colorMatrix];
-                shadow.x = token.x;
-                shadow.y = token.y;
-                shadow.alpha = 0.5;
-
-                let tokenImage = await loadTexture(token.data.img)
-                let sprite = new PIXI.Sprite(tokenImage)
-                sprite.x = 0;
-                sprite.y = 0;
-                sprite.height = token.h;
-                sprite.width = token.w;
-                shadow.addChild(sprite);
-
-                CombatTurn.shadows[token.id] = shadow;
+        Hooks.on("preUpdateToken", (document, update, options, userId) => {
+            if (setting('show-start') && 
+            document.combatant?.combat?.started && 
+            (update.x != undefined || update.y != undefined) && 
+            CombatTurn.shadows[document.id] == undefined) {
+                CombatTurn.showShadow(document.object, document.object.x, document.object.y);
+                MonksLittleDetails.emit('showShadows', { uuid: document.uuid, x: document.object.x, y: document.object.y });
             }
-        })*/
+        })
 
+        /*
         Hooks.on("updateToken", async (document, update, options, userId) => {
             if (setting('show-start')
                 && (document.isOwner || game.user.isGM)
@@ -177,7 +160,31 @@ export class CombatTurn {
 
                 CombatTurn.shadows[token.id] = shadow;
             }
-        })
+        })*/
+    }
+
+    static async showShadow(token, x, y) {
+        //create a shadow
+        if (token.data.hidden && !game.user.isGM) return;
+
+        let shadow = new PIXI.Container();
+        canvas.background.addChild(shadow);
+        let colorMatrix = new PIXI.filters.ColorMatrixFilter();
+        colorMatrix.sepia(0.6);
+        shadow.filters = [colorMatrix];
+        shadow.x = x;
+        shadow.y = y;
+        shadow.alpha = 0.5;
+
+        let tokenImage = await loadTexture(token.data.img)
+        let sprite = new PIXI.Sprite(tokenImage)
+        sprite.x = 0;
+        sprite.y = 0;
+        sprite.height = token.h;
+        sprite.width = token.w;
+        shadow.addChild(sprite);
+
+        CombatTurn.shadows[token.id] = shadow;
     }
 
     static ready() {

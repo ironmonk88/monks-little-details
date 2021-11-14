@@ -287,7 +287,7 @@ export class MonksLittleDetails {
 
         CombatTurn.checkCombatTurn(game.combats.active);
 
-        game.socket.on('module.monks-little-details', MonksLittleDetails.onMessage);
+        game.socket.on(MonksLittleDetails.SOCKET, MonksLittleDetails.onMessage);
 
         //remove notify
         $('#sidebar-tabs a[data-tab="chat"]').on('click.monks-little-details', function (event) {
@@ -662,6 +662,28 @@ background-color: rgba(0, 0, 0, 0.5);
         }
     }
 
+    static emit(action, args = {}) {
+        args.action = action;
+        args.senderId = game.user.id;
+        game.socket.emit(MonksLittleDetails.SOCKET, args, (resp) => { });
+    }
+
+    static onMessage(data) {
+        MonksLittleDetails[data.action].call(MonksLittleDetails, data);
+    }
+
+    static async showShadows(data) {
+        fromUuid(data.uuid).then((token) => {
+            if (token && (token.isOwner || game.user.isGM)) {
+                CombatTurn.showShadow(token.object, data.x, data.y);
+            }
+        });
+    }
+
+    static isDefeated(token) {
+        return ((token.combatant && token.combatant.data.defeated) || token.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId) || token.data.overlayEffect == CONFIG.controlIcons.defeated);
+    }
+
     static async fixImages({ wildcards = true, packs = "dnd5e.monsters", system = "dnd", tokentypes = ['overhead', 'disc', 'artwork'] } = {}) {
         let getFiles = async function(filename) {
             let source = "data";
@@ -968,7 +990,7 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
         .html('<i class="fas fa-file-import fa-fw"></i>')
         .click(function (event) {
             const fp = new FilePicker({
-                type: "image",
+                type: "imagevideo",
                 current: $(event.currentTarget).prev().val(),
                 callback: path => {
                     $(event.currentTarget).prev().val(path);
@@ -1003,6 +1025,10 @@ Hooks.on("updateToken", async function (document, data, options, userid) {
                 await combatant.update({ defeated: defeated }).then(() => {
                     token.refresh();
                 });
+
+                if (defeated && setting("invisible-dead")) {
+                    document.update({ hidden: true });
+                }
             }
         }
     }
