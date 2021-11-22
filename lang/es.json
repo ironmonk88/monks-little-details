@@ -55,6 +55,8 @@
 	"MonksLittleDetails.show-notify.hint": "Dejar el icono de notificación en el chat si está en una pestaña distinta y recibe un mensaje",
 	"MonksLittleDetails.show-bloodsplat.name": "Mostrar mancha de sangre",
 	"MonksLittleDetails.show-bloodsplat.hint": "Cuando muera un monstruo, mostrarlo como una mancha de sangre, ocultando la imagen, las barras y los efectos. Después de todo, ya está muerto",
+	"MonksLittleDetails.invisible-dead.name": "Iconos muertos invisibles",
+	"MonksLittleDetails.invisible-dead.hint": "Cuando muere un monstruo, hacerlo invisible a los jugadores",
 	"MonksLittleDetails.token-combat-highlight.name": "Mostrar resaltado de iconos",
 	"MonksLittleDetails.token-combat-highlight.hint": "Mostrar un efecto de resaltado bajo el icono que está activo actualmente en el combate",
 	"MonksLittleDetails.token-highlight-animate.name": "Animar resaltado de combate",
@@ -77,6 +79,8 @@
 	"MonksLittleDetails.key-swap-tool.hint": "Permite cambiar entre herramientas al presionar una tecla. Requiere el módulo 'Library: DF Hotkeys'",
 	"MonksLittleDetails.clear-targets.name": "Limpiar objetivos cada turno",
 	"MonksLittleDetails.clear-targets.hint": "Limpiar los objetivos del GM cada vez que comienza un turno nuevo",
+	"MonksLittleDetails.remember-previous.name": "Recordar objetivos",
+	"MonksLittleDetails.remember-previous.hint": "Recordar objetivos previos y volver a marcarlos en el siguiente turno",
 	"MonksLittleDetails.sort-by-columns.name": "Ordenar por columnas",
 	"MonksLittleDetails.sort-by-columns.hint": "Ordenar efectos de estado del HUD de iconos por columnas, en lugar de filas",
 	"MonksLittleDetails.add-combat-bars.name": "Añadir barras de combate",
@@ -88,6 +92,14 @@
 	"MonksLittleDetails.bloodsplat-colour.name": "Color de las manchas de sangre",
 	"MonksLittleDetails.show-start.name": "Mostrar icono de inicio",
 	"MonksLittleDetails.show-start.hint": "Muestra dónde comenzó su turno el icono",
+	"MonksLittleDetails.sort-statuses.name": "Ordenar estados",
+	"MonksLittleDetails.sort-statuses.hint": "Ordenar estados de icono en el HUD del icono",
+	"MonksLittleDetails.token-highlight-remove.name": "Limpiar resaltado de icono",
+	"MonksLittleDetails.token-highlight-remove.hint": "Limpiar el resaltado del icono tras ser movido por primera vez",
+	"MonksLittleDetails.find-my-token.name": "Encontrar mi icono",
+	"MonksLittleDetails.find-my-token.hint": "Mostrar el botón de encontrar mi icono",
+	"MonksLittleDetails.reposition-collapse.name": "Reposicionar botón colapsable",
+	"MonksLittleDetails.reposition-collapse.hint": "Reposiciona la botón lateral colapsable para que siempre permanezca en la misma posición general",
 
 	"MonksLittleDetails.PlayRoundSound": "Reproducir sonido de nuevo asalto",
 	"MonksLittleDetails.PlayRoundSoundHint": "Reproducir sonido cuando comienza un nuevo asalto",
@@ -102,6 +114,8 @@
 	"MonksLittleDetails.AddedFeatures": "Características añadidas",
 
 	"MonksLittleDetails.CombatDisplayBars": "Barras del combate:",
+
+	"MonksLittleDetails.FindMyToken": "Encontrar mi icono",
 
 	"MonksLittleDetails.LatestChanges": "Últimos cambios",
 
@@ -161,5 +175,9 @@
 	"MonksLittleDetails.animation.counterclockwise": "Sentido antihorario",
 	"MonksLittleDetails.animation.pulse": "Pulso",
 	"MonksLittleDetails.animation.fadein": "Entrada",
-	"MonksLittleDetails.animation.fadeout": "Salida"
+	"MonksLittleDetails.animation.fadeout": "Salida",
+
+	"MonksLittleDetails.sortstatus.none": "Ninguno",
+	"MonksLittleDetails.sortstatus.rows": "Filas",
+	"MonksLittleDetails.sortstatus.columns": "Columnas"
 }
