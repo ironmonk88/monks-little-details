@@ -377,7 +377,7 @@ export const registerSettings = function () {
 		hint: i18n("MonksLittleDetails.token-highlight-picture.hint"),
 		scope: "world",
 		config: true,
-		default: "modules/monks-little-details/markers/marker-2.png",
+		default: "modules/monks-little-details/markers/marker02.png",
 		type: String,
 		//filePicker: true,
 		onChange: debouncedReload
@@ -387,7 +387,7 @@ export const registerSettings = function () {
 		hint: i18n("MonksLittleDetails.token-highlight-picture-hostile.hint"),
 		scope: "world",
 		config: true,
-		default: "modules/monks-little-details/markers/marker-1.png",
+		default: "modules/monks-little-details/markers/marker01.png",
 		type: String,
 		//filePicker: true,
 		onChange: debouncedReload
