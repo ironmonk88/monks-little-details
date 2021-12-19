@@ -1,3 +1,23 @@
+# Version 1.0.40
+
+Adding v9 support
+
+Fixing some minor issues with actor sounds.  You could play a sound, then remove it and it would still believe you had sounds to play due to caching.
+
+Fixed v9 changes related to bloodsplats and combat bars
+
+Fixed some issues with changing the combat marker for a specific token.
+
+Added the option to have a combat marker for hostile tokens vs friendly tokens.
+
+Fixed issue with combat turn not remembering the last target that was selected.
+
+Changed hotkeys to use the core keybindings
+
+Fixed a core issue where dropping a Tile onto a scene where one edge was putside of the Scene's boundaries will cause it to fail, even if the Tile still exists inside the Scene.
+
+And... added new marker pictures.
+
 # Version 1.0.39
 
 Fixed issue where the Actor sound button disappear due to an update with the system.

@@ -42,7 +42,10 @@ export class CombatMarker {
 
         Hooks.on("updateToken", function (document, data, options, userid) {
             let token = document.object;
-            if (data.img != undefined || data.width != undefined || data.height != undefined) {
+            if (data.img != undefined ||
+                data.width != undefined ||
+                data.height != undefined ||
+                foundry.utils.getProperty(data, 'flags.monks-little-details.token-highlight') != undefined) {
                 let activeCombats = game.combats.filter(c => {
                     return c?.scene?.id == game.scenes.viewed.id && c.started;
                 });
@@ -140,7 +143,7 @@ export class CombatMarker {
     static toggleTurnMarker(token, visible) {
         if (token && token.preventMarker !== true) {
             if (token?.ldmarker?.transform == undefined) {
-                let highlightFile = token.document.getFlag('monks-little-details', 'token-highlight') || setting("token-highlight-picture");
+                let highlightFile = token.document.getFlag('monks-little-details', 'token-highlight') || (token.document.data.disposition != 1 ? setting("token-highlight-picture-hostile") : null) || setting("token-highlight-picture");
                 loadTexture(highlightFile).then((tex) => { //"modules/monks-little-details/img/chest.png"
                     if (token.ldmarker != undefined) {
                         token.removeChild(token.ldmarker);

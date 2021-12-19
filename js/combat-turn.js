@@ -5,6 +5,34 @@ export class CombatTurn {
     static sounds = {};
 
     static init() {
+
+        //setTarget
+        if (setting('remember-previous')) {
+            let combatNextTurn = async function (wrapped, ...args) {
+                let current = canvas.tokens.get(game.combats.active?.current?.tokenId);
+
+                if (current?.isOwner) {
+                    let targets = Array.from(game.user.targets).map(t => t.id);
+                    log('saving targets, set target', current.name, targets);
+                    if (game.user.isGM)
+                        await current.document.setFlag('monks-little-details', 'targets', targets);
+                    else
+                        await game.user.setFlag('monks-little-details', 'targets', targets);
+                }
+
+                return wrapped(...args);;
+            }
+
+            if (game.modules.get("lib-wrapper")?.active) {
+                libWrapper.register("monks-little-details", "Combat.prototype.nextTurn", combatNextTurn, "WRAPPER");
+            } else {
+                const oldNextTurn = Combat.prototype.nextTurn;
+                Combat.prototype.nextTurn = function (event) {
+                    return combatNextTurn.call(this, oldNextTurn.bind(this), ...arguments);
+                }
+            }
+        }
+
         Hooks.on("deleteCombatant", function (combatant, data, userId) {
             let combat = combatant.parent;
             CombatTurn.checkCombatTurn(combat);
@@ -27,28 +55,29 @@ export class CombatTurn {
             }
         });
 
+        /*
         Hooks.on("targetToken", async function (user, token, target) {
             if (setting('remember-previous')) {
                 let current = canvas.tokens.get(game.combats.active?.current?.tokenId);
 
                 if (current?.isOwner) {
                     let targets = Array.from(game.user.targets).map(t => t.id);
+                    log('saving targets', current.name, targets, target);
                     if (game.user.isGM)
-                        current.document.setFlag('monks-little-details', 'targets', targets);
+                        await current.document.setFlag('monks-little-details', 'targets', targets);
                     else
-                        game.user.setFlag('monks-little-details', 'targets', targets);
+                        await game.user.setFlag('monks-little-details', 'targets', targets);
                 }
             }
-        });
+        });*/
 
         Hooks.on("updateCombat", async function (combat, delta) {
             CombatTurn.checkCombatTurn(combat);
 
             let combatStarted = (combat && (delta.round === 1 && combat.turn === 0 && combat.started === true));
-
+            
             if (combat && combat.started && setting('clear-targets')) {
                 let previous = canvas.tokens.get(combat?.previous?.tokenId);
-
                 if (previous?.isOwner) {
                     //clear the targets
                     game.user.targets.forEach(t => t.setTarget(false, { user: game.user, releaseOthers: true, groupSelection: false }));
@@ -70,6 +99,7 @@ export class CombatTurn {
                 else
                     targets = game.user.getFlag('monks-little-details', 'targets');
 
+                log('loading targets', combat?.combatant?.token?.name, targets);
                 if (targets && targets.length > 0) {
                     for (let id of targets) {
                         let token = canvas.tokens.get(id);
@@ -78,6 +108,14 @@ export class CombatTurn {
                             && !((token?.combatant && token?.combatant.data.defeated) || token.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId) || token.data.overlayEffect == CONFIG.controlIcons.defeated))
                             token.setTarget(true, { user: game.user, releaseOthers: false, groupSelection: false })
                     }
+
+                    /*
+                    log('saving targets', combat.combatant.token.name, targets);
+                    if (game.user.isGM)
+                        await combat.combatant.token.setFlag('monks-little-details', 'targets', targets);
+                    else
+                        await game.user.setFlag('monks-little-details', 'targets', targets);
+                        */
                 }
             }
 

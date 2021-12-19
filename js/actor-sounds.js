@@ -3,7 +3,7 @@ import { MonksLittleDetails, i18n, log, setting } from "../monks-little-details.
 export class ActorSounds {
     static init() {
         Hooks.on('renderTokenHUD', async (app, html, options) => {
-            if (app.object.actor.data.flags['monks-little-details'] != undefined) {
+            if (app.object.actor.getFlag('monks-little-details', 'sound-effect') != undefined) {
                 $('.col.right', html).append(
                     $('<div>').addClass('control-icon sound-effect')
                         .append('<img src="modules/monks-little-details/icons/volumeup.svg" width="36" height="36" title="Play Sound Effect">')
@@ -101,7 +101,7 @@ export class ActorSounds {
         const audiofiles = await ActorSounds.getTokenSounds(this.actor);
 
         //audiofiles = audiofiles.filter(i => (audiofiles.length === 1) || !(i === this._lastWildcard));
-        if (audiofiles.length > 0) {
+        if (audiofiles?.length > 0) {
             const audiofile = audiofiles[Math.floor(Math.random() * audiofiles.length)];
 
             let volume = game.settings.get("core", 'globalInterfaceVolume');
@@ -131,6 +131,8 @@ export class ActorSounds {
 
     static async getTokenSounds(actor) {
         const audiofile = actor.getFlag('monks-little-details', 'sound-effect');
+
+        if (!audiofile) return;
 
         if (!audiofile.includes('*')) return [audiofile];
         if (actor._tokenSounds) return this._tokenSounds;

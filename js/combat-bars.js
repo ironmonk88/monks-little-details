@@ -1,31 +1,5 @@
 import { MonksLittleDetails, i18n, log, setting } from "../monks-little-details.js";
 
-/*
-if (setting('add-combat-bars')) {
-    let tokenRefresh = function (wrapped, ...args) {
-        wrapped(...args);
-
-        if (this.inCombat) {
-            let combatBar = this.document.getFlag('monks-little-details', 'displayBarsCombat');
-            if (combatBar != undefined && combatBar != -1) {
-                this.bars.visible = MonksLittleDetails.canViewCombatMode.call(this, combatBar);
-                this.bars.alpha = ((this._controlled && (combatBar == CONST.TOKEN_DISPLAY_MODES.CONTROL || combatBar == CONST.TOKEN_DISPLAY_MODES.OWNER || combatBar == CONST.TOKEN_DISPLAY_MODES.ALWAYS)) ||
-                    (this._hover && (combatBar == CONST.TOKEN_DISPLAY_MODES.HOVER || combatBar == CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER)) ? 1 : 0.3);
-            }
-        } else
-            this.bars.alpha = 1;
-    }
-
-    if (game.modules.get("lib-wrapper")?.active) {
-        libWrapper.register("monks-little-details", "Token.prototype.refresh", tokenRefresh, "WRAPPER");
-    } else {
-        const oldTokenRefresh = Token.prototype.refresh;
-        Token.prototype.refresh = function () {
-            return tokenRefresh.call(this, oldTokenRefresh.bind(this), ...arguments);
-        }
-    }
-}*/
-
 export class CombatBars {
     static init() {
         Hooks.on("updateCombat", async function (combat, delta) {
@@ -66,8 +40,8 @@ export class CombatBars {
                         let combatBar = token.getFlag('monks-little-details', 'displayBarsCombat');
                         combatBar = (combatBar == undefined || combatBar == -1 ? displayBars : combatBar);
 
-                        if (token.object.bars.alpha != 1) {
-                            token.object.bars.alpha = 1;
+                        if (token.object.hud.bars.alpha != 1) {
+                            token.object.hud.bars.alpha = 1;
                             token.object.refresh();
                         } else if (combatBar != displayBars)
                             token.object.refresh();
@@ -92,13 +66,13 @@ export class CombatBars {
         if (this.inCombat) {
             let combatBar = this.document.getFlag('monks-little-details', 'displayBarsCombat');
             if (combatBar != undefined && combatBar != -1) {
-                this.bars.visible = CombatBars.canViewCombatMode.call(this, combatBar);
-                this.bars.alpha = ((this._controlled && (combatBar == CONST.TOKEN_DISPLAY_MODES.CONTROL || combatBar == CONST.TOKEN_DISPLAY_MODES.OWNER || combatBar == CONST.TOKEN_DISPLAY_MODES.ALWAYS)) ||
+                this.hud.bars.visible = CombatBars.canViewCombatMode.call(this, combatBar);
+                this.hud.bars.alpha = ((this._controlled && (combatBar == CONST.TOKEN_DISPLAY_MODES.CONTROL || combatBar == CONST.TOKEN_DISPLAY_MODES.OWNER || combatBar == CONST.TOKEN_DISPLAY_MODES.ALWAYS)) ||
                     (this._hover && (combatBar == CONST.TOKEN_DISPLAY_MODES.HOVER || combatBar == CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER)) ? 1 : 0.3);
             }
         } else {
-            if (this?.bars?.alpha)
-                this.bars.alpha = 1;
+            if (this?.hud.bars?.alpha)
+                this.hud.bars.alpha = 1;
         }
     }
 }

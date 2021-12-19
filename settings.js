@@ -322,7 +322,8 @@ export const registerSettings = function () {
 		scope: "client",
 		config: true,
 		default: true,
-		type: Boolean
+		type: Boolean,
+		onChange: debouncedReload
 	});
 	game.settings.register(modulename, "round-chatmessages", {
 		name: i18n("MonksLittleDetails.round-chatmessages.name"),
@@ -376,7 +377,17 @@ export const registerSettings = function () {
 		hint: i18n("MonksLittleDetails.token-highlight-picture.hint"),
 		scope: "world",
 		config: true,
-		default: "modules/monks-little-details/icons/turnmarker.png",
+		default: "modules/monks-little-details/markers/marker-2.png",
+		type: String,
+		//filePicker: true,
+		onChange: debouncedReload
+	});
+	game.settings.register(modulename, "token-highlight-picture-hostile", {
+		name: i18n("MonksLittleDetails.token-highlight-picture-hostile.name"),
+		hint: i18n("MonksLittleDetails.token-highlight-picture-hostile.hint"),
+		scope: "world",
+		config: true,
+		default: "modules/monks-little-details/markers/marker-1.png",
 		type: String,
 		//filePicker: true,
 		onChange: debouncedReload
@@ -422,7 +433,7 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean,
 	});
-
+	/*
 	game.settings.register(modulename, "movement-key", {
 		name: i18n("MonksLittleDetails.movement-key.name"),
 		hint: i18n("MonksLittleDetails.movement-key.hint"),
@@ -430,7 +441,7 @@ export const registerSettings = function () {
 		config: true,
 		default: "m",
 		type: String,
-	});
+	});*/
 	game.settings.register(modulename, "find-my-token", {
 		name: i18n("MonksLittleDetails.find-my-token.name"),
 		hint: i18n("MonksLittleDetails.find-my-token.hint"),
@@ -489,6 +500,7 @@ export const registerSettings = function () {
 		default: false,
 		type: Boolean,
 	});
+	/*
 	if (game.modules.get('lib-df-hotkeys')?.active) {
 		game.settings.registerMenu(modulename, 'hot-keys', {
 			name: 'Change Hotkeys',
@@ -498,12 +510,5 @@ export const registerSettings = function () {
 			restricted: true,
 			type: Hotkeys.createConfig('Monks Little Details', ['monks-little-details'])
 		});
-	}
-
-	game.settings.register(modulename, "latest-version", {
-		scope: "world",
-		config: false,
-		default: 0,
-		type: Number,
-	});
+	}*/
 };
