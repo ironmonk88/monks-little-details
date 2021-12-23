@@ -63,6 +63,8 @@
 	"MonksLittleDetails.token-highlight-animate.hint": "Animar el resaltado del icono de combate, establecer a 0 para no tener ninguna animación",
 	"MonksLittleDetails.token-highlight-picture.name": "Imagen de resaltado de combate",
 	"MonksLittleDetails.token-highlight-picture.hint": "Imagen que se usará como animación en el combate",
+	"MonksLittleDetails.token-highlight-picture-hostile.name": "Imagen de resaltado en actores hostiles",
+	"MonksLittleDetails.token-highlight-picture-hostile.hint": "La imagen animada que se usará para los actores hostiles en el asistente de combate",
 	"MonksLittleDetails.token-highlight-scale.name": "Tamaño de resaltado",
 	"MonksLittleDetails.token-highlight-scale.hint": "Tamaño de la imagen de resaltado en relación al icono",
 	"MonksLittleDetails.token-combat-animation.name": "Animación de destacados en combate",
