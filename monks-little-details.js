@@ -495,7 +495,7 @@ background-color: rgba(0, 0, 0, 0.5);
                 updates.push({ _id: t.id, x: px[0], y: px[1] });
             }
             if(updates.length)
-                canvas.scene.updateEmbeddedEntity("Token", updates, { animate: false });
+                canvas.scene.updateEmbeddedDocuments("Token", updates, { animate: false });
         }
     }
 
