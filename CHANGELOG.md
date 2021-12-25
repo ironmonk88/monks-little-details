@@ -1,3 +1,9 @@
+# Version 1.0.42
+
+Changed the round marker chat message styling so that it works correctly in PF2
+
+Fixed an minor issue where unreachable code was being reported.  Although technically correct... it's code that's never reached anyways.
+
 # Version 1.0.40
 
 Adding v9 support

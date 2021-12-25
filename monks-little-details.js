@@ -63,6 +63,22 @@ export class MonksLittleDetails {
 
         MonksLittleDetails.READY = true;
 
+        /*
+        Object.defineProperty(Scene.prototype, "thumbnail", {
+            get: function () {
+                return this.getFlag('monks-little-details', 'thumb') || this.data.thumb;
+            }
+        });
+
+        let oldUpdateObject = SceneConfig.prototype._updateObject;
+        SceneConfig.prototype._updateObject = async function (event, formData) {
+            let img = formData['flags.monks-little-details.thumbnail'];
+            let td = (img ? await this.document.createThumbnail({ img: img }) : null);
+            formData['flags.monks-little-details.thumb'] = td?.thumb;
+
+            return oldUpdateObject.call(this, event, formData);
+        }*/
+
         if (game.system.id == 'dnd5e')
             MonksLittleDetails.xpchart = CONFIG.DND5E.CR_EXP_LEVELS;
         else if (game.system.id == 'pf2e') {
@@ -708,8 +724,8 @@ background-color: rgba(0, 0, 0, 0.5);
                 const content = await FilePicker.browse(source, pattern, browseOptions);
                 return content.files;
             } catch (err) {
-                return null;
                 error(err);
+                return null;
             }
             return [];
         }
@@ -938,6 +954,25 @@ Hooks.on('renderSceneConfig', async (app, html, options) => {
             e.preventDefault();
         }).insertAfter(backgroundColor);
     }
+
+    /*
+    $('<div>')
+        .addClass('form-group')
+        .append($('<label>').html('Thumbnail Image'))
+        .append(
+            $('<div>').addClass('form-fields')
+                .append($('<button>')
+                    .addClass('file-picker')
+                    .attr({ type: 'button', 'data-type': 'imagevideo', 'data-target': 'flags.monks-little-details.thumbnail', title: 'Browse Files', tabindex: '-1' })
+                    .html('<i class="fas fa-file-import fa-fw"></i>')
+                    .click(app._activateFilePicker.bind(app))
+                )
+                .append($('<input>').addClass('image').attr({ type: 'text', name: 'flags.monks-little-details.thumbnail', placeholder: 'File Path' }).val(app.object.getFlag('monks-little-details', 'thumbnail')))
+        )
+        .append($('<p>').addClass('notes').html(`Configure the thumbnail image that's shown in the scenes directory`))
+        .insertAfter($('input[name="foreground"]', html).closest('.form-group'));
+        */
+    app.setPosition({ height: 'auto' });
 });
 
 Hooks.on("renderSettingsConfig", (app, html, data) => {

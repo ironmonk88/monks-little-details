@@ -174,13 +174,17 @@
     align-items: center;
 }
 
+body.reposition-collapse #sidebar.collapsed #sidebar-tabs {
+    position: relative;
+}
+
 body.reposition-collapse #sidebar.collapsed #sidebar-tabs a:first-child {
     margin-top: 27px;
 }
 
 body.reposition-collapse #sidebar.collapsed #sidebar-tabs a.collapse {
     position: absolute;
-    /*top: 0px;*/
+    top: 0px;
     left: 10px;
 }
 
@@ -442,25 +446,37 @@ body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details
     height:1px;
 }
 
-.round-marker {
+#chat-log .message.round-marker {
     background: none;
     border: none;
     border-radius: 0px;
     border-bottom: 1px solid #ff6400;
     padding: 0pc 5px;
+    margin: 0px;
+    box-shadow: none;
 }
 
-.round-marker .message-header {
+#chat-log .message.round-marker .message-header {
     flex-direction: row-reverse;
 }
 
-.round-marker .message-header .message-sender,
-.round-marker .message-header .message-timestamp,
-.round-marker .message-content {
+#chat-log .message.round-marker .message-header .message-sender,
+#chat-log .message.round-marker .message-header .message-timestamp,
+#chat-log .message.round-marker .message-content {
     display: none;
 }
 
-.round-marker .message-header .flavor-text {
+#chat-log .message.round-marker .message-header .flavor-text {
     flex: 1;
     color: #f0f0e0;
+    grid-area: unset;
+}
+
+#chat-log .message.round-marker .message-header .message-metadata {
+    background-color: transparent;
+    background-image: none;
+}
+
+#chat-log .message.round-marker .message-header .message-delete{
+    color: var(--color-text-dark-secondary);
 }
