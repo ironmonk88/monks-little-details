@@ -1,3 +1,7 @@
+# Version 1.0.43
+
+Fixed an issue with moving a token by selecting it then pressing M at a new location.  Dragging a token while holding M still worked, but the key press wasn't.  Thank you alessiocali.
+
 # Version 1.0.42
 
 Changed the round marker chat message styling so that it works correctly in PF2
