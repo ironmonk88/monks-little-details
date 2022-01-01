@@ -65,6 +65,7 @@ export class BloodSplats {
             }
         });
 
+        /*
         Hooks.on("updateToken", (document) => {
             let token = document.object;
             if (token) {
@@ -72,14 +73,14 @@ export class BloodSplats {
                 token.removeChild(token.bloodsplat);
                 delete token.bloodsplat;
             }
-        });
+        });*/
     }
 
     static tokenRefresh () {
         //find defeated state
         if (MonksLittleDetails.isDefeated(this) && this.actor?.data.type !== 'character') {
-            this.bars.visible = false;
-            for (let effect of this.effects.children) {
+            this.hud.bars.visible = false;
+            for (let effect of this.hud.effects.children) {
                 effect.alpha = 0;
             }
             if (!['dnd5e.LootSheet5eNPC', 'core.a'].includes(this.actor?.getFlag("core", "sheetClass"))) {

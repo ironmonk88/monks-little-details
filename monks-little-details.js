@@ -63,6 +63,22 @@ export class MonksLittleDetails {
 
         MonksLittleDetails.READY = true;
 
+        /*
+        Object.defineProperty(Scene.prototype, "thumbnail", {
+            get: function () {
+                return this.getFlag('monks-little-details', 'thumb') || this.data.thumb;
+            }
+        });
+
+        let oldUpdateObject = SceneConfig.prototype._updateObject;
+        SceneConfig.prototype._updateObject = async function (event, formData) {
+            let img = formData['flags.monks-little-details.thumbnail'];
+            let td = (img ? await this.document.createThumbnail({ img: img }) : null);
+            formData['flags.monks-little-details.thumb'] = td?.thumb;
+
+            return oldUpdateObject.call(this, event, formData);
+        }*/
+
         if (game.system.id == 'dnd5e')
             MonksLittleDetails.xpchart = CONFIG.DND5E.CR_EXP_LEVELS;
         else if (game.system.id == 'pf2e') {
@@ -86,6 +102,8 @@ export class MonksLittleDetails {
         }
 
         registerSettings();
+
+        MonksLittleDetails.registerHotKeys();
 
         if (setting("reposition-collapse"))
             $('body').addClass("reposition-collapse");
@@ -254,6 +272,34 @@ export class MonksLittleDetails {
             }
         }
 
+        let onDropData = async function (...args) {
+            const [ event, data ] = args;
+            if (!data.img) return;
+            if (!this._active) this.activate();
+
+            // Get the data for the tile to create
+            const createData = await this._getDropData(event, data);
+
+            // Validate that the drop position is in-bounds and snap to grid
+            if ((createData.x + createData.width) < canvas.grid.hitArea.x ||
+                createData.x > (canvas.grid.hitArea.x + canvas.grid.hitArea.width) ||
+                createData.y > (canvas.grid.hitArea.y + canvas.grid.hitArea.height) ||
+                (createData.y + createData.height) < canvas.grid.hitArea.y) return false;
+
+            // Create the Tile Document
+            const cls = getDocumentClass(this.constructor.documentName);
+            return cls.create(createData, { parent: canvas.scene });
+        }
+
+        if (game.modules.get("lib-wrapper")?.active) {
+            libWrapper.register("monks-little-details", "MapLayer.prototype._onDropData", onDropData, "OVERRIDE");
+        } else {
+            const oldOnDropData = MapLayer.prototype._onDropData;
+            MapLayer.prototype._onDropData = function () {
+                return onDropData.call(this, oldOnDropData.bind(this), ...arguments);
+            }
+        }
+
         /*
         let oldSync = AmbientSound.prototype.sync;
         AmbientSound.prototype.sync = function sync(isAudible, volume, options) {
@@ -294,66 +340,43 @@ export class MonksLittleDetails {
             let icon = $('#chat-notification');
             if(icon.is(":visible")) icon.fadeOut(100);
         });
-
-        if (game.settings.get("monks-little-details", "key-swap-tool") && game.user.isGM) {
-            if (!game.modules.get('lib-df-hotkeys')?.active) {
-                ui.notifications.error(i18n("MonksLittleDetails.HotKeysWarning"));
-                warn(i18n("MonksLittleDetails.HotKeysWarning"));
-            } else {
-                MonksLittleDetails.registerHotKeys();
-            }
-        }
     }
 
     static registerHotKeys() {
-        Hotkeys.registerGroup({
-            name: 'monks-little-details_tool-swap',
-            label: 'Monks Litle Details, Tool Swap',
-            description: 'Use these keys to swap between tools'
+        game.keybindings.register('monks-little-details', 'movement-key', {
+            name: 'MonksLittleDetails.movement-key.name',
+            hint: 'MonksLittleDetails.movement-key.hint',
+            editable: [{ key: 'KeyM' }]
         });
 
-        let defvalues = {
-            token: Hotkeys.keys.KeyG,
-            tiles: Hotkeys.keys.KeyH,
-            lighting: Hotkeys.keys.KeyJ,
-            sounds: Hotkeys.keys.KeyK,
-            terrain: Hotkeys.keys.KeyL
-        };
+        if (game.settings.get("monks-little-details", "key-swap-tool")) {
+            let layers = [
+                { name: "Token Layer", tool: 'token', def: "KeyG" },
+                { name: "Measure Layer", tool: 'measure' },
+                { name: "Tile Layer", tool: 'tiles', def: "KeyH" },
+                { name: "Drawing Layer", tool: 'drawings' },
+                { name: "Wall Layer", tool: 'walls' },
+                { name: "Lighting Layer", tool: 'lighting', def: "KeyJ" },
+                { name: "Sound Layer", tool: 'sounds', def: "KeyK" },
+                { name: "Note Layer", tool: 'notes' }
+            ];
+            if (game.modules["enhanced-terrain-layer"]?.active)
+                layers.push({ name: i18n("MonksLittleDetails.TerrainLayer"), tool: 'terrain', def: "KeyL" });
 
-        /*[
-            { name: i18n("MonksLittleDetails.TokenLayer"), tool: 'token', def: Hotkeys.keys.KeyG },
-            { name: i18n("MonksLittleDetails.MeasureLayer"), tool: 'measure', def: null },
-            { name: i18n("MonksLittleDetails.TileLayer"), tool: 'tiles', def: Hotkeys.keys.KeyH },
-            { name: i18n("MonksLittleDetails.DrawingLayer"), tool: 'drawings', def: null },
-            { name: i18n("MonksLittleDetails.WallLayer"), tool: 'walls', def: null },
-            { name: i18n("MonksLittleDetails.LightingLayer"), tool: 'lighting', def: Hotkeys.keys.KeyJ },
-            { name: i18n("MonksLittleDetails.SoundLayer"), tool: 'sounds', def: Hotkeys.keys.KeyK },
-            { name: i18n("MonksLittleDetails.NoteLayer"), tool: 'notes', def: null },
-            { name: i18n("MonksLittleDetails.TerrainLayer"), tool: 'terrain', def: Hotkeys.keys.KeyL }
-        ]*/
-
-        ui.controls.controls.map(c => {
-            return { name: i18n(c.title), tool: c.name, def: defvalues[c.name] };
-        })
-        .filter(c => c)
-        .map(l => {
-            Hotkeys.registerShortcut({
-                name: `monks-little-details_swap-${l.tool}-control`,
-                label: `${i18n("MonksLittleDetails.QuickShow")} ${l.name}`,
-                group: 'monks-little-details_tool-swap',
-                default: () => { return { key: l.def, alt: false, ctrl: false, shift: false }; },
-                onKeyDown: (e) => { MonksLittleDetails.swapTool(l.tool, true); },
-                onKeyUp: (e) => { MonksLittleDetails.releaseTool(); }
+            layers.map(l => {
+                game.keybindings.register('monks-little-details', `swap-${l.tool}-control`, {
+                    name: `Quick show ${l.name}`,
+                    editable: (l.def ? [{ key: l.def }] : []),
+                    onDown: () => { MonksLittleDetails.swapTool(l.tool, true); },
+                    onUp: () => { MonksLittleDetails.releaseTool(); }
+                });
+                game.keybindings.register('monks-little-details', `change-${l.tool}-control`, {
+                    name: `Change to ${l.name}`,
+                    editable: (l.def ? [{ key: l.def, modifiers: [KeyboardManager.MODIFIER_KEYS?.SHIFT] }] : []),
+                    onDown: () => { MonksLittleDetails.swapTool(l.tool, false); },
+                });
             });
-            Hotkeys.registerShortcut({
-                name: `monks-little-details_change-${l.tool}-control`,
-                label: `${i18n("MonksLittleDetails.ChangeTo")} ${l.name}`,
-                group: 'monks-little-details_tool-swap',
-                default: () => { return { key: l.def, alt: false, ctrl: false, shift: true }; },
-                onKeyDown: (e) => { MonksLittleDetails.swapTool(l.tool, false); }
-            });
-        });
-        
+        }
     }
 
     static swapTool(controlName, quick = true) {
@@ -460,11 +483,9 @@ background-color: rgba(0, 0, 0, 0.5);
     }
 
     static async moveTokens(event) {
-        let movechar = game.settings.get("monks-little-details", "movement-key");
-        if (movechar.length == 0) movechar = "m";
-        if (movechar.length > 1) movechar = movechar[0];
+        let moveKey = game.keybindings.bindings.get("monks-little-details.movement-key")[0].key;
 
-        if (game.user.isGM && game.keyboard.isDown(movechar) && canvas.tokens.controlled.length > 0) {
+        if (game.user.isGM && game.keyboard.downKeys.has(moveKey) && canvas.tokens.controlled.length > 0) {
             let pos = event.data.getLocalPosition(canvas.app.stage);
             let mid = {
                 x: canvas.tokens.controlled[0].data.x,
@@ -490,7 +511,7 @@ background-color: rgba(0, 0, 0, 0.5);
                 updates.push({ _id: t.id, x: px[0], y: px[1] });
             }
             if(updates.length)
-                canvas.scene.updateEmbeddedEntity("Token", updates, { animate: false });
+                canvas.scene.updateEmbeddedDocuments("Token", updates, { animate: false });
         }
     }
 
@@ -506,8 +527,6 @@ background-color: rgba(0, 0, 0, 0.5);
 
         $(app._element).css({ top: app.position.top, left: app.position.left });
     }
-
-    
 
     static getCRText (cr) {
         switch (cr) {
@@ -705,8 +724,8 @@ background-color: rgba(0, 0, 0, 0.5);
                 const content = await FilePicker.browse(source, pattern, browseOptions);
                 return content.files;
             } catch (err) {
-                return null;
                 error(err);
+                return null;
             }
             return [];
         }
@@ -788,7 +807,7 @@ background-color: rgba(0, 0, 0, 0.5);
                     //}
 
                     monsters.configure({ locked: true });
-                    log("Completed: " + monsters.metadata.label);
+                    log("Completed: " + monsters.title);
                 });
             }
         }
@@ -935,6 +954,25 @@ Hooks.on('renderSceneConfig', async (app, html, options) => {
             e.preventDefault();
         }).insertAfter(backgroundColor);
     }
+
+    /*
+    $('<div>')
+        .addClass('form-group')
+        .append($('<label>').html('Thumbnail Image'))
+        .append(
+            $('<div>').addClass('form-fields')
+                .append($('<button>')
+                    .addClass('file-picker')
+                    .attr({ type: 'button', 'data-type': 'imagevideo', 'data-target': 'flags.monks-little-details.thumbnail', title: 'Browse Files', tabindex: '-1' })
+                    .html('<i class="fas fa-file-import fa-fw"></i>')
+                    .click(app._activateFilePicker.bind(app))
+                )
+                .append($('<input>').addClass('image').attr({ type: 'text', name: 'flags.monks-little-details.thumbnail', placeholder: 'File Path' }).val(app.object.getFlag('monks-little-details', 'thumbnail')))
+        )
+        .append($('<p>').addClass('notes').html(`Configure the thumbnail image that's shown in the scenes directory`))
+        .insertAfter($('input[name="foreground"]', html).closest('.form-group'));
+        */
+    app.setPosition({ height: 'auto' });
 });
 
 Hooks.on("renderSettingsConfig", (app, html, data) => {
@@ -1000,6 +1038,7 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
         });
 
     btn2.clone(true).insertAfter($('input[name="monks-little-details.token-highlight-picture"]', html).css({ 'flex-basis': 'unset', 'flex-grow': 1 }));
+    btn2.clone(true).insertAfter($('input[name="monks-little-details.token-highlight-picture-hostile"]', html).css({ 'flex-basis': 'unset', 'flex-grow': 1 }));
 
     let colour = setting("bloodsplat-colour");
     $('<input>').attr('type', 'color').attr('data-edit', 'monks-little-details.bloodsplat-colour').val(colour).insertAfter($('input[name="monks-little-details.bloodsplat-colour"]', html).addClass('color'));
@@ -1061,7 +1100,7 @@ Hooks.on("updateCombatant", async function (combatant, data, options, userId) {
 
 Hooks.on("renderCompendium", (compendium, html, data) => {
     if (setting('compendium-view-artwork')) {
-        if (compendium.metadata.entity == 'Scene') {
+        if (compendium.collection.documentName == 'Scene') {
             html.find('li.directory-item h4 a').click(ev => {
                 ev.preventDefault();
                 ev.cancelBubble = true;
@@ -1147,17 +1186,14 @@ Hooks.on("renderCompendium", (compendium, html, data) => {
 });
 
 Hooks.on("preUpdateToken", (document, update, options, userId) => {
-    let movechar = game.settings.get("monks-little-details", "movement-key");
-    if (movechar.length == 0) movechar = "m";
-    if (movechar.length > 1) movechar = movechar[0];
+    let moveKey = game.keybindings.bindings.get("monks-little-details.movement-key")[0].key;
 
-    if ((update.x != undefined || update.y != undefined) && game.user.isGM && game.keyboard.isDown(movechar)) {
+    if ((update.x != undefined || update.y != undefined) && game.user.isGM && game.keyboard.downKeys.has(moveKey)) {
         options.animate = false;
     }
 });
 
 Hooks.once('libChangelogsReady', function () {
-    libChangelogs.register("monks-little-details", "The option to drag wall points together has been removed from this module and has been added to it's own module, along with a handful of other improvements.  Please install Monk's Wall Enhancement to drag wall points together again.", "breaking")
 });
 
 Hooks.on("getSceneControlButtons", (controls) => {
