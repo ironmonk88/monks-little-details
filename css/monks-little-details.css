@@ -164,8 +164,7 @@
     padding: 0px 3px;
 }
 #mldCharacterSound.loaded {
-    border: 1px solid #ff6400;
-        
+    border: 1px solid #ff6400;       
 }
 
 .mldCharacterName {
@@ -174,18 +173,8 @@
     align-items: center;
 }
 
-body.reposition-collapse #sidebar.collapsed #sidebar-tabs {
-    position: relative;
-}
-
-body.reposition-collapse #sidebar.collapsed #sidebar-tabs a:first-child {
-    margin-top: 27px;
-}
-
 body.reposition-collapse #sidebar.collapsed #sidebar-tabs a.collapse {
-    position: absolute;
-    top: 0px;
-    left: 10px;
+    order: -1;
 }
 
 body.reposition-collapse.system-wfrp4e #sidebar.collapsed #sidebar-tabs a.collapse {
