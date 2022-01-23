@@ -217,6 +217,14 @@ export const registerSettings = function () {
 		default: false,
 		type: Boolean,
 	});
+	game.settings.register(modulename, "auto-scroll", {
+		name: i18n("MonksLittleDetails.auto-scroll.name"),
+		hint: i18n("MonksLittleDetails.auto-scroll.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
 
 	//Combat Turn
 	game.settings.register(modulename, "shownextup", {

@@ -130,7 +130,7 @@ export class HUDChanges {
 
             if (game.system.id !== 'pf2e') {
                 $('.col.right .control-icon[data-action="effects"] .status-effects', html).append(
-                    $('<div>').addClass('clear-all').html('<i class="fas fa-times-circle"></i> clear all').click($.proxy(HUDChanges.clearAll, this))
+                    $('<div>').addClass('clear-all').html(`<i class="fas fa-times-circle"></i> ${i18n("MonksLittleDetails.ClearAll")}`).click($.proxy(HUDChanges.clearAll, this))
                 );
             }
         }

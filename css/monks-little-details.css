@@ -177,11 +177,6 @@ body.reposition-collapse #sidebar.collapsed #sidebar-tabs a.collapse {
     order: -1;
 }
 
-body.reposition-collapse.system-wfrp4e #sidebar.collapsed #sidebar-tabs a.collapse {
-    top: -135px;
-    left: 90px;
-}
-
 #context-menu li.context-item {
     overflow: hidden;
     white-space: nowrap;
@@ -468,4 +463,8 @@ body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details
 
 #chat-log .message.round-marker .message-header .message-delete{
     color: var(--color-text-dark-secondary);
+}
+
+#combat #combat-tracker {
+    position: relative;
 }

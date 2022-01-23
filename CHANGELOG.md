@@ -1,3 +1,15 @@
+# Version 1.0.44
+
+Fixed issue with reordering the collapse button, thank you rmasoni for some better css.
+
+Fixed an issue where deleteing a combatant could have an issue if the token associated with the combatant has already been deleted.
+
+Added the option to keep the combat list scrolled to the currently active token.
+
+Fixed an issue where if you delete the M key it would throw an error.
+
+Added Portuguese (Brazilian) translation, thank you eduardopata41
+
 # Version 1.0.43
 
 Fixed an issue with moving a token by selecting it then pressing M at a new location.  Dragging a token while holding M still worked, but the key press wasn't.  Thank you alessiocali.
