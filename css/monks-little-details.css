@@ -164,8 +164,7 @@
     padding: 0px 3px;
 }
 #mldCharacterSound.loaded {
-    border: 1px solid #ff6400;
-        
+    border: 1px solid #ff6400;       
 }
 
 .mldCharacterName {
@@ -174,23 +173,8 @@
     align-items: center;
 }
 
-body.reposition-collapse #sidebar.collapsed #sidebar-tabs {
-    position: relative;
-}
-
-body.reposition-collapse #sidebar.collapsed #sidebar-tabs a:first-child {
-    margin-top: 27px;
-}
-
 body.reposition-collapse #sidebar.collapsed #sidebar-tabs a.collapse {
-    position: absolute;
-    top: 0px;
-    left: 10px;
-}
-
-body.reposition-collapse.system-wfrp4e #sidebar.collapsed #sidebar-tabs a.collapse {
-    top: -135px;
-    left: 90px;
+    order: -1;
 }
 
 #context-menu li.context-item {
@@ -479,4 +463,8 @@ body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details
 
 #chat-log .message.round-marker .message-header .message-delete{
     color: var(--color-text-dark-secondary);
+}
+
+#combat #combat-tracker {
+    position: relative;
 }

@@ -32,6 +32,8 @@ export const WithMonksCombatTracker = (CombatTracker) => {
 
             return data;
         }
+
+
     }
 
     const constructorName = "MonksCombatTracker";

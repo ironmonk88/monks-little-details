@@ -41,7 +41,7 @@ export class CombatTurn {
         Hooks.on("createCombatant", function (combatant, data, options) {
             let combat = combatant.parent;
 
-            if (combatant.actor.isOwner)
+            if (combatant.actor?.isOwner == true)
                 CombatTurn.checkCombatTurn(combat);
         });
 
@@ -134,6 +134,13 @@ export class CombatTurn {
                 //let volume = (setting('volume') / 100) * game.settings.get("core", 'globalInterfaceVolume');
                 //AudioHelper.play({ src: setting('round-sound'), volume: volume });
                 CombatTurn.playTurnSounds('round');
+            }
+
+            if (combat && combat.started && (delta.round || delta.turn) && setting('auto-scroll')) {
+                $(`#combat-tracker li[data-combatant-id="${combat.current.combatantId}"]`).each(function () {
+                    log('scroll top', Math.max(this.offsetTop - $(this).height(), 0));
+                    $(this).parent().scrollTop(Math.max(this.offsetTop - $(this).height(), 0));
+                });
             }
         });
 

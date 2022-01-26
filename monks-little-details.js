@@ -45,6 +45,7 @@ export let combatposition = () => {
 export class MonksLittleDetails {
     static tracker = false;
     static tokenHUDimages = {};
+    static movingToken = false;
 
     static canDo(setting) {
         //needs to not be on the reject list, and if there is an only list, it needs to be on it.
@@ -482,10 +483,18 @@ background-color: rgba(0, 0, 0, 0.5);
             document.querySelector("head").appendChild(style);
     }
 
-    static async moveTokens(event) {
-        let moveKey = game.keybindings.bindings.get("monks-little-details.movement-key")[0].key;
+    static getMoveKey() {
+        let keys = game.keybindings.bindings.get("monks-little-details.movement-key");
+        if (!keys || keys.length == 0)
+            return;
 
-        if (game.user.isGM && game.keyboard.downKeys.has(moveKey) && canvas.tokens.controlled.length > 0) {
+        return keys[0].key;
+    }
+
+    static async moveTokens(event) {
+        let moveKey = MonksLittleDetails.getMoveKey();
+
+        if (game.user.isGM && moveKey && game.keyboard.downKeys.has(moveKey) && canvas.tokens.controlled.length > 0) {
             let pos = event.data.getLocalPosition(canvas.app.stage);
             let mid = {
                 x: canvas.tokens.controlled[0].data.x,
@@ -510,8 +519,11 @@ background-color: rgba(0, 0, 0, 0.5);
                 //t.update({ x: px[0], y: px[1] }, { animate: false });
                 updates.push({ _id: t.id, x: px[0], y: px[1] });
             }
-            if(updates.length)
-                canvas.scene.updateEmbeddedDocuments("Token", updates, { animate: false });
+            if (updates.length) {
+                MonksLittleDetails.movingToken = true;
+                await canvas.scene.updateEmbeddedDocuments("Token", updates, { animate: false, bypass: true });
+                MonksLittleDetails.movingToken = false;
+            }
         }
     }
 
@@ -1186,10 +1198,11 @@ Hooks.on("renderCompendium", (compendium, html, data) => {
 });
 
 Hooks.on("preUpdateToken", (document, update, options, userId) => {
-    let moveKey = game.keybindings.bindings.get("monks-little-details.movement-key")[0].key;
+    let moveKey = MonksLittleDetails.getMoveKey();
 
-    if ((update.x != undefined || update.y != undefined) && game.user.isGM && game.keyboard.downKeys.has(moveKey)) {
+    if ((update.x != undefined || update.y != undefined) && game.user.isGM && moveKey && game.keyboard.downKeys.has(moveKey)) {
         options.animate = false;
+        options.bypass = true;
     }
 });
 
@@ -1238,4 +1251,53 @@ Hooks.on('renderAmbientSoundConfig', (app, html, data) => {
         .append($('<p>').addClass('hint').html('Specify the time between loops, set to -1 to have this play only once'))
         .insertBefore($('button[name="submit"]', html));
 })*/
+
+Hooks.on("getSidebarDirectoryFolderContext", (html, entries) => {
+    entries.push({
+        name: "FOLDER.Clear",
+        icon: '<i class="fas fa-folder"></i>',
+        condition: game.user.isGM,
+        callback: header => {
+            const li = header.parent();
+            const folder = game.folders.get(li.data("folderId"));
+            return Dialog.confirm({
+                title: `${i18n("FOLDER.Clear")} ${folder.name}`,
+                content: `<h4>${game.i18n.localize("AreYouSure")}</h4><p>${i18n("MonksLittleDetails.ClearWarning")}</p>`,
+                yes: () => {
+                    //const userId = game.user.id;
+                    //const db = CONFIG.DatabaseBackend;
+                    /*
+                    // Delete or move sub-Folders
+                    const deleteFolderIds = [];
+                    for (let f of folder.getSubfolders()) {
+                        deleteFolderIds.push(f.id);
+                    }
+                    if (deleteFolderIds.length) {
+                        db._handleDeleteDocuments({
+                            request: { type: "Folder", options: { deleteSubfolders: true, deleteContents: true, render: true } },
+                            result: deleteFolderIds,
+                            userId
+                        });
+                    }*/
+
+                    // Delete contained Documents
+                    const deleteDocumentIds = [];
+                    for (let d of folder.documentCollection) {
+                        if (d.data.folder !== folder.id) continue;
+                        deleteDocumentIds.push(d.id);
+                    }
+                    if (deleteDocumentIds.length) {
+                        const cls = getDocumentClass(folder.data.type);
+                        return cls.deleteDocuments(deleteDocumentIds);
+                    }
+                },
+                options: {
+                    top: Math.min(li[0].offsetTop, window.innerHeight - 350),
+                    left: window.innerWidth - 720,
+                    width: 400
+                }
+            });
+        }
+    });
+});
 

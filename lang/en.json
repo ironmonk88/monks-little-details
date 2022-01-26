@@ -91,7 +91,7 @@
 	"MonksLittleDetails.bloodsplat-colour.name": "Bloodsplat colour",
 	"MonksLittleDetails.show-start.name": "Show start token",
 	"MonksLittleDetails.show-start.hint": "Show where the token started it's turn",
-	"MonksLittleDetails.sort-statuses.name": "Sort Statues",
+	"MonksLittleDetails.sort-statuses.name": "Sort Statuses",
 	"MonksLittleDetails.sort-statuses.hint": "Sort the Token statuses in the Token HUD",
 	"MonksLittleDetails.token-highlight-remove.name": "Clear Token Highlight",
 	"MonksLittleDetails.token-highlight-remove.hint": "Clear token highlighter after the Token is first moved",
@@ -99,6 +99,8 @@
 	"MonksLittleDetails.find-my-token.hint": "Show the Find my Token button",
 	"MonksLittleDetails.reposition-collapse.name": "Reposition Collapse Button",
 	"MonksLittleDetails.reposition-collapse.hint": "Reposition the sidebar collapse button so that it always stays in the same general location",
+	"MonksLittleDetails.auto-scroll.name": "Auto scroll combat tracker",
+	"MonksLittleDetails.auto-scroll.hint": "Auto scroll combat tracker so that the current combatant is always at the top",
 
 	"MonksLittleDetails.PlayRoundSound": "Play new round sound",
 	"MonksLittleDetails.PlayRoundSoundHint": "Play a sound when the next round starts",
@@ -111,12 +113,15 @@
 	"MonksLittleDetails.CombatTurn": "Combat Turn",
 	"MonksLittleDetails.CombatTokenHighlight": "Combat Token Highlight",
 	"MonksLittleDetails.AddedFeatures": "Added Features",
+	"MonksLittleDetails.ClearWarning": "The contents of this folder will be permanently deleted.",
 
 	"MonksLittleDetails.CombatDisplayBars": "Combat Display Bars:",
 
 	"MonksLittleDetails.FindMyToken": "Find my Token",
 
 	"MonksLittleDetails.LatestChanges": "Latest Changes",
+
+	"MonksLittleDetails.ClearAll": "clear all",
 
 	"MonksLittleDetails.QuickShow": "Quick show",
 	"MonksLittleDetails.ChangeTo": "Change to",

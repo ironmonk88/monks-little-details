@@ -20,10 +20,10 @@ export class CombatMarker {
         Hooks.on("deleteCombatant", function (combatant, data, options, userId) {
             let combat = combatant.parent;
             if (combat && combat.started) {
-                //const combatant = combat.data.combatants.find((o) => o.id === data.id);
-                //let token = canvas.tokens.get(combatant.token._id);
-                let token = combatant.token._object;
-                CombatMarker.removeTurnMarker(token);
+                if (combatant.token) {  //token may have been deleted before the combatant
+                    let token = combatant.token._object;
+                    CombatMarker.removeTurnMarker(token);
+                }
             }
         });
 
