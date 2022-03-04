@@ -184,4 +184,6 @@
 	"MonksLittleDetails.sortstatus.none": "None",
 	"MonksLittleDetails.sortstatus.rows": "Rows",
 	"MonksLittleDetails.sortstatus.columns": "Columns"
+  "MonksLittleDetails.select-combatant.name": "Select Combatants"
+  "MonksLittleDetails.select-combatant.hint": "Automatically select combatant token on its turn"
 }

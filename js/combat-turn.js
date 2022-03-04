@@ -92,6 +92,10 @@ export class CombatTurn {
                 }
             }
 
+            if (combat && combat.started && game.user.isGM && setting('select-combatant')) {
+                canvas.tokens.placeables.filter(t => t.id === game.combat.combatant.data.tokenId)[0].control();
+            }
+
             if (combat && combat.started && setting('remember-previous') && combat?.combatant?.token?.isOwner) {
                 let targets = [];
                 if (game.user.isGM)
@@ -165,9 +169,9 @@ export class CombatTurn {
         });
 
         Hooks.on("preUpdateToken", (document, update, options, userId) => {
-            if (setting('show-start') && 
-            document.combatant?.combat?.started && 
-            (update.x != undefined || update.y != undefined) && 
+            if (setting('show-start') &&
+            document.combatant?.combat?.started &&
+            (update.x != undefined || update.y != undefined) &&
             CombatTurn.shadows[document.id] == undefined) {
                 CombatTurn.showShadow(document.object, document.object.x, document.object.y);
                 MonksLittleDetails.emit('showShadows', { uuid: document.uuid, x: document.object.x, y: document.object.y });

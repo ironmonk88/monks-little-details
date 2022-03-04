@@ -423,6 +423,13 @@ export const registerSettings = function () {
 		choices: animation,
 		config: true
 	});
+  game.settings.register(modulename, "select-combatant", {
+    name: i18n("MonksLittleDetails.select-combatant.name"),
+    hint: i18n("MonksLittleDetails.select-combatant.hint"),
+    scope: "client",
+    config: true,
+    default: true,
+    type: Boolean
 
 	//Added Features
 	game.settings.register(modulename, "actor-sounds", {
