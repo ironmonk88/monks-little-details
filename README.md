@@ -64,7 +64,8 @@ Added the top 5 dominant colours of a scene so that you can choose a background 
 ![monks-little-details](/screenshots/BackgroundPalette.webp)
 
 ### Drag wall points together
-Added a toggle to the wall tools.  When selected, dragging a wall point to a new location will also move any other wall points that exactly overlapped the first one.  So instead of having to move both wall points to the new location it will maintain the connection between wall joints and move the second one after the first has been moved.  Saves me some time when editing lengths of wall.
+~~Added a toggle to the wall tools.  When selected, dragging a wall point to a new location will also move any other wall points that exactly overlapped the first one.  So instead of having to move both wall points to the new location it will maintain the connection between wall joints and move the second one after the first has been moved.  Saves me some time when editing lengths of wall.~~
+Dragging Wall points together has moved to the module Monk's Wall Enhancement.  There were a handful of other wall improvements and it made sense to bundle them all together.
 
 ### Character Sound Effects
 Added a button to load a sound file to associate with a character.  So if you ever wanted to make a dragon roar, or a banshee howl, you can upload the file, attach it to the character and play from the Token HUD.  From the NPC sheet, a button with a speaker icon should now be visible.  Clicking that will open the FilePicker so you can select an audio file.  Right clicking will open a context menu with other options.  And orange border will denote that I file has been loaded.
@@ -74,7 +75,8 @@ While playing, bringing up the Token HUD will show a speaker button under the co
 ![monks-little-details](/screenshots/PlaySound.webp)
 
 ### GM Move characters
-If you select characters, hold down the M Key and click on another map location, the tokens will instantly move there.  I found dragging them there has unfortunate side effects of showing spaces they shouldn't see while they're moving.  Teleporting them there preserves the fog of war between the two spots.  Handy for when you're using a map that has multiple levels on one image.  You can teleport from one area to the other quickly.
+If you select characters, hold down the M Key and clicking on another map location, or holding down the M key and dragging the tokens will instantly move them there.  I found dragging them there has unfortunate side effects of showing spaces they shouldn't see while they're moving.  Teleporting them there preserves the fog of war between the two spots.  Handy for when you're using a map that has multiple levels on one image.  You can teleport from one area to the other quickly.
+As ov v9, editing the key that you use for movement has been moved from Monk's Little Details setting to the Core, Configure Controls settigs.
 
 ### BloodSplats
 When an Monster is killed, show it as a blood splat rather than the icon.  I find this eliminates a bit of clutter on the screen and makes it easier to see what's going on.  Player characters still show with the skull.
