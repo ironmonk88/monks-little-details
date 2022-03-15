@@ -76,13 +76,14 @@ While playing, bringing up the Token HUD will show a speaker button under the co
 
 ### GM Move characters
 If you select characters, hold down the M Key and clicking on another map location, or holding down the M key and dragging the tokens will instantly move them there.  I found dragging them there has unfortunate side effects of showing spaces they shouldn't see while they're moving.  Teleporting them there preserves the fog of war between the two spots.  Handy for when you're using a map that has multiple levels on one image.  You can teleport from one area to the other quickly.
-As ov v9, editing the key that you use for movement has been moved from Monk's Little Details setting to the Core, Configure Controls settigs.
+As of v9, editing the key that you use for movement has been moved from Monk's Little Details settings to the Core, Configure Controls settings.
 
 ### BloodSplats
 When an Monster is killed, show it as a blood splat rather than the icon.  I find this eliminates a bit of clutter on the screen and makes it easier to see what's going on.  Player characters still show with the skull.
 
 ### Swap tools by holding down a key
-New to 1.0.17 Monks Little Details will let you briefly activate another tool by holding down a key.  Pressing Shift+key will change the tool.  This allows you to switch briefly to other layers such as the Tiles layer to update a tile to visible before releasing the key and switching back to whatever layer you were on before.  Requries the module Library: DF Hotkeys to be installed to work.
+New to 1.0.17 Monks Little Details will let you briefly activate another tool by holding down a key.  Pressing Shift+key will change the tool.  This allows you to switch briefly to other layers such as the Tiles layer to update a tile to visible before releasing the key and switching back to whatever layer you were on before.  ~~Requries the module Library: DF Hotkeys to be installed to work.~~
+As of v9, editing the key that you use has been moved from Monk's Little Details settings to the Core, Configure Controls settings.
 
 ### Timer
 If you have the module Library: Chat Commands installed you can use /timer as a chat command.  This will produce a count down timer.  `/timer 5` will add a timer that counts up 5 seconds.  `/timer -5` will count down 5 seconds.  `/timer 5:00 Send this message to the timer (Send this message after the timer is finished)` will add a timer that counts up 5 minutes and displays the first message to the chat message with the timer.  And once the timer it complete it will send a second chat message with the second message that's in parenthesis.
