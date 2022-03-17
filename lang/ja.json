@@ -1,4 +1,5 @@
 {
+	"Localization Provided By": "touge",
 	"MonksLittleDetails.Turn": "あなたのターンです。どうする？",
 	"MonksLittleDetails.Next": "次があなたのターンです。準備して！",
 
@@ -52,12 +53,16 @@
 	"MonksLittleDetails.show-notify.hint": "別タブの表示中にメッセージが届いたとき、チャット通知アイコンをオンのままにします。",
 	"MonksLittleDetails.show-bloodsplat.name": "血糊を表示する",
 	"MonksLittleDetails.show-bloodsplat.hint": "モンスターが死亡すると、画像やバーやエフェクトを非表示にして血糊を表示します。だって死んでるんですから。",
+	"MonksLittleDetails.invisible-dead.name": "敗退者を非表示にする",
+	"MonksLittleDetails.invisible-dead.hint": "敗退したクリーチャーがプレイヤーから見えなくなります。",
 	"MonksLittleDetails.token-combat-highlight.name": "ターン中のコマを強調表示する",
 	"MonksLittleDetails.token-combat-highlight.hint": "戦闘中、ターンを持っているコマの下にインジケータを表示します。",
 	"MonksLittleDetails.token-highlight-animate.name": "強調表示のアニメーション速度",
 	"MonksLittleDetails.token-highlight-animate.hint": "ターン中の強調表示をアニメーション化します。0に設定すると動かなくなります。",
 	"MonksLittleDetails.token-highlight-picture.name": "ターン中の強調表示に使用する画像",
 	"MonksLittleDetails.token-highlight-picture.hint": "ターン中にアニメーションさせる画像を指定します。",
+	"MonksLittleDetails.token-highlight-picture-hostile.name": "Hostile Highlight Image",
+	"MonksLittleDetails.token-highlight-picture-hostile.hint": "Image to use as the animated image for hostiles in combat tracking",
 	"MonksLittleDetails.token-highlight-scale.name": "強調表示のサイズ",
 	"MonksLittleDetails.token-highlight-scale.hint": "コマに対する強調表示の画像サイズです。",
 	"MonksLittleDetails.token-combat-animation.name": "強調表示のアニメーション",
@@ -69,11 +74,13 @@
 	"MonksLittleDetails.auto-defeated.name": "敗退フラグを自動で付加する",
 	"MonksLittleDetails.auto-defeated.hint": "特定の条件を満たしたときに、自動的に敗退フラグを付与します。",
 	"MonksLittleDetails.auto-reveal.name": "非表示の解除をイニシアチブ表と連動させる",
-	"MonksLittleDetails.auto-reveal.hint": "戦闘参加中のコマが非表示状態を解除すると、イニシアチブ表上でも非表示が解除されます。これにより二度手間が省けます。",
+	"MonksLittleDetails.auto-reveal.hint": "戦闘参加中のコマが非表示状態を解除すると、イニシアチブ表上でも非表示が解除されます。これにより二度手間が省きます。",
 	"MonksLittleDetails.key-swap-tool.name": "キーでツールを切り替える",
 	"MonksLittleDetails.key-swap-tool.hint": "設定したホットキーでツールを切り替えます。「Library: DF Hotkeys」モジュールが必要です。",
 	"MonksLittleDetails.clear-targets.name": "ターゲットを毎ターン外す",
-	"MonksLittleDetails.clear-targets.hint": "ターンが変わるたび、DMのターゲットをクリアします。",
+	"MonksLittleDetails.clear-targets.hint": "ターンが変わるたび、ターゲット選択をクリアします。",
+	"MonksLittleDetails.remember-previous.name": "前回のターゲットを保存する",
+	"MonksLittleDetails.remember-previous.hint": "前回のターゲット選択を保存しておき、次のターン開始時に再び選択を行います。",
 	"MonksLittleDetails.sort-by-columns.name": "状態一覧の表示順を縦並びにする",
 	"MonksLittleDetails.sort-by-columns.hint": "トークンHUDから開く状態一覧の表示順を、横並びから縦並びに変更します。",
 	"MonksLittleDetails.add-combat-bars.name": "戦闘中のリソース・バー表示",
@@ -85,6 +92,16 @@
 	"MonksLittleDetails.bloodsplat-colour.name": "血糊の色",
 	"MonksLittleDetails.show-start.name": "コマの開始位置表示",
 	"MonksLittleDetails.show-start.hint": "ターン開始時のコマの位置を表示します。",
+	"MonksLittleDetails.sort-statuses.name": "状態一覧の並び替え",
+	"MonksLittleDetails.sort-statuses.hint": "トークンHUDの状態一覧を指定した方法で並び替えます。",
+	"MonksLittleDetails.token-highlight-remove.name": "コマの強調表示をすぐに解除する",
+	"MonksLittleDetails.token-highlight-remove.hint": "コマが最初に移動を開始した直後に、強調表示を解除されるようになります。",
+	"MonksLittleDetails.find-my-token.name": "トークンを探す",
+	"MonksLittleDetails.find-my-token.hint": "“トークンを探す”ボタンを表示します。",
+	"MonksLittleDetails.reposition-collapse.name": "折りたたみボタンを再配置する",
+	"MonksLittleDetails.reposition-collapse.hint": "サイドバーの折りたたみボタンの位置を変更し、常に同じ場所に表示されるようにします。",
+	"MonksLittleDetails.auto-scroll.name": "イニシアチブ表の自動スクロール",
+	"MonksLittleDetails.auto-scroll.hint": "イニシアチブ表を自動でスクロールし、現在の戦闘参加者が常に一番上に表示されるようにします。",
 
 	"MonksLittleDetails.PlayRoundSound": "新しいラウンド開始時のサウンド",
 	"MonksLittleDetails.PlayRoundSoundHint": "次のラウンド開始時にサウンドを再生します。",
@@ -97,11 +114,16 @@
 	"MonksLittleDetails.CombatTurn": "戦闘ターン管理",
 	"MonksLittleDetails.CombatTokenHighlight": "ターン中の強調表示",
 	"MonksLittleDetails.AddedFeatures": "追加機能",
-
+	"MonksLittleDetails.ClearWarning": "このフォルダのコンテンツは完全に削除されます。",
+	
 	"MonksLittleDetails.CombatDisplayBars": "戦闘中の表示方法:",
 
+	"MonksLittleDetails.FindMyToken": "コマを探す",
+	
 	"MonksLittleDetails.LatestChanges": "最新の変更点",
 
+	"MonksLittleDetails.ClearAll": "すべてクリア",
+	
 	"MonksLittleDetails.QuickShow": "押下中：",
 	"MonksLittleDetails.ChangeTo": "切替：",
 
@@ -158,5 +180,9 @@
 	"MonksLittleDetails.animation.counterclockwise": "反時計回り",
 	"MonksLittleDetails.animation.pulse": "パルス",
 	"MonksLittleDetails.animation.fadein": "フェードイン",
-	"MonksLittleDetails.animation.fadeout": "フェードアウト"
+	"MonksLittleDetails.animation.fadeout": "フェードアウト",
+	
+	"MonksLittleDetails.sortstatus.none": "なし",
+	"MonksLittleDetails.sortstatus.rows": "列",
+	"MonksLittleDetails.sortstatus.columns": "行"
 }
