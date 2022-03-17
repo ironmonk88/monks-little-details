@@ -102,6 +102,8 @@
 	"MonksLittleDetails.find-my-token.hint": "Mostrar el botón de encontrar mi icono",
 	"MonksLittleDetails.reposition-collapse.name": "Reposicionar botón colapsable",
 	"MonksLittleDetails.reposition-collapse.hint": "Reposiciona la botón lateral colapsable para que siempre permanezca en la misma posición general",
+	"MonksLittleDetails.auto-scroll.name": "Desplazar automáticamente el asistente de combate",
+	"MonksLittleDetails.auto-scroll.hint": "Desplazar automáticamente el asistente de combate de modo que el contendiente actual esté siempre en la parte superior",
 
 	"MonksLittleDetails.PlayRoundSound": "Reproducir sonido de nuevo asalto",
 	"MonksLittleDetails.PlayRoundSoundHint": "Reproducir sonido cuando comienza un nuevo asalto",
@@ -114,12 +116,15 @@
 	"MonksLittleDetails.CombatTurn": "Turno de combate",
 	"MonksLittleDetails.CombatTokenHighlight": "Resaltado de iconos en combate",
 	"MonksLittleDetails.AddedFeatures": "Características añadidas",
+	"MonksLittleDetails.ClearWarning": "El contenido de este directorio se borrará permanentemente",
 
 	"MonksLittleDetails.CombatDisplayBars": "Barras del combate:",
 
 	"MonksLittleDetails.FindMyToken": "Encontrar mi icono",
 
 	"MonksLittleDetails.LatestChanges": "Últimos cambios",
+
+	"MonksLittleDetails.ClearAll": "borrar todo",
 
 	"MonksLittleDetails.QuickShow": "Mostrar directamente",
 	"MonksLittleDetails.ChangeTo": "Cambiar a",
