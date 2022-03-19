@@ -25,7 +25,7 @@
 	"MonksLittleDetails.close-combat-when-done.name": "Close Combat when done",
 	"MonksLittleDetails.close-combat-when-done.hint": "Close the combat popout, when you've done a combat encounter, if there are no other combats active.",
 	"MonksLittleDetails.prevent-token-removal.name": "Prevent token combat removal",
-	"MonksLittleDetails.prevent-token-removal.hint": "Prevent a token from being removed form combat via the Token HUD, restrict it to the Encounter interface only.",
+	"MonksLittleDetails.prevent-token-removal.hint": "Prevent a token from being removed from combat via the Token HUD, restrict it to the Encounter interface only.",
 	"MonksLittleDetails.show-combat-cr.name": "Show Encounter CR",
 	"MonksLittleDetails.show-combat-cr.hint": "When creating a combat encounter, display the estimated CR for that encounter.",
 	"MonksLittleDetails.swap-buttons.name": "Swap target and settings button on the Token HUD",
@@ -183,5 +183,11 @@
 
 	"MonksLittleDetails.sortstatus.none": "None",
 	"MonksLittleDetails.sortstatus.rows": "Rows",
-	"MonksLittleDetails.sortstatus.columns": "Columns"
+	"MonksLittleDetails.sortstatus.columns": "Columns",
+	"MonksLittleDetails.select-combatant.name": "Select Combatants",
+	"MonksLittleDetails.select-combatant.hint": "Automatically select combatant token on its turn",
+
+	"MonksLittleDetails.actorsoundsoptions.none": "None",
+	"MonksLittleDetails.actorsoundsoptions.npc": "NPCs",
+	"MonksLittleDetails.actorsoundsoptions.everyone": "Everyone"
 }

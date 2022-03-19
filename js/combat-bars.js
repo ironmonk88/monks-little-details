@@ -45,10 +45,30 @@ export class CombatBars {
                             token.object.refresh();
                         } else if (combatBar != displayBars)
                             token.object.refresh();
+
+                        token.object.drawBars();
                     }
                 }
             }
         });
+
+        let tokenDrawBars = function (wrapped, ...args) {
+            if (this.inCombat && this.data.displayBars === CONST.TOKEN_DISPLAY_MODES.NONE && this.document.data.flags['monks-little-details']?.displayBarsCombat !== CONST.TOKEN_DISPLAY_MODES.NONE) {
+                this.data.displayBars = 5;
+                wrapped.call(this);
+                this.data.displayBars = CONST.TOKEN_DISPLAY_MODES.NONE;
+            } else
+                wrapped.call(this);
+        }
+
+        if (game.modules.get("lib-wrapper")?.active) {
+            libWrapper.register("monks-little-details", "Token.prototype.drawBars", tokenDrawBars, "WRAPPER");
+        } else {
+            const oldTokenDrawBars = Token.prototype.drawBars;
+            Token.prototype.drawBars = function () {
+                return tokenDrawBars.call(this, oldTokenDrawBars.bind(this), ...arguments);
+            }
+        }
     }
 
     static canViewCombatMode(mode) {
@@ -74,5 +94,9 @@ export class CombatBars {
             if (this?.hud.bars?.alpha)
                 this.hud.bars.alpha = 1;
         }
+    }
+
+    static updateToken(document, data) {
+        if (data?.flags && data?.flags['monks-little-details']?.displayBarsCombat) document?._object.drawBars();
     }
 }

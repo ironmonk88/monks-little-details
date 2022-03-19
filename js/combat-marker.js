@@ -109,6 +109,7 @@ export class CombatMarker {
 
         Hooks.on("renderTokenConfig", (app, html, data) => {
             if (game.user.isGM) {
+                let tokenhighlight = app?.object?.data?.flags['monks-little-details']['token-highlight'];
                 $('<div>')
                     .addClass('form-group')
                     .append($('<label>').html(i18n("MonksLittleDetails.token-highlight-picture.name")))
@@ -131,7 +132,25 @@ export class CombatMarker {
                                 });
                                 return fp.browse();
                             }))
-                        .append($('<input>').addClass('token-highlight').attr({ 'type': 'text', 'name': 'flags.monks-little-details.token-highlight', 'placeholder': 'path/image.png' }).val(app.object.getFlag('monks-little-details', 'token-highlight')))
+                        .append($('<input>').addClass('token-highlight').attr({ 'type': 'text', 'name': 'flags.monks-little-details.token-highlight', 'placeholder': 'path/image.png' }).val(tokenhighlight))
+                    )
+                    .insertAfter($('[name="alpha"]', html).closest('.form-group'));
+
+                let tokenanimation = app?.object?.data?.flags['monks-little-details']['token-combat-animation'];
+                let animation = {
+                    '': '',
+                    'none': i18n("MonksLittleDetails.animation.none"),
+                    'clockwise': i18n("MonksLittleDetails.animation.clockwise"),
+                    'counterclockwise': i18n("MonksLittleDetails.animation.counterclockwise"),
+                    'pulse': i18n("MonksLittleDetails.animation.pulse"),
+                    'fadeout': i18n("MonksLittleDetails.animation.fadeout"),
+                    'fadein': i18n("MonksLittleDetails.animation.fadein")
+                };
+                $('<div>')
+                    .addClass('form-group')
+                    .append($('<label>').html(i18n("MonksLittleDetails.token-combat-animation.name")))
+                    .append($('<div>').addClass('form-fields')
+                        .append($('<select>').attr({ 'name': 'flags.monks-little-details.token-combat-animation' }).append(Object.entries(animation).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")).val(tokenanimation))
                     )
                     .insertAfter($('[name="alpha"]', html).closest('.form-group'));
 
@@ -216,7 +235,7 @@ export class CombatMarker {
             if (token?.ldmarker?.transform) {
                 let delta = interval / 10000;
                 try {
-                    let animation = setting('token-combat-animation');
+                    let animation = token.data?.flags['monks-little-details']['token-combat-animation'] || setting('token-combat-animation');
                     if (animation == 'clockwise') {
                         token.ldmarker.rotation += (delta * dt);
                         if (token.ldmarker.rotation > (Math.PI * 2))

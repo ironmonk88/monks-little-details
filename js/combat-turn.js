@@ -20,7 +20,7 @@ export class CombatTurn {
                         await game.user.setFlag('monks-little-details', 'targets', targets);
                 }
 
-                return wrapped(...args);;
+                return wrapped(...args);
             }
 
             if (game.modules.get("lib-wrapper")?.active) {
@@ -92,6 +92,10 @@ export class CombatTurn {
                 }
             }
 
+            if (combat && combat.started && game.user.isGM && setting('select-combatant')) {
+                combat?.combatant?.token?._object?.control();
+            }
+
             if (combat && combat.started && setting('remember-previous') && combat?.combatant?.token?.isOwner) {
                 let targets = [];
                 if (game.user.isGM)
@@ -106,7 +110,7 @@ export class CombatTurn {
                         if (token
                             && !token.data.hidden
                             && !((token?.combatant && token?.combatant.data.defeated) || token.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId) || token.data.overlayEffect == CONFIG.controlIcons.defeated))
-                            token.setTarget(true, { user: game.user, releaseOthers: false, groupSelection: false })
+                            token.setTarget(true, { user: game.user, releaseOthers: false, groupSelection: false });
                     }
 
                     /*
@@ -217,16 +221,29 @@ export class CombatTurn {
         let colorMatrix = new PIXI.filters.ColorMatrixFilter();
         colorMatrix.sepia(0.6);
         shadow.filters = [colorMatrix];
-        shadow.x = x;
-        shadow.y = y;
+        shadow.x = x + (token.w / 2);
+        shadow.y = y + (token.h / 2);
         shadow.alpha = 0.5;
+        shadow.angle = token.data.rotation;
+
+        let width = token.w * token.data.scale;
+        let height = token.h * token.data.scale;
 
         let tokenImage = await loadTexture(token.data.img)
         let sprite = new PIXI.Sprite(tokenImage)
-        sprite.x = 0;
-        sprite.y = 0;
-        sprite.height = token.h;
-        sprite.width = token.w;
+        sprite.x = -(token.w / 2) - (width - token.w) / 2;
+        sprite.y = -(token.h / 2) - (height - token.h) / 2;
+        if (token.data.mirrorX) {
+            sprite.scale.x = -1;
+            sprite.anchor.x = 1;
+        }
+        if (token.data.mirrorY) {
+            sprite.scale.y = -1;
+            sprite.anchor.y = 1;
+        }
+
+        sprite.width = width;
+        sprite.height = height;
         shadow.addChild(sprite);
 
         CombatTurn.shadows[token.id] = shadow;

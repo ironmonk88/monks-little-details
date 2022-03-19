@@ -40,10 +40,3 @@ export const WithMonksCombatTracker = (CombatTracker) => {
     Object.defineProperty(MonksCombatTracker.prototype.constructor, "name", { value: constructorName });
     return MonksCombatTracker;
 };
-
-/*
-Hooks.on("ready", () => {
-    if (game.modules.get("hidden-initiative")?.active) {
-        let oldGetData = 
-    }
-});*/

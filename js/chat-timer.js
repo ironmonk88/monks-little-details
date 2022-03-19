@@ -3,6 +3,29 @@ import { MonksLittleDetails, i18n, log, setting } from "../monks-little-details.
 export class ChatTimer {
     static init() {
     }
+
+    static createTimer(time = "5", options = {}) {
+        let timePart = time.split(':').reverse();
+        let calcTime = ((Math.abs(timePart[0]) + (timePart.length > 1 ? Math.abs(timePart[1]) * 60 : 0) + (timePart.length > 2 ? Math.abs(timePart[2]) * 3600 : 0)) * 1000) * (time.startsWith('-') ? -1 : 1);
+
+        let frmtTime = new Date(calcTime < 0 ? 0 : calcTime).toISOString().substr(11, 8);
+        let content = `<div class="timer-msg"><div class="timer-flavor">${options.flavor}</div><div class="timer-time">${frmtTime}</div><div class="timer-bar"><div></div></div><div class="complete-msg">Complete</div></div>`;
+
+        const speaker = { scene: canvas.scene.id, actor: game.user?.character?.id, token: null, alias: game.user?.name };
+
+        let messageData = {
+            user: game.user.id,
+            speaker: speaker,
+            type: CONST.CHAT_MESSAGE_TYPES.OOC,
+            content: content,
+            flags: { 'monks-little-details': { time: calcTime, start: Date.now(), flavor: options.flavor, followup: options.followup } }
+        };
+
+        if (options.whisper)
+            messageData.whisper = options.whisper;
+
+        ChatMessage.create(messageData);
+    }
 }
 
 Hooks.on("chatCommandsReady", (chatCommands) => {
@@ -90,12 +113,83 @@ Hooks.on("renderChatMessage", (message, html, data) => {
                     updateTime(time, start);
                     //$('.timer-time', content).html((time < 0 ? Math.abs(time) - remaining : remaining) + ' sec');
                     message.update({ content: content[0].outerHTML, flags: { 'monks-little-details': { 'complete': true } } });
-                    if (message.getFlag('monks-little-details', 'followup'))
-                        ChatMessage.create({ user: game.user.id, content: message.getFlag('monks-little-details', 'followup') }, {});
+                    if (message.getFlag('monks-little-details', 'followup')) {
+                        ChatMessage.create({
+                            user: game.user.id,
+                            flavor: message.getFlag('monks-little-details', 'flavor'),
+                            content: message.getFlag('monks-little-details', 'followup'),
+                            speaker: message.data.speaker,
+                            type: CONST.CHAT_MESSAGE_TYPES.OOC,
+                            whisper: message.data.whisper
+                        }, {});
+                    }
 
                     window.clearInterval(timer);
                 }
             }, 100);
         }
     }
-})
+});
+
+Hooks.on("setupTileActions", (app) => {
+    app.registerTileGroup('monks-little-details', "Monk's Little Details");
+    app.registerTileAction('monks-little-details', 'chat-timer', {
+        name: 'Chat Timer',
+        ctrls: [
+            {
+                id: "duration",
+                name: "Duration",
+                type: "text",
+                defvalue: "5",
+                required: true,
+            },
+            {
+                id: "for",
+                name: "For",
+                list: "for",
+                type: "list",
+            },
+            {
+                id: "flavor",
+                name: "Flavor",
+                type: "text",
+            },
+            {
+                id: "followup",
+                name: "Follow-up",
+                type: "text",
+            },
+        ],
+        values: {
+            'for': {
+                "everyone": 'Everyone',
+                "gm": 'GM Only',
+                'token': "Triggering Player"
+            }
+        },
+        group: 'monks-little-details',
+        fn: async (args = {}) => {
+            const { action, tokens } = args;
+
+            let options = {
+                flavor: action.data.flavor,
+                followup: action.data.followup
+            };
+
+            if (action.data.for == 'gm')
+                options.whisper = ChatMessage.getWhisperRecipients("GM").map(u => u.id);
+            else if (action.data.for == 'token') {
+                let entities = await game.MonksActiveTiles.getEntities(args);
+                let entity = (entities.length > 0 ? entities[0] : null);
+                let tkn = (entity?.object || tokens[0]?.object);
+                let tokenOwners = (tkn ? Object.entries(tkn?.actor.data.permission).filter(([k, v]) => { return v == CONST.ENTITY_PERMISSIONS.OWNER }).map(a => { return a[0]; }) : []);
+                options.whisper = Array.from(new Set(ChatMessage.getWhisperRecipients("GM").map(u => u.id).concat(tokenOwners)));
+            }
+
+            ChatTimer.createTimer(action.data.duration, options);
+        },
+        content: async (trigger, action) => {
+            return `<span class="logic-style">${trigger.name}</span> count <span class="details-style">"${action.data.duration}"</span> for <span class="value-style">&lt;${i18n(trigger.values.for[action.data?.for])}&gt;</span>`;
+        }
+    });
+});

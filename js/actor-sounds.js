@@ -13,72 +13,76 @@ export class ActorSounds {
     }
 
     static injectSoundCtrls() {
-        let npcObject = (CONFIG.Actor.sheetClasses.npc || CONFIG.Actor.sheetClasses.minion);
-        if (npcObject != undefined) {
-            let npcSheetNames = Object.values(npcObject)
-                .map((sheetClass) => sheetClass.cls)
-                .map((sheet) => sheet.name);
+        let sheetNames = ["ActorSheet"];
 
-            npcSheetNames.forEach((sheetName) => {
-                Hooks.on("render" + sheetName, (app, html, data) => {
-                    // only for GMs or the owner of this npc
-                    if (!app.object.isOwner || !data.actor) return;
-
-                    // don't add the button multiple times
-                    if ($(html).find("#mldCharacterSound").length > 0) return;
-
-                    let hasSound = (app.document.getFlag('monks-little-details', 'sound-effect') != undefined);
-
-                    let button = $('<button>')
-                        .attr('type', "button")
-                        .attr('id', "mldCharacterSound")
-                        .toggleClass('loaded', hasSound)
-                        .html('<i class="fas fa-volume-up"></i>')
-                        .click($.proxy(ActorSounds.findSoundEffect, app));
-                    //.contextmenu($.proxy(ActorSounds.loadSoundEffect, app));
-
-                    if (app.soundcontext == undefined) {
-                        app.soundcontext = new ContextMenu(html, "#mldCharacterSound", [
-                            {
-                                name: "Select Sound",
-                                icon: '<i class="fas fa-file-import"></i>',
-                                callback: li => {
-                                    ActorSounds.findSoundEffect.call(app);
-                                }
-                            },
-                            {
-                                name: "Play Sound",
-                                icon: '<i class="fas fa-play"></i>',
-                                condition: $.proxy(function () {
-                                    return this.document.getFlag('monks-little-details', 'sound-effect');
-                                }, app),
-                                callback: li => {
-                                    ActorSounds.loadSoundEffect.call(app);
-                                }
-                            },
-                            {
-                                name: "Delete Sound",
-                                icon: '<i class="fas fa-trash-alt"></i>',
-                                condition: $.proxy(function () {
-                                    return this.document.getFlag('monks-little-details', 'sound-effect');
-                                }, app),
-                                callback: li => {
-                                    ActorSounds.clearSoundEffect.call(app);
-                                }
-                            }
-                        ]);
-                    }
-
-                    let wrap = $('<div class="mldCharacterName"></div>');
-                    $(html).find("input[name='name']").wrap(wrap);
-                    $(html).find("input[name='name']").parent().prepend(button);
-                });
-
-                Hooks.on("close" + sheetName, (app, html, data) => {
-                    delete app.soundcontext;
-                });
-            });
+        if (setting("actor-sounds") === "npc" || setting("actor-sounds") === 'true') {
+            let npcObject = (CONFIG.Actor.sheetClasses.npc || CONFIG.Actor.sheetClasses.minion);
+            if (npcObject != undefined) {
+                sheetNames = Object.values(npcObject)
+                    .map((sheetClass) => sheetClass.cls)
+                    .map((sheet) => sheet.name);
+            }
         }
+
+        sheetNames.forEach((sheetName) => {
+            Hooks.on("render" + sheetName, (app, html, data) => {
+                // only for GMs or the owner of this npc
+                if (!app.object.isOwner || !data.actor) return;
+
+                // don't add the button multiple times
+                if ($(html).find("#mldCharacterSound").length > 0) return;
+
+                let hasSound = (app.document.getFlag('monks-little-details', 'sound-effect') != undefined);
+
+                let button = $('<button>')
+                    .attr('type', "button")
+                    .attr('id', "mldCharacterSound")
+                    .toggleClass('loaded', hasSound)
+                    .html('<i class="fas fa-volume-up"></i>')
+                    .click($.proxy(ActorSounds.findSoundEffect, app));
+                //.contextmenu($.proxy(ActorSounds.loadSoundEffect, app));
+
+                if (app.soundcontext == undefined) {
+                    app.soundcontext = new ContextMenu(html, "#mldCharacterSound", [
+                        {
+                            name: "Select Sound",
+                            icon: '<i class="fas fa-file-import"></i>',
+                            callback: li => {
+                                ActorSounds.findSoundEffect.call(app);
+                            }
+                        },
+                        {
+                            name: "Play Sound",
+                            icon: '<i class="fas fa-play"></i>',
+                            condition: $.proxy(function () {
+                                return this.document.getFlag('monks-little-details', 'sound-effect');
+                            }, app),
+                            callback: li => {
+                                ActorSounds.loadSoundEffect.call(app);
+                            }
+                        },
+                        {
+                            name: "Delete Sound",
+                            icon: '<i class="fas fa-trash-alt"></i>',
+                            condition: $.proxy(function () {
+                                return this.document.getFlag('monks-little-details', 'sound-effect');
+                            }, app),
+                            callback: li => {
+                                ActorSounds.clearSoundEffect.call(app);
+                            }
+                        }
+                    ]);
+                }
+
+                let wrap = $('<div class="mldCharacterName"></div>');
+                $(html).find("input[name='name']").wrap(wrap);
+                $(html).find("input[name='name']").parent().prepend(button);
+            });
+
+            Hooks.on("close" + sheetName, (app, html, data) => {
+                delete app.soundcontext;
+            });
+        });
     }
 
     static findSoundEffect(event) {

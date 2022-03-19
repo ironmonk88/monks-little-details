@@ -44,6 +44,12 @@ export const registerSettings = function () {
 		'columns': i18n("MonksLittleDetails.sortstatus.columns")
 	};
 
+	let actorsoundsoptions = {
+		'none': i18n("MonksLittleDetails.actorsoundsoptions.none"),
+		'npc': i18n("MonksLittleDetails.actorsoundsoptions.npc"),
+		'everyone': i18n("MonksLittleDetails.actorsoundsoptions.everyone")
+	};
+
 	//System changes
 	game.settings.register(modulename, "swap-buttons", {
 		name: i18n("MonksLittleDetails.swap-buttons.name"),
@@ -424,14 +430,25 @@ export const registerSettings = function () {
 		config: true
 	});
 
+	game.settings.register(modulename, "select-combatant", {
+		name: i18n("MonksLittleDetails.select-combatant.name"),
+		hint: i18n("MonksLittleDetails.select-combatant.hint"),
+		scope: "client",
+		config: true,
+		default: true,
+		type: Boolean
+	});
+
 	//Added Features
 	game.settings.register(modulename, "actor-sounds", {
 		name: i18n("MonksLittleDetails.actor-sounds.name"),
 		hint: i18n("MonksLittleDetails.actor-sounds.hint"),
 		scope: "world",
 		config: true,
-		default: true,
-		type: Boolean,
+		default: "npc",
+		choices: actorsoundsoptions,
+		type: String,
+		onChange: debouncedReload
 	});
 	game.settings.register(modulename, "scene-palette", {
 		name: i18n("MonksLittleDetails.scene-palette.name"),

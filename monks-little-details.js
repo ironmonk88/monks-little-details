@@ -329,7 +329,12 @@ export class MonksLittleDetails {
         CombatTurn.ready();
         HUDChanges.ready();
 
-        if(setting("actor-sounds"))
+        if (setting("actor-sounds") === 'true')
+            game.settings.set("monks-little-details", "actor-sounds", "npc");
+        if (setting("actor-sounds") === 'false')
+            game.settings.set("monks-little-details", "actor-sounds", "none");
+
+        if (!(setting("actor-sounds") === "none" || setting("actor-sounds") === 'false'))
             ActorSounds.injectSoundCtrls();
 
         CombatTurn.checkCombatTurn(game.combats.active);
@@ -558,7 +563,7 @@ background-color: rgba(0, 0, 0, 0.5);
 
         //get the APL of friendly combatants
         for (let combatant of combat.combatants) {
-            if (combatant.actor != undefined) {
+            if (combatant.actor != undefined && combatant.token != undefined) {
                 if (combatant.token.data.disposition == 1) {
                     apl.count = apl.count + 1;
                     let levels = 0;
@@ -1094,6 +1099,8 @@ Hooks.on("updateToken", async function (document, data, options, userid) {
             });
         }
     }
+
+    CombatBars.updateToken(document, data);
 });
 
 Hooks.on("updateCombatant", async function (combatant, data, options, userId) {
@@ -1301,3 +1308,10 @@ Hooks.on("getSidebarDirectoryFolderContext", (html, entries) => {
     });
 });
 
+Hooks.on("renderMacroConfig", (app, html, data) => {
+    $('.sheet-footer', html).prepend(
+        $("<button>")
+            .attr("type", "button")
+            .html('<i class="fas fa-file-download"></i> Apply')
+            .on("click", (event) => { app._onSubmit.call(app, event, { preventClose: true}) }));
+})

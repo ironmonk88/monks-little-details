@@ -83,7 +83,30 @@ export class BloodSplats {
             for (let effect of this.hud.effects.children) {
                 effect.alpha = 0;
             }
-            if (!['dnd5e.LootSheet5eNPC', 'core.a'].includes(this.actor?.getFlag("core", "sheetClass"))) {
+            if (['dnd5e.LootSheet5eNPC', 'core.a'].includes(this.actor?.getFlag("core", "sheetClass")) || this.actor?.getFlag("item-piles", "data.enabled") == true) {
+                this.icon.alpha = 0.5;
+                if (this.bloodsplat) {
+                    this.removeChild(this.bloodsplat);
+                    delete this.bloodsplat;
+                }
+                if (this.actor?.getFlag("item-piles", "data.enabled") !== true) {
+                    if (this.tresurechest == undefined) {
+                        loadTexture("icons/svg/chest.svg").then((tex) => { //"modules/monks-little-details/img/chest.png"
+                            const chesticon = new PIXI.Sprite(tex);
+                            const size = Math.min(canvas.grid.grid.w, canvas.grid.grid.h);
+                            chesticon.width = chesticon.height = size;
+                            chesticon.position.set((this.w - size) / 2, (this.h - size) / 2);
+                            chesticon.alpha = 0.8;
+                            this.tresurechest = chesticon;
+                            this.addChild(this.tresurechest);
+                        });
+                    } else
+                        this.tresurechest.alpha = (this._hover ? 1 : 0.8);
+                } else {
+                    if (this.tresurechest != undefined)
+                        this.tresurechest.alpha = 0;
+                }
+            } else {
                 if (this.data._id != undefined) {
                     this.icon.alpha = (game.user.isGM ? 0.2 : 0);
                     if (this.bloodsplat?.transform == undefined) {
@@ -107,25 +130,9 @@ export class BloodSplats {
 
                         //log('Font: ', this.id, (this.h * 1.5), this.bloodsplat.x, this.bloodsplat.y);
                     }
+                    if (this.tresurechest != undefined)
+                        this.tresurechest.alpha = 0;
                 }
-            } else {
-                this.icon.alpha = 0.5;
-                if (this.bloodsplat) {
-                    this.removeChild(this.bloodsplat);
-                    delete this.bloodsplat;
-                }
-                if (this.tresurechest == undefined) {
-                    loadTexture("icons/svg/chest.svg").then((tex) => { //"modules/monks-little-details/img/chest.png"
-                        const chesticon = new PIXI.Sprite(tex);
-                        const size = Math.min(canvas.grid.grid.w, canvas.grid.grid.h);
-                        chesticon.width = chesticon.height = size;
-                        chesticon.position.set((this.w - size) / 2, (this.h - size) / 2);
-                        chesticon.alpha = 0.8;
-                        this.tresurechest = chesticon;
-                        this.addChild(this.tresurechest);
-                    });
-                } else
-                    this.tresurechest.alpha = (this._hover ? 1 : 0.8);
             }
         } else {
             if (this.bloodsplat) {

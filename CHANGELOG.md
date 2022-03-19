@@ -1,3 +1,21 @@
+# Version 1.0.45
+
+Added the option to add sound controls for either NPCs only, or all Actor sheets.
+
+Fixed issues with bloodsplats and ItemPiles
+
+Added chat timer to Monk's Active Tiles.
+
+Fixed issue drawing combat bars when the default was set to Never Show
+
+Added the options for setting individual token combat highlight animations for each token.
+
+Added option to select a combatant on combatant turn
+
+Fixed issue with the start turn shadow, if the token was rotated, or if the token used a bigger image, or if the image was flipped, the shadow will now show the correct image.
+
+Added an Apply button to the Macro editing screen, so you can now edit and save without closing the window.
+
 # Version 1.0.44
 
 Fixed issue with reordering the collapse button, thank you rmasoni for some better css.
