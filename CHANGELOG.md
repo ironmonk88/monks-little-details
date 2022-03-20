@@ -1,3 +1,7 @@
+# Version 1.0.47
+
+Fixed an issue with combat markers
+
 # Version 1.0.46
 
 Fixed issues created when fixing issues with Item Piles

@@ -235,7 +235,7 @@ export class CombatMarker {
             if (token?.ldmarker?.transform) {
                 let delta = interval / 10000;
                 try {
-                    let animation = token.data?.flags['monks-little-details']['token-combat-animation'] || setting('token-combat-animation');
+                    let animation = (token.data?.flags && token.data?.flags['monks-little-details'] && token.data?.flags['monks-little-details']['token-combat-animation']) || setting('token-combat-animation');
                     if (animation == 'clockwise') {
                         token.ldmarker.rotation += (delta * dt);
                         if (token.ldmarker.rotation > (Math.PI * 2))
