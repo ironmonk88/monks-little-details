@@ -1,3 +1,11 @@
+# Version 1.0.46
+
+Fixed issues created when fixing issues with Item Piles
+
+Added the option to change the treasure chest icon
+
+Added the option to change the treasure chest size.
+
 # Version 1.0.45
 
 Added the option to add sound controls for either NPCs only, or all Actor sheets.

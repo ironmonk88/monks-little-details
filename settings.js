@@ -517,6 +517,30 @@ export const registerSettings = function () {
 		type: String,
 		onChange: debouncedReload
 	});
+	game.settings.register(modulename, "treasure-chest", {
+		name: i18n("MonksLittleDetails.treasure-chest.name"),
+		hint: i18n("MonksLittleDetails.treasure-chest.hint"),
+		scope: "world",
+		config: true,
+		default: "icons/svg/chest.svg",
+		type: String,
+		//filePicker: true,
+		onChange: debouncedReload
+	});
+	game.settings.register(modulename, "treasure-chest-size", {
+		name: i18n("MonksLittleDetails.treasure-chest-size.name"),
+		hint: i18n("MonksLittleDetails.treasure-chest-size.hint"),
+		scope: "world",
+		config: true,
+		default: 0.9,
+		type: Number,
+		range: {
+			min: 0.2,
+			max: 1,
+			step: 0.1
+		},
+		onChange: debouncedReload
+	});
 	game.settings.register(modulename, "key-swap-tool", {
 		name: i18n("MonksLittleDetails.key-swap-tool.name"),
 		hint: i18n("MonksLittleDetails.key-swap-tool.hint"),

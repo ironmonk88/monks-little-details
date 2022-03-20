@@ -101,6 +101,10 @@
 	"MonksLittleDetails.reposition-collapse.hint": "Reposition the sidebar collapse button so that it always stays in the same general location",
 	"MonksLittleDetails.auto-scroll.name": "Auto scroll combat tracker",
 	"MonksLittleDetails.auto-scroll.hint": "Auto scroll combat tracker so that the current combatant is always at the top",
+	"MonksLittleDetails.treasure-chest.name": "Loot Image",
+	"MonksLittleDetails.treasure-chest.hint": "Image to use when a token has been converted to loot",
+	"MonksLittleDetails.treasure-chest-size.name": "Loot Image Size",
+	"MonksLittleDetails.treasure-chest-size.hint": "Size of the Loot Image compared with the Token size",
 
 	"MonksLittleDetails.PlayRoundSound": "Play new round sound",
 	"MonksLittleDetails.PlayRoundSoundHint": "Play a sound when the next round starts",

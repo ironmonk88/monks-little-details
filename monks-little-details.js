@@ -1056,6 +1056,7 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
 
     btn2.clone(true).insertAfter($('input[name="monks-little-details.token-highlight-picture"]', html).css({ 'flex-basis': 'unset', 'flex-grow': 1 }));
     btn2.clone(true).insertAfter($('input[name="monks-little-details.token-highlight-picture-hostile"]', html).css({ 'flex-basis': 'unset', 'flex-grow': 1 }));
+    btn2.clone(true).insertAfter($('input[name="monks-little-details.treasure-chest"]', html).css({ 'flex-basis': 'unset', 'flex-grow': 1 }));
 
     let colour = setting("bloodsplat-colour");
     $('<input>').attr('type', 'color').attr('data-edit', 'monks-little-details.bloodsplat-colour').val(colour).insertAfter($('input[name="monks-little-details.bloodsplat-colour"]', html).addClass('color'));
