@@ -110,7 +110,8 @@ export class BloodSplats {
                 }
             } else {
                 if (this.data._id != undefined) {
-                    this.icon.alpha = (game.user.isGM ? 0.2 : 0);
+                    if (!setting('bloodsplat-show-token'))
+                        this.icon.alpha = (game.user.isGM ? 0.2 : 0);
                     if (this.bloodsplat?.transform == undefined) {
                         if (this.bloodsplat)
                             this.removeChild(this.bloodsplat);

@@ -89,6 +89,7 @@
 	"MonksLittleDetails.round-chatmessages.name": "Combat Round Messages",
 	"MonksLittleDetails.round-chatmessages.hint": "Add a chat message every round to delineate combat messages",
 	"MonksLittleDetails.bloodsplat-colour.name": "Bloodsplat colour",
+	"MonksLittleDetails.bloodsplat-show-token.name": "Show Token Under Bloodsplat",
 	"MonksLittleDetails.show-start.name": "Show start token",
 	"MonksLittleDetails.show-start.hint": "Show where the token started it's turn",
 	"MonksLittleDetails.sort-statuses.name": "Sort Statuses",

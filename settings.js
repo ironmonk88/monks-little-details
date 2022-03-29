@@ -5,7 +5,7 @@ export const registerSettings = function () {
 	let modulename = "monks-little-details";
 
 	const debouncedReload = foundry.utils.debounce(function () { window.location.reload(); }, 100);
-	
+
 	let dialogpositions = {
 		'': '—',
 		'topleft': 'Top Left',
@@ -515,6 +515,14 @@ export const registerSettings = function () {
 		config: true,
 		default: '#FF0000',
 		type: String,
+		onChange: debouncedReload
+	});
+	game.settings.register(modulename, "bloodsplat-show-token", {
+		name: i18n("MonksLittleDetails.bloodsplat-show-token.name"),
+		scope: "world",
+		config: true,
+		default: false,
+		type: Boolean,
 		onChange: debouncedReload
 	});
 	game.settings.register(modulename, "module-management-changes", {
