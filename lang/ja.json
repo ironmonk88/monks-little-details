@@ -1,5 +1,4 @@
 {
-	"Localization Provided By": "touge",
 	"MonksLittleDetails.Turn": "あなたのターンです。どうする？",
 	"MonksLittleDetails.Next": "次があなたのターンです。準備して！",
 
@@ -102,6 +101,10 @@
 	"MonksLittleDetails.reposition-collapse.hint": "サイドバーの折りたたみボタンの位置を変更し、常に同じ場所に表示されるようにします。",
 	"MonksLittleDetails.auto-scroll.name": "イニシアチブ表の自動スクロール",
 	"MonksLittleDetails.auto-scroll.hint": "イニシアチブ表を自動でスクロールし、現在の戦闘参加者が常に一番上に表示されるようにします。",
+	"MonksLittleDetails.treasure-chest.name": "戦利品の画像",
+	"MonksLittleDetails.treasure-chest.hint": "コマが戦利品に変換されたときに使用する画像を指定します。",
+	"MonksLittleDetails.treasure-chest-size.name": "戦利品画像のサイズ",
+	"MonksLittleDetails.treasure-chest-size.hint": "戦利品に使用される画像と、コマの大きさの比率を指定します。",
 
 	"MonksLittleDetails.PlayRoundSound": "新しいラウンド開始時のサウンド",
 	"MonksLittleDetails.PlayRoundSoundHint": "次のラウンド開始時にサウンドを再生します。",
@@ -184,5 +187,11 @@
 	
 	"MonksLittleDetails.sortstatus.none": "なし",
 	"MonksLittleDetails.sortstatus.rows": "列",
-	"MonksLittleDetails.sortstatus.columns": "行"
+	"MonksLittleDetails.sortstatus.columns": "行",
+	"MonksLittleDetails.select-combatant.name": "戦闘中のコマを自動選択",
+	"MonksLittleDetails.select-combatant.hint": "ターンを得たコマが自動的に選択されるようになります。",
+
+	"MonksLittleDetails.actorsoundsoptions.none": "なし",
+	"MonksLittleDetails.actorsoundsoptions.npc": "NPCのみ",
+	"MonksLittleDetails.actorsoundsoptions.everyone": "全員"
 }
