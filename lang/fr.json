@@ -100,6 +100,10 @@
 	"MonksLittleDetails.reposition-collapse.hint": "Repositionner le bouton de réduction de la barre latérale afin qu'il reste toujours au même endroit.",
 	"MonksLittleDetails.auto-scroll.name": "Défilement automatique de la fenêtre de combat",
 	"MonksLittleDetails.auto-scroll.hint": "Défilement automatique de la fenêtre de combat pour que le combattant actuel soit toujours en haut de la page",
+	"MonksLittleDetails.treasure-chest.name": "Image du butin",
+	"MonksLittleDetails.treasure-chest.hint": "Image à utiliser lorsqu'un token a été converti en butin",
+	"MonksLittleDetails.treasure-chest-size.name": "Taille de l'image du butin",
+	"MonksLittleDetails.treasure-chest-size.hint": "Taille de l'image du butin par rapport à la taille du token",
 	"MonksLittleDetails.PlayRoundSound": "Jouer le son du nouveau round",
 	"MonksLittleDetails.PlayRoundSoundHint": "Jouer un son lorsque le prochain round commence",
 	"MonksLittleDetails.PreventTokenMessage": "Une fois en combat, un Token ne peut pas être retiré, sauf par l'interface de rencontre.",
@@ -166,5 +170,10 @@
 	"MonksLittleDetails.animation.fadeout": "Sortie en fondu",
 	"MonksLittleDetails.sortstatus.none": "Aucune",
 	"MonksLittleDetails.sortstatus.rows": "Lignes",
-	"MonksLittleDetails.sortstatus.columns": "Colonnes"
+	"MonksLittleDetails.sortstatus.columns": "Colonnes",
+	"MonksLittleDetails.select-combatant.name": "Sélectionner les combattants",
+	"MonksLittleDetails.select-combatant.hint": "Sélection automatique du token du combattant à son tour.",
+	"MonksLittleDetails.actorsoundsoptions.none": "Aucun",
+	"MonksLittleDetails.actorsoundsoptions.npc": "PNJs",
+	"MonksLittleDetails.actorsoundsoptions.everyone": "Tout le monde"
 }
