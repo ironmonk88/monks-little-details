@@ -105,6 +105,10 @@
 	"MonksLittleDetails.treasure-chest.hint": "Image to use when a token has been converted to loot",
 	"MonksLittleDetails.treasure-chest-size.name": "Loot Image Size",
 	"MonksLittleDetails.treasure-chest-size.hint": "Size of the Loot Image compared with the Token size",
+	"MonksLittleDetails.module-management-changes.name": "Module Management Changes",
+	"MonksLittleDetails.module-management-changes.hint": "Add colouring to denote module dependency availability and click on dependencies to scroll to them.",
+	"MonksLittleDetails.macro-tabs.name": "Macro Tabs",
+	"MonksLittleDetails.macro-tabs.hint": "Allow tabs in the macro editor to add a tab rather than tabbing to the next field",
 
 	"MonksLittleDetails.PlayRoundSound": "Play new round sound",
 	"MonksLittleDetails.PlayRoundSoundHint": "Play a sound when the next round starts",

@@ -1,6 +1,7 @@
 ﻿import { registerSettings } from "./settings.js";
 import { MMCQ } from "./quantize.js";
 import { WithMonksCombatTracker } from "./apps/combattracker.js";
+import { UpdateImages } from "./apps/update-images.js";
 //import { MonksPlaylistConfig } from "./apps/monksplaylistconfig.js";
 import { BloodSplats } from "./js/bloodsplats.js";
 import { CombatBars } from "./js/combat-bars.js";
@@ -32,7 +33,10 @@ export let i18n = key => {
     return game.i18n.localize(key);
 };
 export let setting = key => {
-    return game.settings.get("monks-little-details", key);
+    if (MonksLittleDetails._setting.hasOwnProperty(key))
+        return MonksLittleDetails._setting[key];
+    else
+        return game.settings.get("monks-little-details", key);
 };
 /*
 export let volume = () => {
@@ -46,6 +50,7 @@ export class MonksLittleDetails {
     static tracker = false;
     static tokenHUDimages = {};
     static movingToken = false;
+    static _setting = {};
 
     static canDo(setting) {
         //needs to not be on the reject list, and if there is an only list, it needs to be on it.
@@ -326,6 +331,10 @@ export class MonksLittleDetails {
     }
 
     static ready() {
+        MonksLittleDetails._setting["token-highlight-animate"] = setting("token-highlight-animate");
+        MonksLittleDetails._setting["token-combat-animation"] = setting("token-combat-animation");
+        MonksLittleDetails._setting["token-highlight-scale"] = setting("token-highlight-scale");
+
         CombatTurn.ready();
         HUDChanges.ready();
 
@@ -720,11 +729,15 @@ background-color: rgba(0, 0, 0, 0.5);
         return ((token.combatant && token.combatant.data.defeated) || token.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId) || token.data.overlayEffect == CONFIG.controlIcons.defeated);
     }
 
+    static showUpdateImages() {
+        new UpdateImages().render(true);
+    }
+
     static async fixImages({ wildcards = true, packs = "dnd5e.monsters", system = "dnd", tokentypes = ['overhead', 'disc', 'artwork'] } = {}) {
         let getFiles = async function(filename) {
             let source = "data";
             let pattern = filename;
-            const browseOptions = { wildcard: true };
+            const browseOptions = { wildcard: wildcards };
 
             // Support S3 matching
             if (/\.s3\./.test(pattern)) {
@@ -1314,5 +1327,127 @@ Hooks.on("renderMacroConfig", (app, html, data) => {
         $("<button>")
             .attr("type", "button")
             .html('<i class="fas fa-file-download"></i> Apply')
-            .on("click", (event) => { app._onSubmit.call(app, event, { preventClose: true}) }));
+            .on("click", (event) => { app._onSubmit.call(app, event, { preventClose: true }) }));
+
+    if (setting("macro-tabs")) {
+        $('textarea[name="command"]', html).on("keydown", function (e) {
+            if (e.key == 'Tab') {
+                e.preventDefault();
+                e.stopPropagation();
+                var start = this.selectionStart;
+                var end = this.selectionEnd;
+
+                // set textarea value to: text before caret + tab + text after caret
+                this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
+
+                // put caret at right position again
+                this.selectionStart = this.selectionEnd = start + 1;
+                $(this).trigger("input");
+            }
+        });
+    }
 })
+
+Hooks.on("updateSetting", (setting, data, options, userid) => {
+    if (setting.key.startsWith("monks-little-details")) {
+        const key = setting.key.replace("monks-little-details.", "");
+        if (MonksLittleDetails._setting.hasOwnProperty(key))
+            MonksLittleDetails._setting[key] = data.value;
+    }
+});
+
+Hooks.on('renderModuleManagement', (app, html, data) => {
+    if (setting("module-management-changes")) {
+        let requires = {};
+
+        let scrollToView = function (ev) {
+            let module = $(ev.currentTarget).html();
+            let div = $(`.package[data-module-name="${module}"]`, html);
+            if (div.length) {
+                div[0].scrollIntoView({ behavior: "smooth" });
+            }
+        }
+
+        for (let mod of data.modules) {
+            if (mod.dependencies.length) {
+                for (let dep of mod.dependencies) {
+                    if (requires[dep] == undefined)
+                        requires[dep] = [mod.name];
+                    else
+                        requires[dep].push(mod.name);
+
+                    let hasModule = data.modules.find(m => m.name == dep);
+                    $(`.package[data-module-name="${mod.name}"] .package-metadata .tag`, html).each(function () {
+                        if ($(this).html() == dep) {
+                            $(this).addClass(hasModule ? (hasModule.active ? "success" : "info") : "danger");
+                        }
+                        $(this).on("click", scrollToView.bind(this));
+                    });
+                }
+            }
+        }
+
+        for (let [req, values] of Object.entries(requires)) {
+            let li = $('<li>').appendTo($(`.package[data-module-name="${req}"] .package-metadata`, html));
+            li.append($("<strong>").html("Supports:"));
+            for (let val of values) {
+                li.append($("<span>").addClass("tag").html(val).on("click", scrollToView.bind(this)));
+            }
+        }
+    }
+});
+
+Hooks.on("getActorDirectoryEntryContext", (html, entries) => {
+    entries.push({
+        name: "Transform into this Actor",
+        icon: '<i class="fas fa-random"></i>',
+        condition: li => {
+            const actor = game.actors.get(li.data("documentId"));
+            const canPolymorph = game.user.isGM || (actor.isOwner && game.settings.get("dnd5e", "allowPolymorphing"));
+            return canPolymorph;
+        },
+        callback: async (li) => {
+            let data = {
+                id: li.data("documentId")
+            }
+
+            let actors = canvas.tokens.controlled.map(t => t.actor);
+
+            if (actors.length == 0 && !game.user.isGM)
+                actors = [game.user.character];
+
+            for (let actor of actors) {
+                actor.sheet._onDropActor(null, data);
+            }
+        }
+    });
+});
+
+Hooks.on("getCompendiumEntryContext", (html, entries) => {
+    entries.push({
+        name: "Transform into this Actor",
+        icon: '<i class="fas fa-random"></i>',
+        condition: li => {
+            if (!$(li).hasClass("actor"))
+                return false;
+            const canPolymorph = game.user.isGM || (game.settings.get("dnd5e", "allowPolymorphing"));
+            return canPolymorph;
+        },
+        callback: async (li) => {
+            let compendium = $(li).closest('.directory');
+            let data = {
+                pack: compendium.data("pack"),
+                id: li.data("documentId")
+            }
+
+            let actors = canvas.tokens.controlled.map(t => t.actor);
+
+            if (actors.length == 0 && !game.user.isGM)
+                actors = [game.user.character];
+
+            for (let actor of actors) {
+                actor.sheet._onDropActor(null, data);
+            }
+        }
+    });
+});

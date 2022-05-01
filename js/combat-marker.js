@@ -109,7 +109,7 @@ export class CombatMarker {
 
         Hooks.on("renderTokenConfig", (app, html, data) => {
             if (game.user.isGM) {
-                let tokenhighlight = app?.object?.data?.flags['monks-little-details']['token-highlight'];
+                let tokenhighlight = getProperty(app?.object?.data?.flags, "monks-little-details.token-highlight");
                 $('<div>')
                     .addClass('form-group')
                     .append($('<label>').html(i18n("MonksLittleDetails.token-highlight-picture.name")))
@@ -136,7 +136,7 @@ export class CombatMarker {
                     )
                     .insertAfter($('[name="alpha"]', html).closest('.form-group'));
 
-                let tokenanimation = app?.object?.data?.flags['monks-little-details']['token-combat-animation'];
+                let tokenanimation = getProperty(app?.object?.data?.flags, "monks-little-details.token-combat-animation");
                 let animation = {
                     '': '',
                     'none': i18n("MonksLittleDetails.animation.none"),
@@ -231,11 +231,11 @@ export class CombatMarker {
 
     static animateMarkers(dt) {
         let interval = setting('token-highlight-animate');
-        for (const [key, token] of Object.entries(CombatMarker.turnMarkerAnim)) {
+        for (const token of Object.values(CombatMarker.turnMarkerAnim)) {
             if (token?.ldmarker?.transform) {
                 let delta = interval / 10000;
                 try {
-                    let animation = (token.data?.flags && token.data?.flags['monks-little-details'] && token.data?.flags['monks-little-details']['token-combat-animation']) || setting('token-combat-animation');
+                    let animation = getProperty(token.data?.flags, "monks-little-details.token-combat-animation") || setting('token-combat-animation');
                     if (animation == 'clockwise') {
                         token.ldmarker.rotation += (delta * dt);
                         if (token.ldmarker.rotation > (Math.PI * 2))

@@ -1,0 +1,58 @@
+<form autocomplete="off" onsubmit="event.preventDefault();">
+    <div class="action-container">
+        <p class="notes">This dialog is used to update all the images in a system bestiary compendium, and update the associated tokens.</p>
+        <div class="form-group">
+            <label for="action">Actor Compendium</label>
+            <div class="form-fields">
+                <select name="compendium" data-dtype="String">
+                    {{selectOptions compendiums}}
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="action">Strict Names</label>
+            <div class="form-fields">
+                <input type="checkbox" name="strict-name" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="action">Avatar Folders</label>
+            <div class="form-fields flexcol" style="flex-direction: column;">
+                <div class="flexrow" style="width: 100%; margin: 0px;">
+                    {{filePicker type="folder" target="avatar-folder.1"}}
+                    <input type="text" name="avatar-folder.1" value="{{avatar-folder1}}" />
+                </div>
+                <div class="flexrow" style="width: 100%; margin: 0px;">
+                    {{filePicker type="folder" target="avatar-folder.2"}}
+                    <input type="text" name="avatar-folder.2" value="{{avatar-folder2}}" />
+                </div>
+                <div class="flexrow" style="width: 100%; margin: 0px;">
+                    {{filePicker type="folder" target="avatar-folder.3"}}
+                    <input type="text" name="avatar-folder.3" value="{{avatar-folder3}}" />
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="action">Token Folders</label>
+            <div class="form-fields flexcol" style="flex-direction: column;">
+                <div class="flexrow" style="width: 100%; margin: 0px;">
+                    {{filePicker type="folder" target="token-folder.1"}}
+                    <input type="text" name="token-folder.1" value="{{token-folder1}}" />
+                </div>
+                <div class="flexrow" style="width: 100%; margin: 0px;">
+                    {{filePicker type="folder" target="token-folder.2"}}
+                    <input type="text" name="token-folder.2" value="{{token-folder2}}" />
+                </div>
+                <div class="flexrow" style="width: 100%; margin: 0px;">
+                    {{filePicker type="folder" target="token-folder.3"}}
+                    <input type="text" name="token-folder.3" value="{{token-folder3}}" />
+                </div>
+            </div>
+        </div>
+        <button type="button" class="convert">
+            Convert
+        </button>
+        <ul class="conversion-results" style="display: none;height: 300px;overflow-y: auto;border: 1px solid #C0C0C0;border-radius: 4px;background-color: rgba(255, 255, 255, 0.3);">
+        </ul>
+    </div>
+</form>

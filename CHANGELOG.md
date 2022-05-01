@@ -1,3 +1,19 @@
+# Version 1.0.48
+
+Fixed issue with combat marker not getting the token highlight or token animation properly.
+
+Fixed issue with combat turn throwing an error if the token is null.
+
+Added caching for the animation settings.
+
+Added the option that when pressing tab in the Macro Editor, it will add a tab rather than moving to the next field.
+
+Added colouring of dependant module in the module management so you can easily see which ones are missing and which ones are inactive.
+
+Added the option to click on dependant modules to scroll to that module in the list.
+
+Added the option to transform into the selected actor in the actor directory to the context menu.  So if you have a wildshape druid, instead of relying on drag and drop to transform you can just right click the shape you want to transform into.
+
 # Version 1.0.47
 
 Fixed an issue with combat markers

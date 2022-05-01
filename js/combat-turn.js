@@ -315,7 +315,7 @@ export class CombatTurn {
             if (next == undefined || next >= combat.turns.length)
                 next = findNext(-1);
 
-            let isActive = entry.actor?.isOwner;
+            let isActive = entry?.actor?.isOwner;
             let nxtentry = null;
             let isNext = false;
 

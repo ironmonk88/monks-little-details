@@ -517,6 +517,22 @@ export const registerSettings = function () {
 		type: String,
 		onChange: debouncedReload
 	});
+	game.settings.register(modulename, "module-management-changes", {
+		name: i18n("MonksLittleDetails.module-management-changes.name"),
+		hint: i18n("MonksLittleDetails.module-management-changes.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean
+	});
+	game.settings.register(modulename, "macro-tabs", {
+		name: i18n("MonksLittleDetails.macro-tabs.name"),
+		hint: i18n("MonksLittleDetails.macro-tabs.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean
+	});
 	game.settings.register(modulename, "treasure-chest", {
 		name: i18n("MonksLittleDetails.treasure-chest.name"),
 		hint: i18n("MonksLittleDetails.treasure-chest.hint"),

@@ -165,14 +165,6 @@ export class ActorSounds {
         return this._tokenSounds;
     }
 
-    /*
-    static playSoundEffect(audiofile) {
-        if (audiofile != undefined) {
-            let volume = game.settings.get("core", 'globalInterfaceVolume');
-            return AudioHelper.play({ src: audiofile, volume: volume }, true);
-        }
-    }*/
-
     static clearSoundEffect(event) {
         this.actor.unsetFlag('monks-little-details', 'sound-effect');
     }
