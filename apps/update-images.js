@@ -25,11 +25,13 @@ export class UpdateImages extends FormApplication {
                 data.compendiums[pack.collection] = `${pack.title} - (${pack.metadata.package})`
             }
         }
+        data.compendium = game.user.getFlag("monks-little-details", "compendium");
 
         for (let i = 1; i <= 3; i++) {
             data["avatar-folder" + i] = game.user.getFlag("monks-little-details", "avatar" + i);
             data["token-folder" + i] = game.user.getFlag("monks-little-details", "token" + i);
         }
+        data["sound-folder"] = game.user.getFlag("monks-little-details", "sound-folder");
 
         return data;
     }
@@ -47,6 +49,8 @@ export class UpdateImages extends FormApplication {
 
         let pack = game.packs.get(data.compendium);
 
+        game.user.setFlag("monks-little-details", "compendium", data.compendium);
+
         let avatars = [];
         for (let i = 1; i <= 3; i++) {
             if (data["avatar-folder"][i])
@@ -61,7 +65,10 @@ export class UpdateImages extends FormApplication {
             game.user.setFlag("monks-little-details", "token" + i, data["token-folder"][i]);
         }
 
-        this.fixImages(pack, data["strict-name"], avatars, tokens);
+        if (data["sound-folder"])
+            game.user.setFlag("monks-little-details", "sound-folder", data["sound-folder"]);
+
+        this.fixImages(pack, data["strict-name"], avatars, tokens, data["sound-folder"]);
 
         log("Try converting", data);
     }
@@ -69,7 +76,10 @@ export class UpdateImages extends FormApplication {
     async getFiles(filename) {
         let source = "data";
         let pattern = filename;
-        const browseOptions = { wildcard: true };
+        const browseOptions = {
+            wildcard: true
+            //, extensions: CONST.IMAGE_FILE_EXTENSIONS
+        };
 
         // Support S3 matching
         if (/\.s3\./.test(pattern)) {
@@ -92,27 +102,36 @@ export class UpdateImages extends FormApplication {
         return [];
     }
 
-    async fixEntry(entry, prop, imgname) {
-        if (getProperty(entry, prop).toLowerCase() == imgname) {
-            $('.conversion-results', this.element).append($('<li>').html(`Ignoring: ${entry.name}`));
-            return true;
-        }
-
+    async fixEntry(entry, prop, imgname, type) {
         let files = await this.getFiles(imgname);
         if (files && files.length > 0) {
+            let filenames = files.map(f => {
+                let ext = f.split('.').pop();
+                return {
+                    name: f,
+                    ext: ext
+                }
+            });
+            filenames = filenames.sort((a, b) => { return b.ext.localeCompare(a.ext); });
+
+            if (getProperty(entry, prop) == filenames[0].name) {
+                $('.conversion-results', this.element).append($('<li>').html(`<span style="color: gray;">Ignoring ${type}: ${entry.name}, image is the same</span>`));
+                return true;
+            }
+
             let update = {};
-            update[prop] = files[0];
+            update[prop] = filenames[0].name;
             update = expandObject(update);
 
             await entry.update(update.data);
-            log('Fixing:', entry.name, files[0]);
-            $('.conversion-results', this.element).append($('<li>').html(`Fixing: ${entry.name}, ${files[0]}`));
+            log('Fixing:', entry.name, filenames[0].name);
+            $('.conversion-results', this.element).append($('<li>').html(`<span style="color: darkgreen;">Fixing ${type}: ${entry.name}, ${filenames[0].name}</span>`));
             return true;
         }
         return false;
     }
 
-    async fixImages(pack, strictname, avatars, tokens) {
+    async fixImages(pack, strictname, avatars, tokens, sound) {
         let onlyUnique = function (value, index, self) {
             return self.indexOf(value) === index;
         }
@@ -124,8 +143,19 @@ export class UpdateImages extends FormApplication {
             await pack.getDocuments().then(async (entries) => {
                 for (var i = 0; i < entries.length; i++) {
                     var entry = entries[i];
-                    var monname = entry.name.toLowerCase();
-                    monname = monname.replace(/-/g, '').replace(/'/g, '').replace(/\(.*\)/, '').replace(/\s/g, '');
+                    let altname = entry.name.replace(/-/g, '').replace(/'/g, '').replace(/\(.*\)/, '').replace(/\s/g, '');
+                    let names = [entry.name, entry.name.toLowerCase()];
+                    if (altname != entry.name) {
+                        names.push(altname);
+                        names.push(altname.toLowerCase());
+                    }
+                    if (!strictname) {
+                        for (let name of duplicate(names)) {
+                            let flexname = name.replace('ancient', '').replace('adult', '').replace('young', '').replace('Ancient', '').replace('Adult', '').replace('Young', '');
+                            if (flexname != name)
+                                names.push(flexname);
+                        }
+                    }
 
                     var mtype = entry.data.data.details.type?.value.toLowerCase() || entry.data.data.traits?.traits?.value || ""; //|| entry.data.data.details.creatureType?.toLowerCase()
                     mtype = (mtype instanceof Array ? mtype : [mtype]);
@@ -142,58 +172,51 @@ export class UpdateImages extends FormApplication {
                     mtype.unshift("");
                     mtype = mtype.filter(onlyUnique);
 
+                    let found = false;
                     foundAvatar:
                     for (let avatar of avatars) {
-                        for (let type of mtype) {
-                            let imgname = `${avatar}/${type != "" ? type + "/" : ""}${monname}.png`;
-                            let result = await this.fixEntry(entry, "data.img", imgname);
-                            if (result)
-                                break foundAvatar;
-
-                            if (!strictname) {
-                                let altname = monname;
-                                if (altname.startsWith('ancient'))
-                                    altname = altname.replace('ancient', '');
-                                if (altname.startsWith('adult'))
-                                    altname = altname.replace('adult', '');
-                                if (altname.startsWith('young'))
-                                    altname = altname.replace('young', '');
-
-                                let imgname2 = `${avatar}/${type != "" ? type + "/" : ""}${altname}.png`;
-                                if (imgname2 != imgname) {
-                                    let result = await this.fixEntry(entry, "data.img", imgname2);
-                                    if (result)
-                                        break foundAvatar;
+                        for (let name of names) {
+                            for (let type of mtype) {
+                                let imgname = `${avatar}/${type != "" ? type + "/" : ""}${name}.*`;
+                                let result = await this.fixEntry(entry, "data.img", imgname, "avatar");
+                                if (result) {
+                                    found = true;
+                                    break foundAvatar;
                                 }
                             }
                         }
                     }
-                    
+                    if (!found) {
+                        $('.conversion-results', this.element).append($('<li>').html(`<span style="color: darkred;">Unable to find avatar: ${entry.name}</span>`));
+                    }
+
+                    found = false;
                     foundToken:
                     for (let token of tokens) {
-                        for (let type of mtype) {
-                            var imgname = `${token}/${type != "" ? type + "/" : ""}${monname}.png`;
+                        for (let name of names) {
+                            for (let type of mtype) {
+                                var imgname = `${token}/${type != "" ? type + "/" : ""}${name}.*`;
 
-                            let result = await this.fixEntry(entry, "data.token.img", imgname);
-                            if (result)
-                                break foundToken;
-
-                            if (!strictname) {
-                                let altname = monname;
-                                if (altname.startsWith('ancient'))
-                                    altname = altname.replace('ancient', '');
-                                if (altname.startsWith('adult'))
-                                    altname = altname.replace('adult', '');
-                                if (altname.startsWith('young'))
-                                    altname = altname.replace('young', '');
-
-                                let imgname2 = `${token}/${type != "" ? type + "/" : ""}${altname}.png`;
-                                if (imgname2 != imgname) {
-                                    let result = await this.fixEntry(entry, "data.token.img", imgname2);
-                                    if (result)
-                                        break foundToken;
+                                let result = await this.fixEntry(entry, "data.token.img", imgname, "token");
+                                if (result) {
+                                    found = true;
+                                    break foundToken;
                                 }
                             }
+                        }
+                    }
+                    if (!found) {
+                        $('.conversion-results', this.element).append($('<li>').html(`<span style="color: darkred;">Unable to find token: ${entry.name}</span>`));
+                    }
+
+                    foundSound:
+                    for (let name of names) {
+                        for (let type of mtype) {
+                            var soundname = `${sound}/${type != "" ? type + "/" : ""}${name}.*`;
+
+                            let result = await this.fixEntry(entry, "data.flags.monks-little-details.sound-effect", soundname, "sound");
+                            if (result)
+                                break foundSound;
                         }
                     }
                     

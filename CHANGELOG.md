@@ -1,3 +1,7 @@
+# Version 1.0.49
+
+Fixed issues with the transform context menu and systems other than dnd5e.
+
 # Version 1.0.48
 
 Fixed issue with combat marker not getting the token highlight or token animation properly.

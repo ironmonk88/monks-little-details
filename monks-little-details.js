@@ -1398,29 +1398,31 @@ Hooks.on('renderModuleManagement', (app, html, data) => {
 });
 
 Hooks.on("getActorDirectoryEntryContext", (html, entries) => {
-    entries.push({
-        name: "Transform into this Actor",
-        icon: '<i class="fas fa-random"></i>',
-        condition: li => {
-            const actor = game.actors.get(li.data("documentId"));
-            const canPolymorph = game.user.isGM || (actor.isOwner && game.settings.get("dnd5e", "allowPolymorphing"));
-            return canPolymorph;
-        },
-        callback: async (li) => {
-            let data = {
-                id: li.data("documentId")
+    if (game.system.id == "dnd5e") {
+        entries.push({
+            name: "Transform into this Actor",
+            icon: '<i class="fas fa-random"></i>',
+            condition: li => {
+                const actor = game.actors.get(li.data("documentId"));
+                const canPolymorph = game.user.isGM || (actor.isOwner && game.settings.get("dnd5e", "allowPolymorphing"));
+                return canPolymorph;
+            },
+            callback: async (li) => {
+                let data = {
+                    id: li.data("documentId")
+                }
+
+                let actors = canvas.tokens.controlled.map(t => t.actor);
+
+                if (actors.length == 0 && !game.user.isGM)
+                    actors = [game.user.character];
+
+                for (let actor of actors) {
+                    actor.sheet._onDropActor(null, data);
+                }
             }
-
-            let actors = canvas.tokens.controlled.map(t => t.actor);
-
-            if (actors.length == 0 && !game.user.isGM)
-                actors = [game.user.character];
-
-            for (let actor of actors) {
-                actor.sheet._onDropActor(null, data);
-            }
-        }
-    });
+        });
+    }
 });
 
 Hooks.on("getCompendiumEntryContext", (html, entries) => {

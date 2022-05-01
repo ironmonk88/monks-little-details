@@ -5,7 +5,7 @@
             <label for="action">Actor Compendium</label>
             <div class="form-fields">
                 <select name="compendium" data-dtype="String">
-                    {{selectOptions compendiums}}
+                    {{selectOptions compendiums value="compendium"}}
                 </select>
             </div>
         </div>
@@ -32,6 +32,7 @@
                 </div>
             </div>
         </div>
+        <hr />
         <div class="form-group">
             <label for="action">Token Folders</label>
             <div class="form-fields flexcol" style="flex-direction: column;">
@@ -46,6 +47,16 @@
                 <div class="flexrow" style="width: 100%; margin: 0px;">
                     {{filePicker type="folder" target="token-folder.3"}}
                     <input type="text" name="token-folder.3" value="{{token-folder3}}" />
+                </div>
+            </div>
+        </div>
+        <hr />
+        <div class="form-group">
+            <label for="action">Sound Folder</label>
+            <div class="form-fields flexcol" style="flex-direction: column;">
+                <div class="flexrow" style="width: 100%; margin: 0px;">
+                    {{filePicker type="folder" target="sound-folder"}}
+                    <input type="text" name="sound-folder" value="{{sound-folder}}" />
                 </div>
             </div>
         </div>
