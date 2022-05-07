@@ -105,6 +105,10 @@
 	"MonksLittleDetails.treasure-chest.hint": "コマが戦利品に変換されたときに使用する画像を指定します。",
 	"MonksLittleDetails.treasure-chest-size.name": "戦利品画像のサイズ",
 	"MonksLittleDetails.treasure-chest-size.hint": "戦利品に使用される画像と、コマの大きさの比率を指定します。",
+	"MonksLittleDetails.module-management-changes.name": "”モジュールの管理”画面の修正",
+	"MonksLittleDetails.module-management-changes.hint": "モジュールの依存関係を色分け表示し、クリックで依存先に移動できるようにします。",
+	"MonksLittleDetails.macro-tabs.name": "マクロでタブ文字",
+	"MonksLittleDetails.macro-tabs.hint": "マクロ編集時に［Tab］キーを押すと、次のフィールドに遷移するのではなく新しいタブ文字が入力されるようにします。",
 
 	"MonksLittleDetails.PlayRoundSound": "新しいラウンド開始時のサウンド",
 	"MonksLittleDetails.PlayRoundSoundHint": "次のラウンド開始時にサウンドを再生します。",
