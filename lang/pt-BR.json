@@ -16,7 +16,7 @@
 	"MonksLittleDetails.volume.hint": "Determina o volume do modulo como um todo",
 	"MonksLittleDetails.disablesounds.name": "Disativar Sons",
 	"MonksLittleDetails.disablesounds.hint": "Desativar todos os efeitos auditivos para todos os jogadores",
-    "MonksLittleDetails.combat-position.name": "Posição da Janela do 'Combat Tracker'",
+	"MonksLittleDetails.combat-position.name": "Posição da Janela do 'Combat Tracker'",
 	"MonksLittleDetails.combat-position.hint": "Onde posicionar o 'Combat Tracker' quando for aberto, em vez de abrir no centra da tela",
 	"MonksLittleDetails.opencombat.name": "Popout do 'Combat Tracker'",
 	"MonksLittleDetails.opencombat.hint": "Ao iniciar um combate, soltar o 'Combat Tracker' da barra lateral e mudar para a aba de chat",
@@ -99,6 +99,16 @@
 	"MonksLittleDetails.find-my-token.hint": "Mostrar o botão 'Encontrar meu Token'",
 	"MonksLittleDetails.reposition-collapse.name": "Reposicionar o botão de Recolher",
 	"MonksLittleDetails.reposition-collapse.hint": "Reposicionar o botão de recolher da barra lateral para que esteja sempre na mesma posição",
+	"MonksLittleDetails.auto-scroll.name": "Rolagem automática no combat tracker",
+	"MonksLittleDetails.auto-scroll.hint": "Rolagem automatica para que o combatente atual esteja sempre no topo",
+	"MonksLittleDetails.treasure-chest.name": "Imagem de Saque",
+	"MonksLittleDetails.treasure-chest.hint": "Imagem que será usada quando um token for convertido em saque",
+	"MonksLittleDetails.treasure-chest-size.name": "Tamanho da Imagem do Saque",
+	"MonksLittleDetails.treasure-chest-size.hint": "Tamanho da imagem de saque em comparação com o tamanho do token",
+	"MonksLittleDetails.module-management-changes.name": "Mudanças de Gerenciamento de Módulo",
+	"MonksLittleDetails.module-management-changes.hint": "Adicione coloração para indicar a disponibilidade de dependência do módulo e clique nas dependências para rolar até elas.",
+	"MonksLittleDetails.macro-tabs.name": "Tab em Macro",
+	"MonksLittleDetails.macro-tabs.hint": "Permitir que o uso do tab no editor de macro adicione espaço em vez de alterar o foco para o próximo campo",
 
 	"MonksLittleDetails.PlayRoundSound": "Reproduzir o som de nova rodada",
 	"MonksLittleDetails.PlayRoundSoundHint": "Reproduzir um som quando uma nova rodada se iniciar",
@@ -111,12 +121,15 @@
 	"MonksLittleDetails.CombatTurn": "Turnos de Combate",
 	"MonksLittleDetails.CombatTokenHighlight": "Destaque de Token em Combate",
 	"MonksLittleDetails.AddedFeatures": "Recursos Adicionados",
+	"MonksLittleDetails.ClearWarning": "O conteúdo desta pasta será excluído permanentemente.",
 
 	"MonksLittleDetails.CombatDisplayBars": "Barras Exibidas no Combate:",
 
 	"MonksLittleDetails.FindMyToken": "Encontrar meu Token",
 
 	"MonksLittleDetails.LatestChanges": "Últimas Alterações",
+
+	"MonksLittleDetails.ClearAll": "limpar todos",
 
 	"MonksLittleDetails.QuickShow": "Exibição Rápida",
 	"MonksLittleDetails.ChangeTo": "Mudar para",
@@ -178,5 +191,11 @@
 
 	"MonksLittleDetails.sortstatus.none": "Nenhum",
 	"MonksLittleDetails.sortstatus.rows": "Linhas",
-	"MonksLittleDetails.sortstatus.columns": "Colunas"
+	"MonksLittleDetails.sortstatus.columns": "Colunas",
+	"MonksLittleDetails.select-combatant.name": "Selecionar Combatante",
+	"MonksLittleDetails.select-combatant.hint": "Selecionar automaticamente o token do combatente em seu turno",
+
+	"MonksLittleDetails.actorsoundsoptions.none": "Nenhum",
+	"MonksLittleDetails.actorsoundsoptions.npc": "PNJs",
+	"MonksLittleDetails.actorsoundsoptions.everyone": "Todos"
 }

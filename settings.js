@@ -50,6 +50,12 @@ export const registerSettings = function () {
 		'everyone': i18n("MonksLittleDetails.actorsoundsoptions.everyone")
 	};
 
+	let bloodsplatoptions = {
+		'false': i18n("MonksLittleDetails.bloodsplatoptions.none"),
+		'true': i18n("MonksLittleDetails.bloodsplatoptions.true"),
+		'both': i18n("MonksLittleDetails.bloodsplatoptions.both")
+    }
+
 	//System changes
 	game.settings.register(modulename, "swap-buttons", {
 		name: i18n("MonksLittleDetails.swap-buttons.name"),
@@ -505,8 +511,9 @@ export const registerSettings = function () {
 		hint: i18n("MonksLittleDetails.show-bloodsplat.hint"),
 		scope: "world",
 		config: true,
-		default: false,
-		type: Boolean,
+		default: "false",
+		choices: bloodsplatoptions,
+		type: String,
 		onChange: debouncedReload
 	});
 	game.settings.register(modulename, "bloodsplat-colour", {

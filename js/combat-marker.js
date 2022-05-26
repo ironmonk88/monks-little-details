@@ -45,7 +45,8 @@ export class CombatMarker {
             if (data.img != undefined ||
                 data.width != undefined ||
                 data.height != undefined ||
-                foundry.utils.getProperty(data, 'flags.monks-little-details.token-highlight') != undefined) {
+                foundry.utils.getProperty(data, 'flags.monks-little-details.token-highlight') != undefined ||
+                foundry.utils.getProperty(data, 'flags.monks-little-details.token-combat-animation') != undefined) {
                 let activeCombats = game.combats.filter(c => {
                     return c?.scene?.id == game.scenes.viewed.id && c.started;
                 });
@@ -187,8 +188,12 @@ export class CombatMarker {
                     token.addChildAt(token.ldmarker, 0);
                     token.ldmarker.visible = visible;
                 });
-            } else
+            } else {
                 token.ldmarker.visible = visible;
+                const size = Math.max(token.w, token.h) * setting("token-highlight-scale");
+                token.ldmarker.width = token.ldmarker.height = size;
+                token.ldmarker.alpha = 0.8;
+            }
 
             if (visible)
                 CombatMarker.turnMarkerAnim[token.id] = token;

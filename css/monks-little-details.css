@@ -34,7 +34,7 @@
     border-color: transparent;
 }
 
-.subdirectory {
+.directory .directory-list .subdirectory {
     border-left: none;
     border-bottom: 4px solid #333;
     margin-bottom: 0px;
@@ -164,7 +164,8 @@
     padding: 0px 3px;
 }
 #mldCharacterSound.loaded {
-    border: 1px solid #ff6400;       
+    border: 1px solid #ff6400;
+    color: #ff6400;
 }
 
 .mldCharacterName {

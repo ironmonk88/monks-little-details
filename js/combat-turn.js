@@ -345,7 +345,7 @@ export class CombatTurn {
         if (audiofiles.length > 0) {
             const audiofile = audiofiles[Math.floor(Math.random() * audiofiles.length)];
 
-            let volume = (setting('volume') / 100) * game.settings.get("core", 'globalInterfaceVolume');
+            let volume = (setting('volume') / 100);
             AudioHelper.play({ src: audiofile, volume: volume });
         }
     }

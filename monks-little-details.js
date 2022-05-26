@@ -300,9 +300,9 @@ export class MonksLittleDetails {
         if (game.modules.get("lib-wrapper")?.active) {
             libWrapper.register("monks-little-details", "MapLayer.prototype._onDropData", onDropData, "OVERRIDE");
         } else {
-            const oldOnDropData = MapLayer.prototype._onDropData;
+            //const oldOnDropData = MapLayer.prototype._onDropData;
             MapLayer.prototype._onDropData = function () {
-                return onDropData.call(this, oldOnDropData.bind(this), ...arguments);
+                return onDropData.call(this, ...arguments);
             }
         }
 
@@ -361,7 +361,8 @@ export class MonksLittleDetails {
         game.keybindings.register('monks-little-details', 'movement-key', {
             name: 'MonksLittleDetails.movement-key.name',
             hint: 'MonksLittleDetails.movement-key.hint',
-            editable: [{ key: 'KeyM' }]
+            editable: [{ key: 'KeyM' }],
+            restricted: true,
         });
 
         if (game.settings.get("monks-little-details", "key-swap-tool")) {

@@ -81,6 +81,10 @@ export class UpdateImages extends FormApplication {
             //, extensions: CONST.IMAGE_FILE_EXTENSIONS
         };
 
+        if (typeof ForgeVTT != "undefined" && ForgeVTT.usingTheForge) {
+            source = "forgevtt";
+        }
+
         // Support S3 matching
         if (/\.s3\./.test(pattern)) {
             source = "s3";

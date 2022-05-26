@@ -7,7 +7,15 @@ export class ActorSounds {
                 $('.col.right', html).append(
                     $('<div>').addClass('control-icon sound-effect')
                         .append('<img src="modules/monks-little-details/icons/volumeup.svg" width="36" height="36" title="Play Sound Effect">')
-                        .click($.proxy(ActorSounds.loadSoundEffect, app.object)));
+                        .click(ActorSounds.loadSoundEffect.bind(app, app.object)));
+            }
+        });
+
+        Hooks.on("globalInterfaceVolumeChanged", (volume) => {
+            for (let token of canvas.tokens.placeables) {
+                if (token.soundeffect) {
+                    token.soundeffect.volume = (token.soundeffect._mldvolume ?? 1) * volume;
+                }
             }
         });
     }
@@ -39,9 +47,10 @@ export class ActorSounds {
                     .attr('id', "mldCharacterSound")
                     .toggleClass('loaded', hasSound)
                     .html('<i class="fas fa-volume-up"></i>')
-                    .click($.proxy(ActorSounds.findSoundEffect, app));
+                    .click(ActorSounds.showDialog.bind(app));
                 //.contextmenu($.proxy(ActorSounds.loadSoundEffect, app));
 
+                /*
                 if (app.soundcontext == undefined) {
                     app.soundcontext = new ContextMenu(html, "#mldCharacterSound", [
                         {
@@ -72,7 +81,7 @@ export class ActorSounds {
                             }
                         }
                     ]);
-                }
+                }*/
 
                 let wrap = $('<div class="mldCharacterName"></div>');
                 $(html).find("input[name='name']").wrap(wrap);
@@ -85,6 +94,7 @@ export class ActorSounds {
         });
     }
 
+    /*
     static findSoundEffect(event) {
         //Display the filepicker to save a sound
         const current = this.actor.getFlag('monks-little-details', 'sound-effect');
@@ -99,47 +109,58 @@ export class ActorSounds {
             wildcard: true
         });
         return fp.browse();
-    }
+    }*/
 
-    static async loadSoundEffect(event) {
-        const audiofiles = await ActorSounds.getTokenSounds(this.actor);
+    static async loadSoundEffect(token, event) {
+        let actor = token.actor;
 
-        //audiofiles = audiofiles.filter(i => (audiofiles.length === 1) || !(i === this._lastWildcard));
-        if (audiofiles?.length > 0) {
-            const audiofile = audiofiles[Math.floor(Math.random() * audiofiles.length)];
+        if (!actor)
+            return;
 
-            let volume = game.settings.get("core", 'globalInterfaceVolume');
-            if (this instanceof Token) {
-                let token = this;
-                if (this.soundeffect == undefined) {
-                    AudioHelper.play({ src: audiofile, volume: volume }, true).then((sound) => {
-                        token.soundeffect = sound;
-                        token.soundeffect.on("end", () => {
-                            delete token.soundeffect;
-                        });
-                    });
-
-                } else {
-                    if (token.soundeffect.playing) {
-                        token.soundeffect.stop();
-                        game.socket.emit("stopAudio", { src: audiofile }); //+++ this isn't a function with the new AudioHelper
-                    }
-                    delete token.soundeffect;
-                }
-            } else
-                AudioHelper.play({ src: audiofile, volume: volume }, true);
-        }
         if (event != undefined)
             event.preventDefault;
+
+        if (token.soundeffect) {
+            if (token.soundeffect?.playing) {
+                token.soundeffect.stop();
+                game.socket.emit("stopAudio", { src: audiofile }); //+++ this isn't a function with the new AudioHelper
+            }
+            delete token.soundeffect;
+        } else {
+            let volume = actor.getFlag('monks-little-details', 'volume') ?? 1;
+            let soundeffect = actor.getFlag('monks-little-details', 'sound-effect');
+            const cache = actor._tokenSounds;
+            const audiofiles = await ActorSounds.getTokenSounds(soundeffect, cache);
+
+            //audiofiles = audiofiles.filter(i => (audiofiles.length === 1) || !(i === this._lastWildcard));
+            if (audiofiles?.length > 0) {
+                const audiofile = audiofiles[Math.floor(Math.random() * audiofiles.length)];
+                ActorSounds.playSoundEffect(audiofile, volume).then((sound) => {
+                    if (sound) {
+                        token.soundeffect = sound;
+                        token.soundeffect.on("end", () => { delete token.soundeffect; });
+                        token.soundeffect._mldvolume = volume;
+                        return sound;
+                    }
+                });
+            }
+        }
     }
 
-    static async getTokenSounds(actor) {
-        const audiofile = actor.getFlag('monks-little-details', 'sound-effect');
+    static async playSoundEffect(audiofile, volume) {
+        if (!audiofile)
+            return new Promise();   //just return a blank promise so anything waiting can connect a then
+
+        return AudioHelper.play({ src: audiofile, volume: (volume ?? 1) }, true);
+    }
+
+    static async getTokenSounds(audiofile, cache) {
+        //const audiofile = actor.getFlag('monks-little-details', 'sound-effect');
 
         if (!audiofile) return;
 
         if (!audiofile.includes('*')) return [audiofile];
-        if (actor._tokenSounds) return this._tokenSounds;
+        if (cache) return cache; //actor._tokenSounds) return this._tokenSounds;
         let source = "data";
         let pattern = audiofile;
         const browseOptions = { wildcard: true };
@@ -155,17 +176,86 @@ export class ActorSounds {
         }
 
         // Retrieve wildcard content
+        let sounds = [];
         try {
             const content = await FilePicker.browse(source, pattern, browseOptions);
-            this._tokenSounds = content.files;
+            sounds = content.files;
         } catch (err) {
-            this._tokenSounds = [];
             ui.notifications.error(err);
         }
-        return this._tokenSounds;
+        return sounds;
     }
 
+    /*
     static clearSoundEffect(event) {
         this.actor.unsetFlag('monks-little-details', 'sound-effect');
+    }
+    */
+
+    static async showDialog() {
+        let actor = this.object;
+        new ActorSoundDialog(actor).render(true);
+    }
+}
+
+export class ActorSoundDialog extends FormApplication {
+    constructor(object, app, options = {}) {
+        super(object, options);
+
+        this.app = app;
+    }
+
+    /** @override */
+    static get defaultOptions() {
+        return mergeObject(super.defaultOptions, {
+            id: "actor-sound-dialog",
+            classes: ["form"],
+            title: i18n("MonksLittleDetails.ActorSound"),
+            template: "modules/monks-little-details/templates/actor-sound.html",
+            width: 500,
+            submitOnChange: false,
+            closeOnSubmit: true,
+        });
+    }
+
+    getData(options) {
+        let actor = this.object;
+        let data = mergeObject(super.getData(options),
+            {
+                audiofile: actor.getFlag('monks-little-details', 'sound-effect'),
+                volume: actor.getFlag('monks-little-details', 'volume') ?? 1
+            }, { recursive: false }
+        );
+
+        return data;
+    }
+
+    activateListeners(html) {
+        super.activateListeners(html);
+
+        $('button[name="submit"]', html).click(this._onSubmit.bind(this));
+        $('button[name="play"]', html).click(this.playSound.bind(this));
+    }
+
+    /* -------------------------------------------- */
+
+    /** @override */
+    async _updateObject(event, formData) {
+        let audiofile = formData.audiofile;
+        if (!audiofile.startsWith("/"))
+            audiofile = "/" + audiofile;
+
+        this.object.setFlag('monks-little-details', 'sound-effect', audiofile);
+        this.object.setFlag('monks-little-details', 'volume', formData.volume);
+    }
+
+    async playSound() {
+        let volume = parseFloat($('input[name="volume"]', this.element).val());
+        let soundeffect = $('input[name="audiofile"]', this.element).val();
+        let sounds = await ActorSounds.getTokenSounds(soundeffect);
+
+        const audiofile = sounds[Math.floor(Math.random() * sounds.length)];
+
+        ActorSounds.playSoundEffect(audiofile, volume);
     }
 }

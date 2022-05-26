@@ -20,7 +20,7 @@ export class BloodSplats {
 
         Hooks.on("createCombatant", function (combatant, data, options) {
             //set the blood glyph if this is the GM
-            if (setting('show-bloodsplat') && combatant && game.user.isGM) {
+            if (setting('show-bloodsplat') != "false" && combatant && game.user.isGM) {
                 let token = combatant.token; //canvas.tokens.placeables.find(t => { return (t.id == combatant._token.id); });
                 let glyph = token.getFlag('monks-little-details', 'glyph');
                 if (glyph == undefined) {
@@ -34,7 +34,7 @@ export class BloodSplats {
             let combatStarted = (combat && (delta.round === 1 && combat.turn === 0 && combat.started === true));
 
             //set the bloodsplat glyph when the combat starts to maintain consistency
-            if (setting('show-bloodsplat') && game.user.isGM && combatStarted) {
+            if (setting('show-bloodsplat') != "false" && game.user.isGM && combatStarted) {
                 for (let combatant of combat.combatants) {
                     let token = combatant.token; //canvas.tokens.placeables.find(t => { return t.id == combatant._token.id; });
                     if (token) {
@@ -110,7 +110,7 @@ export class BloodSplats {
                 }
             } else {
                 if (this.data._id != undefined) {
-                    this.icon.alpha = (game.user.isGM ? 0.2 : 0);
+                    this.icon.alpha = (game.user.isGM || setting("show-bloodsplat") == "both" ? 0.2 : 0);
                     if (this.bloodsplat?.transform == undefined) {
                         if (this.bloodsplat)
                             this.removeChild(this.bloodsplat);

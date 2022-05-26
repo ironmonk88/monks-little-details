@@ -51,7 +51,7 @@
 	"MonksLittleDetails.show-notify.name": "Retain Notify",
 	"MonksLittleDetails.show-notify.hint": "Leave the chat notify icon on if you're on a different tab and a message arrives.",
 	"MonksLittleDetails.show-bloodsplat.name": "Show Bloodsplat",
-	"MonksLittleDetails.show-bloodsplat.hint": "When a monster dies, display it as a blood splat, hiding the image and bars and effects.  It is dead after all.",
+	"MonksLittleDetails.show-bloodsplat.hint": "When a monster dies, display it as a blood splat. You can choose to hide the token for the players.",
 	"MonksLittleDetails.invisible-dead.name": "Turn dead invisible",
 	"MonksLittleDetails.invisible-dead.hint": "When a monster dies, make it invisible to the player.",
 	"MonksLittleDetails.token-combat-highlight.name": "Show Token Highlight",
@@ -134,6 +134,10 @@
 	"MonksLittleDetails.QuickShow": "Quick show",
 	"MonksLittleDetails.ChangeTo": "Change to",
 
+	"MonksLittleDetails.ActorSound": "Actor Sound",
+	"MonksLittleDetails.AudioFile": "Audio File",
+	"MonksLittleDetails.Volume": "Volume",
+
 	"MonksLittleDetails.TokenLayer": "Token Layer",
 	"MonksLittleDetails.MeasureLayer": "Measure Layer",
 	"MonksLittleDetails.TileLayer": "Tile Layer",
@@ -188,6 +192,10 @@
 	"MonksLittleDetails.animation.pulse": "Pulse",
 	"MonksLittleDetails.animation.fadein": "Fade-in",
 	"MonksLittleDetails.animation.fadeout": "Fade-out",
+
+	"MonksLittleDetails.bloodsplatoptions.false": "No bloodsplats",
+	"MonksLittleDetails.bloodsplatoptions.true": "Use bloodsplats, hide tokens",
+	"MonksLittleDetails.bloodsplatoptions.both": "Use bloodsplats, show tokens",
 
 	"MonksLittleDetails.sortstatus.none": "None",
 	"MonksLittleDetails.sortstatus.rows": "Rows",

@@ -1,3 +1,19 @@
+# Version 1.0.50
+
+Fixed issues with the update images function when using The Forge
+
+Updated the actor sounds to correctly use the global interface volume.  So changing the volume setting will change actor sounds currently playing.
+
+Updated the combat turn sounds to use the global interface volume.
+
+Changed the interface for actor sounds so that it uses a dialog instead of a drop down menu to add extra functionality.
+
+Updated the bloodsplat options so you can continue to show the tokens while also showing the bloodsplat.
+
+Fixed issue with combat marker when switching between effects.
+
+Fixed issue when dropping a Tile onto the canvas from the Tile Picker.
+
 # Version 1.0.49
 
 Fixed issues with the transform context menu and systems other than dnd5e.
