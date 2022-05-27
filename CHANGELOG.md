@@ -1,3 +1,9 @@
+# Version 1.0.51
+
+Fixed issue with bloodsplats always being on.
+
+Fixed issue with bloodsplat text
+
 # Version 1.0.50
 
 Fixed issues with the update images function when using The Forge

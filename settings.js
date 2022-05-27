@@ -51,7 +51,7 @@ export const registerSettings = function () {
 	};
 
 	let bloodsplatoptions = {
-		'false': i18n("MonksLittleDetails.bloodsplatoptions.none"),
+		'false': i18n("MonksLittleDetails.bloodsplatoptions.false"),
 		'true': i18n("MonksLittleDetails.bloodsplatoptions.true"),
 		'both': i18n("MonksLittleDetails.bloodsplatoptions.both")
     }

@@ -207,7 +207,7 @@ export class MonksLittleDetails {
         if (setting('hide-enemies'))
             CONFIG.ui.combat = WithMonksCombatTracker(CONFIG.ui.combat);
 
-        if (setting("show-bloodsplat"))
+        if (setting("show-bloodsplat") != "false")
             BloodSplats.init();
 
         if (setting('add-combat-bars'))
@@ -216,7 +216,7 @@ export class MonksLittleDetails {
         let tokenRefresh = function (wrapped, ...args) {
             wrapped.call(this);
 
-            if (setting("show-bloodsplat"))
+            if (setting("show-bloodsplat") != "false")
                 BloodSplats.tokenRefresh.call(this);
             if (setting('add-combat-bars'))
                 CombatBars.tokenRefresh.call(this);
