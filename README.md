@@ -74,7 +74,7 @@ Added a button to load a sound file to associate with a character.  So if you ev
 While playing, bringing up the Token HUD will show a speaker button under the combat button.  Clicking on the speaker button will play the sound effect using the current volume settings for Foundry.
 ![monks-little-details](/screenshots/PlaySound.webp)
 
-You can change what character sheets this button is available for in the settings.  Current options are, `none` to leave the settign off, `everyone` to turn it on all character sheets, and `NPC` to have it only availabel for NPC character sheets.
+You can change what character sheets this button is available for in the settings.  Current options are, `none` to leave the setting off, `everyone` to turn it on all character sheets, and `NPC` to have it only available for NPC character sheets.
 
 ### GM Move characters
 If you select characters, hold down the M Key and clicking on another map location, or holding down the M key and dragging the tokens will instantly move them there.  I found dragging them there has unfortunate side effects of showing spaces they shouldn't see while they're moving.  Teleporting them there preserves the fog of war between the two spots.  Handy for when you're using a map that has multiple levels on one image.  You can teleport from one area to the other quickly.
