@@ -127,9 +127,13 @@ export class UpdateImages extends FormApplication {
             update[prop] = filenames[0].name;
             update = expandObject(update);
 
-            await entry.update(update.data);
-            log('Fixing:', entry.name, filenames[0].name);
-            $('.conversion-results', this.element).append($('<li>').html(`<span style="color: darkgreen;">Fixing ${type}: ${entry.name}, ${filenames[0].name}</span>`));
+            try {
+                await entry.update(update.data);
+                log('Fixing:', entry.name, filenames[0].name);
+                $('.conversion-results', this.element).append($('<li>').html(`<span style="color: darkgreen;">Fixing ${type}: ${entry.name}, ${filenames[0].name}</span>`));
+            } catch {
+                $('.conversion-results', this.element).append($('<li>').html(`<span style="color: darkred;">Error: ${entry.name}, ${filenames[0].name}</span>`));
+            }
             return true;
         }
         return false;

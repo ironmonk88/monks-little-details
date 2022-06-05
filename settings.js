@@ -144,6 +144,14 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean,
 	});
+	game.settings.register(modulename, "switch-combat-tab", {
+		name: i18n("MonksLittleDetails.switch-combat-tab.name"),
+		hint: i18n("MonksLittleDetails.switch-combat-tab.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean
+	});
 	game.settings.register(modulename, "hide-enemies", {
 		name: i18n("MonksLittleDetails.hide-enemies.name"),
 		hint: i18n("MonksLittleDetails.hide-enemies.hint"),
@@ -173,8 +181,8 @@ export const registerSettings = function () {
 	game.settings.register(modulename, "combat-position", {
 		name: i18n("MonksLittleDetails.combat-position.name"),
 		hint: i18n("MonksLittleDetails.combat-position.hint"),
-		scope: "world",
-		default: null,
+		scope: "client",
+		default: "bottomright",
 		type: String,
 		choices: dialogpositions,
 		config: true
@@ -362,6 +370,15 @@ export const registerSettings = function () {
 		type: Boolean
 	});
 
+	game.settings.register(modulename, "pan-to-combatant", {
+		name: i18n("MonksLittleDetails.pan-to-combatant.name"),
+		hint: i18n("MonksLittleDetails.pan-to-combatant.hint"),
+		scope: "world",
+		default: true,
+		type: Boolean,
+		config: true
+	});
+
 	//Combat Token Highlight
 	game.settings.register(modulename, "token-combat-highlight", {
 		name: i18n("MonksLittleDetails.token-combat-highlight.name"),
@@ -429,6 +446,15 @@ export const registerSettings = function () {
 	game.settings.register(modulename, "token-combat-animation", {
 		name: i18n("MonksLittleDetails.token-combat-animation.name"),
 		hint: i18n("MonksLittleDetails.token-combat-animation.hint"),
+		scope: "world",
+		default: 'clockwise',
+		type: String,
+		choices: animation,
+		config: true
+	});
+	game.settings.register(modulename, "token-combat-animation-hostile", {
+		name: i18n("MonksLittleDetails.token-combat-animation-hostile.name"),
+		hint: i18n("MonksLittleDetails.token-combat-animation-hostile.hint"),
 		scope: "world",
 		default: 'clockwise',
 		type: String,

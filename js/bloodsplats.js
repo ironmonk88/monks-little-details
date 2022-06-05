@@ -22,10 +22,12 @@ export class BloodSplats {
             //set the blood glyph if this is the GM
             if (setting('show-bloodsplat') != "false" && combatant && game.user.isGM) {
                 let token = combatant.token; //canvas.tokens.placeables.find(t => { return (t.id == combatant._token.id); });
-                let glyph = token.getFlag('monks-little-details', 'glyph');
-                if (glyph == undefined) {
-                    glyph = BloodSplats.availableGlyphs.charAt(Math.floor(Math.random() * BloodSplats.availableGlyphs.length));
-                    token.setFlag('monks-little-details', 'glyph', glyph);
+                if (token) {
+                    let glyph = token.getFlag('monks-little-details', 'glyph');
+                    if (glyph == undefined) {
+                        glyph = BloodSplats.availableGlyphs.charAt(Math.floor(Math.random() * BloodSplats.availableGlyphs.length));
+                        token.setFlag('monks-little-details', 'glyph', glyph);
+                    }
                 }
             }
         });
@@ -110,8 +112,8 @@ export class BloodSplats {
                 }
             } else {
                 if (this.data._id != undefined) {
-                    this.icon.alpha = (game.user.isGM || setting("show-bloodsplat") == "both" ? 0.2 : 0);
                     if (this.bloodsplat?.transform == undefined) {
+                        let animate = canvas.ready;
                         if (this.bloodsplat)
                             this.removeChild(this.bloodsplat);
 
@@ -123,7 +125,7 @@ export class BloodSplats {
                         }
                         let colour = this.document.getFlag('monks-little-details', 'bloodsplat-colour') || setting('bloodsplat-colour') || '0xff0000';
                         this.bloodsplat = new PIXI.Text(' ' + glyph + ' ', { fontFamily: 'WC Rhesus A Bta', fontSize: this.h * 1.5, fill: colour, align: 'center' });
-                        this.bloodsplat.alpha = 0.7;
+                        this.bloodsplat.alpha = (animate ? 0 : 0.7);
                         this.bloodsplat.blendMode = PIXI.BLEND_MODES.OVERLAY;
                         this.bloodsplat.anchor.set(0.5, 0.5);
                         this.bloodsplat.x = this.w / 2;
@@ -131,6 +133,32 @@ export class BloodSplats {
                         this.addChild(this.bloodsplat);
 
                         //log('Font: ', this.id, (this.h * 1.5), this.bloodsplat.x, this.bloodsplat.y);
+
+                        const iconAlpha = (game.user.isGM || setting("show-bloodsplat") == "both" ? 0.2 : 0);
+                        if (animate) {
+                            //animate the bloodsplat alpha to 0.7
+                            //animate the icon alpha to (game.user.isGM || setting("show-bloodsplat") == "both" ? 0.2 : 0);
+
+                            this._animateTo = iconAlpha;
+
+                            const attributes = [
+                                { parent: this.bloodsplat, attribute: 'alpha', to: 0.7 },
+                                { parent: this.icon, attribute: 'alpha', to: iconAlpha }
+                            ];
+
+                            CanvasAnimation.animateLinear(attributes, {
+                                name: "bloodsplatAnimation" + this.id,
+                                context: this,
+                                duration: 800
+                            }).then(() => {
+                                delete this._animateTo;
+                            });
+                        } else
+                            this.icon.alpha = iconAlpha;
+                    } else {
+                        const iconAlpha = (game.user.isGM || setting("show-bloodsplat") == "both" ? 0.2 : 0);
+                        if (this._animateTo != iconAlpha)
+                            this.icon.alpha = iconAlpha;
                     }
                     if (this.tresurechest != undefined)
                         this.tresurechest.alpha = 0;

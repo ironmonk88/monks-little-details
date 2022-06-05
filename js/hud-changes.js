@@ -23,8 +23,8 @@ export class HUDChanges {
             let getStatusEffectChoices = function (wrapped, ...args) {
                 if (setting('sort-statuses') != 'none') {
                     CONFIG.statusEffects = CONFIG.statusEffects.sort(function (a, b) {
-                        let aid = (a.label != undefined ? i18n(a.label) : a.id);
-                        let bid = (b.label != undefined ? i18n(b.label) : b.id);
+                        let aid = (a.label != undefined ? i18n(a.label) : a.id || a);
+                        let bid = (b.label != undefined ? i18n(b.label) : b.id || b);
                         return (aid > bid ? 1 : (aid < bid ? -1 : 0));
                         //return (a.id == undefined || a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)); //(a.label == undefined || i18n(a.label) > i18n(b.label) ? 1 : (i18n(a.label) < i18n(b.label) ? -1 : 0));
                     });

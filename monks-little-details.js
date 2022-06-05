@@ -333,6 +333,7 @@ export class MonksLittleDetails {
     static ready() {
         MonksLittleDetails._setting["token-highlight-animate"] = setting("token-highlight-animate");
         MonksLittleDetails._setting["token-combat-animation"] = setting("token-combat-animation");
+        MonksLittleDetails._setting["token-combat-animation-hostile"] = setting("token-combat-animation-hostile");
         MonksLittleDetails._setting["token-highlight-scale"] = setting("token-highlight-scale");
 
         CombatTurn.ready();
@@ -740,6 +741,10 @@ background-color: rgba(0, 0, 0, 0.5);
             let pattern = filename;
             const browseOptions = { wildcard: wildcards };
 
+            if (typeof ForgeVTT != "undefined" && ForgeVTT.usingTheForge) {
+                source = "forgevtt";
+            }
+
             // Support S3 matching
             if (/\.s3\./.test(pattern)) {
                 source = "s3";
@@ -853,7 +858,7 @@ Hooks.once('init', async function () {
 
 Hooks.on("createCombat", function (data, delta) {
     //when combat is created, switch to combat tab
-    if (game.user.isGM && ui.sidebar.activeTab !== "combat")
+    if (game.user.isGM && setting("switch-combat-tab") && ui.sidebar.activeTab !== "combat")
         ui.sidebar.activateTab("combat");
 });
 

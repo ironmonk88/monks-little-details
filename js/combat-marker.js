@@ -46,7 +46,8 @@ export class CombatMarker {
                 data.width != undefined ||
                 data.height != undefined ||
                 foundry.utils.getProperty(data, 'flags.monks-little-details.token-highlight') != undefined ||
-                foundry.utils.getProperty(data, 'flags.monks-little-details.token-combat-animation') != undefined) {
+                foundry.utils.getProperty(data, 'flags.monks-little-details.token-combat-animation') != undefined ||
+                foundry.utils.getProperty(data, 'flags.monks-little-details.token-combat-animation-hostile') != undefined) {
                 let activeCombats = game.combats.filter(c => {
                     return c?.scene?.id == game.scenes.viewed.id && c.started;
                 });
@@ -240,7 +241,7 @@ export class CombatMarker {
             if (token?.ldmarker?.transform) {
                 let delta = interval / 10000;
                 try {
-                    let animation = getProperty(token.data?.flags, "monks-little-details.token-combat-animation") || setting('token-combat-animation');
+                    let animation = getProperty(token.data?.flags, "monks-little-details.token-combat-animation") || (token.data.disposition != 1 ? setting("token-combat-animation-hostile") : null) || setting('token-combat-animation');
                     if (animation == 'clockwise') {
                         token.ldmarker.rotation += (delta * dt);
                         if (token.ldmarker.rotation > (Math.PI * 2))

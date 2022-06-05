@@ -1,3 +1,19 @@
+# Version 1.0.52
+
+Fixed issue with Monster Blocks and the Actor Sounds button.
+
+Fixed an issue with Actor Sounds not playing on the Forge.
+
+Animated bloodsplats so that they'll fade into view, rather than swap abruptly.
+
+Added the option for different combat animation with hostile tokens.
+
+Added the option to automatically pan to the current token in combat for the GM
+
+Sort of fixed issues with sorting statuses.
+
+Added the tab swap when starting a combat to a setting.
+
 # Version 1.0.51
 
 Fixed issue with bloodsplats always being on.

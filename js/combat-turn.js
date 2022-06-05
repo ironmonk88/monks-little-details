@@ -96,6 +96,10 @@ export class CombatTurn {
                 combat?.combatant?.token?._object?.control();
             }
 
+            if (combat && combat.started && game.user.isGM && setting("pan-to-combatant") && combat?.combatant?.token) {
+                canvas.animatePan({ x: combat?.combatant?.token.data.x, y: combat?.combatant?.token.data.y });
+            }
+
             if (combat && combat.started && setting('remember-previous') && combat?.combatant?.token?.isOwner) {
                 let targets = [];
                 if (game.user.isGM)

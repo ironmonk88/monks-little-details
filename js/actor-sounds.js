@@ -84,8 +84,8 @@ export class ActorSounds {
                 }*/
 
                 let wrap = $('<div class="mldCharacterName"></div>');
-                $(html).find("input[name='name']").wrap(wrap);
-                $(html).find("input[name='name']").parent().prepend(button);
+                $(html).find("input[name='name'],h1[data-field-key='name']").wrap(wrap);
+                $(html).find("input[name='name'],h1[data-field-key='name']").parent().prepend(button);
             });
 
             Hooks.on("close" + sheetName, (app, html, data) => {
@@ -165,6 +165,10 @@ export class ActorSounds {
         let pattern = audiofile;
         const browseOptions = { wildcard: true };
 
+        if (typeof ForgeVTT != "undefined" && ForgeVTT.usingTheForge) {
+            source = "forgevtt";
+        }
+
         // Support S3 matching
         if (/\.s3\./.test(pattern)) {
             source = "s3";
@@ -242,7 +246,7 @@ export class ActorSoundDialog extends FormApplication {
     /** @override */
     async _updateObject(event, formData) {
         let audiofile = formData.audiofile;
-        if (!audiofile.startsWith("/"))
+        if (!audiofile.startsWith("/") && !audiofile.startsWith("http"))
             audiofile = "/" + audiofile;
 
         this.object.setFlag('monks-little-details', 'sound-effect', audiofile);
