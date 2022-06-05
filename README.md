@@ -68,11 +68,13 @@ Added the top 5 dominant colours of a scene so that you can choose a background 
 Dragging Wall points together has moved to the module Monk's Wall Enhancement.  There were a handful of other wall improvements and it made sense to bundle them all together.
 
 ### Character Sound Effects
-Added a button to load a sound file to associate with a character.  So if you ever wanted to make a dragon roar, or a banshee howl, you can upload the file, attach it to the character and play from the Token HUD.  From the NPC sheet, a button with a speaker icon should now be visible.  Clicking that will open the FilePicker so you can select an audio file.  Right clicking will open a context menu with other options.  And orange border will denote that I file has been loaded.
+Added a button to load a sound file to associate with a character.  So if you ever wanted to make a dragon roar, or a banshee howl, you can upload the file, attach it to the character and play from the Token HUD.  From the character sheet, a button with a speaker icon should now be visible.  Clicking that will open a dialog window that will allow you to select a file, adjust the volume and preview the sound effect.  And orange border will denote that I file has been loaded.
 ![monks-little-details](/screenshots/AddSound.webp)
 
 While playing, bringing up the Token HUD will show a speaker button under the combat button.  Clicking on the speaker button will play the sound effect using the current volume settings for Foundry.
 ![monks-little-details](/screenshots/PlaySound.webp)
+
+You can change what character sheets this button is available for in the settings.  Current options are, `none` to leave the settign off, `everyone` to turn it on all character sheets, and `NPC` to have it only availabel for NPC character sheets.
 
 ### GM Move characters
 If you select characters, hold down the M Key and clicking on another map location, or holding down the M key and dragging the tokens will instantly move them there.  I found dragging them there has unfortunate side effects of showing spaces they shouldn't see while they're moving.  Teleporting them there preserves the fog of war between the two spots.  Handy for when you're using a map that has multiple levels on one image.  You can teleport from one area to the other quickly.
