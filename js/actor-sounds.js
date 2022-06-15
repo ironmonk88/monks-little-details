@@ -7,7 +7,7 @@ export class ActorSounds {
                 $('.col.right', html).append(
                     $('<div>').addClass('control-icon sound-effect')
                         .append('<img src="modules/monks-little-details/icons/volumeup.svg" width="36" height="36" title="Play Sound Effect">')
-                        .click(ActorSounds.loadSoundEffect.bind(app, app.object)));
+                        .click(app.object.playSound.bind(app.object)));
             }
         });
 
@@ -18,6 +18,10 @@ export class ActorSounds {
                 }
             }
         });
+
+        Token.prototype.playSound = function() {
+            ActorSounds.loadSoundEffect(this);
+        }
     }
 
     static injectSoundCtrls() {
@@ -263,3 +267,35 @@ export class ActorSoundDialog extends FormApplication {
         ActorSounds.playSoundEffect(audiofile, volume);
     }
 }
+
+Hooks.on("setupTileActions", (app) => {
+    app.registerTileGroup('monks-little-details', "Monk's Little Details");
+    app.registerTileAction('monks-little-details', 'actor-sound', {
+        name: 'Play Actor Sound',
+        ctrls: [
+            {
+                id: "entity",
+                name: "Select Entity",
+                type: "select",
+                subtype: "entity",
+                options: { showToken: true, showWithin: true, showPlayers: true, showPrevious: true, showTagger: true },
+                restrict: (entity) => { return (entity instanceof Token); },
+            }
+        ],
+        group: 'monks-little-details',
+        fn: async (args = {}) => {
+            const { action, tokens } = args;
+
+            let entities = await game.MonksActiveTiles.getEntities(args);
+            for (let entity of entities) {
+                if (entity instanceof TokenDocument && entity._object) {
+                    entity._object.playSound();
+                }
+            }
+        },
+        content: async (trigger, action) => {
+            let entityName = await game.MonksActiveTiles.entityName(action.data?.entity);
+            return `<span class="logic-style">${trigger.name}</span> of <span class="entity-style">${entityName}</span>`;
+        }
+    });
+});

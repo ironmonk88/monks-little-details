@@ -1,3 +1,17 @@
+# Version 1.0.53
+
+Added a context menu entry to the combat tracker, so you can right-click and target combatants.
+
+Added the Turned status to the list of statuses, in case you want to keep track of undead your party has turned.
+
+Added actor sound API, so each token can play their Actor sound.
+
+Fixed issues with the combat marker if the combatant no longer has a token set.
+
+Added the option to prevent starting a combat if not all combatants have rolled initiative.
+
+Added the option to trigger Actor Sounds using Active Tiles.
+
 # Version 1.0.52
 
 Fixed issue with Monster Blocks and the Actor Sounds button.

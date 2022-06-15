@@ -135,7 +135,8 @@ export class MonksLittleDetails {
                     { "id": "distracted", "label": "MonksLittleDetails.StatusDistracted", "icon": "modules/monks-little-details/icons/distraction.svg" },
                     { "id": "dodging", "label": "MonksLittleDetails.StatusDodging", "icon": "modules/monks-little-details/icons/dodging.svg" },
                     { "id": "disengage", "label": "MonksLittleDetails.StatusDisengage", "icon": "modules/monks-little-details/icons/journey.svg" },
-                    { "id": "cover", "label": "MonksLittleDetails.StatusCover", "icon": "modules/monks-little-details/icons/push.svg" }
+                    { "id": "cover", "label": "MonksLittleDetails.StatusCover", "icon": "modules/monks-little-details/icons/push.svg" },
+                    { "id": "turned", "label": "MonksLittleDetails.StatusTurned", "icon": "modules/monks-little-details/icons/turned.svg" },
                 ]
             );
         }
@@ -228,6 +229,26 @@ export class MonksLittleDetails {
             const oldTokenRefresh = Token.prototype.refresh;
             Token.prototype.refresh = function () {
                 return tokenRefresh.call(this, oldTokenRefresh.bind(this), ...arguments);
+            }
+        }
+
+        let combatStart = async function (wrapped, ...args) {
+            if (setting("prevent-initiative") && this.turns.find(c => c.initiative == undefined) != undefined) {
+                return await Dialog.confirm({
+                    title: "Not all Initiative have been rolled",
+                    content: `<p>There are combatants that havn't rolled their initiative.<br/>Do you wish to continue with starting the combat?</p>`,
+                    yes: () => { return wrapped.call(this); }
+                })
+            } else 
+                return wrapped.call(this);
+        }
+
+        if (game.modules.get("lib-wrapper")?.active) {
+            libWrapper.register("monks-little-details", "Combat.prototype.startCombat", combatStart, "MIXED");
+        } else {
+            const oldStartCombat = Token.prototype.startCombat;
+            Combat.prototype.startCombat = function () {
+                return combatStart.call(this, oldStartCombat.bind(this), ...arguments);
             }
         }
 

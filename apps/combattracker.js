@@ -33,7 +33,32 @@ export const WithMonksCombatTracker = (CombatTracker) => {
             return data;
         }
 
+        activateListeners(html) {
+            super.activateListeners(html);
 
+            if (!game.user.isGM)
+                this._contextMenu(html);
+        }
+
+        _getEntryContextOptions() {
+            let entries = [];
+            if (game.user.isGM)
+                entries = super._getEntryContextOptions();
+
+            entries.unshift({
+                name: "Target",
+                icon: '<i class="fas fa-bullseye"></i>',
+                callback: li => {
+                    const combatant = this.viewed.combatants.get(li.data("combatant-id"));
+                    if (combatant?.token?._object) {
+                        const targeted = !combatant.token._object.isTargeted;
+                        combatant.token._object.setTarget(targeted, { releaseOthers: false });
+                    }
+                }
+            });
+
+            return entries;
+        }
     }
 
     const constructorName = "MonksCombatTracker";

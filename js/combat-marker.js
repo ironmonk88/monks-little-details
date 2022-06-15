@@ -79,7 +79,7 @@ export class CombatMarker {
             if (activeCombats.length) {
                 //add a combat marker for each active combatant
                 for (let combat of activeCombats) {
-                    CombatMarker.toggleTurnMarker(combat.combatant?.token?.object, true);
+                    CombatMarker.toggleTurnMarker(combat.combatant?.token?._object, true);
                 }
             }
         });
@@ -90,7 +90,8 @@ export class CombatMarker {
                 if (setting("token-combat-highlight")) {
                     for (let combatant of combat.combatants) {
                         let token = combatant.token; //canvas.tokens.get(combatant.token._id);
-                        CombatMarker.removeTurnMarker(token.object);
+                        if (token)
+                            CombatMarker.removeTurnMarker(token._object);
                     }
                 }
             }
@@ -101,7 +102,8 @@ export class CombatMarker {
                 for (let combatant of combat.combatants) {
                     let token = combatant.token; //canvas.tokens.get(combatant.token.id);
                     delete token?._object?.preventMarker;
-                    CombatMarker.toggleTurnMarker(token.object, token.id == combat?.current?.tokenId);
+                    if (token) 
+                        CombatMarker.toggleTurnMarker(token._object, token.id == combat?.current?.tokenId);
                 }
                 //let token = canvas?.tokens.get(combat?.current?.tokenId);
                 //MonksLittleDetails.removeTurnMarker(token);

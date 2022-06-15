@@ -115,6 +115,8 @@
 	"MonksLittleDetails.macro-tabs.hint": "Allow tabs in the macro editor to add a tab rather than tabbing to the next field",
 	"MonksLittleDetails.pan-to-combatant.name": "Pan to Combatant",
 	"MonksLittleDetails.pan-to-combatant.hint": "Pan to the current combatant for the GM",
+	"MonksLittleDetails.prevent-initiative.name": "No Combat Without Initiative",
+	"MonksLittleDetails.prevent-initiative.hint": "Prevent combat from starting if not all initiatives have been rolled",
 
 	"MonksLittleDetails.PlayRoundSound": "Play new round sound",
 	"MonksLittleDetails.PlayRoundSoundHint": "Play a sound when the next round starts",
@@ -168,6 +170,7 @@
 	"MonksLittleDetails.StatusDodging": "Dodging",
 	"MonksLittleDetails.StatusDisengage": "Disengage",
 	"MonksLittleDetails.StatusCover": "Cover",
+	"MonksLittleDetails.StatusTurned": "Turned",
 
 	"MonksLittleDetails.easy": "Easy",
 	"MonksLittleDetails.average": "Average",

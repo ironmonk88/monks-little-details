@@ -161,6 +161,14 @@ export const registerSettings = function () {
 		type: Boolean,
 		onChange: debouncedReload
 	});
+	game.settings.register(modulename, "prevent-initiative", {
+		name: i18n("MonksLittleDetails.prevent-initiative.name"),
+		hint: i18n("MonksLittleDetails.prevent-initiative.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
 	game.settings.register(modulename, "popout-combat", {
 		name: i18n("MonksLittleDetails.opencombat.name"),
 		hint: i18n("MonksLittleDetails.opencombat.hint"),
