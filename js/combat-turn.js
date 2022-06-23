@@ -257,6 +257,10 @@ export class CombatTurn {
         game.settings.settings.get("monks-little-details.play-turn-sound").default = !game.user.isGM; //(game.user.isGM ? 0 : 60); //set the default when we have the users loaded
         game.settings.settings.get("monks-little-details.play-next-sound").default = !game.user.isGM;
         game.settings.settings.get("monks-little-details.clear-targets").default = game.user.isGM;
+
+        if (setting("large-print")) {
+            $("<div>").attr("id", "your-turn").appendTo('body');
+        }
     }
 
     static clearShadows() {
@@ -266,8 +270,13 @@ export class CombatTurn {
     }
 
     static doDisplayTurn() {
-        if (setting("showcurrentup") && !game.user.isGM)
-            ui.notifications.warn(i18n("MonksLittleDetails.Turn"));
+        if (setting("showcurrentup") && !game.user.isGM) {
+            if (setting("large-print")) {
+                $('#your-turn').addClass("current").removeClass("next").html(i18n("MonksLittleDetails.Turn")).addClass("show");
+                window.setTimeout(() => { $("#your-turn").removeClass("show current"); }, 2000);
+            } else
+                ui.notifications.warn(i18n("MonksLittleDetails.Turn"));
+        } 
 
         // play a sound
         if (setting('play-turn-sound') && setting('turn-sound') != '') { //volume() > 0 && !setting("disablesounds") && 
@@ -278,8 +287,13 @@ export class CombatTurn {
     }
 
     static doDisplayNext() {
-        if (setting("shownextup") && !game.user.isGM)
-            ui.notifications.info(i18n("MonksLittleDetails.Next"));
+        if (setting("shownextup") && !game.user.isGM) {
+            if (setting("large-print")) {
+                $('#your-turn').addClass("next").removeClass("current").html(i18n("MonksLittleDetails.Next")).addClass("show");
+                window.setTimeout(() => { $("#your-turn").removeClass("show next"); }, 2000);
+            } else 
+                ui.notifications.info(i18n("MonksLittleDetails.Next"));
+        }
         // play a sound
         if (setting('play-next-sound') && setting('next-sound') != '') { //volume() > 0 && !setting("disablesounds") && 
             //let volume = (setting('volume') / 100) * game.settings.get("core", 'globalInterfaceVolume');

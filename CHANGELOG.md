@@ -1,3 +1,13 @@
+# Version 1.0.54
+
+Added the option to hide combatants in the combat tracker until their turn has happened.
+
+Fixed issue with saving combat bars when it's a prototype token.
+
+Added the option of displaying the Your Turn Is Next, and Your Turn messages in large fint across the screen.
+
+Fixed issue starting a combat if you don't have libWrapper loaded.
+
 # Version 1.0.53
 
 Added a context menu entry to the combat tracker, so you can right-click and target combatants.

@@ -119,7 +119,7 @@ export class UpdateImages extends FormApplication {
             filenames = filenames.sort((a, b) => { return b.ext.localeCompare(a.ext); });
 
             if (getProperty(entry, prop) == filenames[0].name) {
-                $('.conversion-results', this.element).append($('<li>').html(`<span style="color: gray;">Ignoring ${type}: ${entry.name}, image is the same</span>`));
+                $('.conversion-results', this.element).append($('<li>').addClass("ignoring-update").html(`<span>Ignoring ${type}: ${entry.name}, image is the same</span>`));
                 return true;
             }
 
@@ -130,9 +130,9 @@ export class UpdateImages extends FormApplication {
             try {
                 await entry.update(update.data);
                 log('Fixing:', entry.name, filenames[0].name);
-                $('.conversion-results', this.element).append($('<li>').html(`<span style="color: darkgreen;">Fixing ${type}: ${entry.name}, ${filenames[0].name}</span>`));
+                $('.conversion-results', this.element).append($('<li>').addClass("fixing-update").html(`<span>Fixing ${type}: ${entry.name}, ${filenames[0].name}</span>`));
             } catch {
-                $('.conversion-results', this.element).append($('<li>').html(`<span style="color: darkred;">Error: ${entry.name}, ${filenames[0].name}</span>`));
+                $('.conversion-results', this.element).append($('<li>').addClass("error-update").html(`<span>Error: ${entry.name}, ${filenames[0].name}</span>`));
             }
             return true;
         }
@@ -195,7 +195,7 @@ export class UpdateImages extends FormApplication {
                         }
                     }
                     if (!found) {
-                        $('.conversion-results', this.element).append($('<li>').html(`<span style="color: darkred;">Unable to find avatar: ${entry.name}</span>`));
+                        $('.conversion-results', this.element).append($('<li>').addClass("cant-find-update").html(`<span>Unable to find avatar: ${entry.name}</span>`));
                     }
 
                     found = false;
@@ -214,7 +214,7 @@ export class UpdateImages extends FormApplication {
                         }
                     }
                     if (!found) {
-                        $('.conversion-results', this.element).append($('<li>').html(`<span style="color: darkred;">Unable to find token: ${entry.name}</span>`));
+                        $('.conversion-results', this.element).append($('<li>').addClass("cant-find-update").html(`<span>Unable to find token: ${entry.name}</span>`));
                     }
 
                     foundSound:

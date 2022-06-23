@@ -1,3 +1,5 @@
+import { MonksLittleDetails, log, error, setting, i18n } from '../monks-little-details.js';
+
 export const WithMonksCombatTracker = (CombatTracker) => {
     class MonksCombatTracker extends CombatTracker {
         constructor(...args) {
@@ -21,12 +23,13 @@ export const WithMonksCombatTracker = (CombatTracker) => {
             const combat = this.viewed;
             const hasCombat = combat !== null;
             const started = (combat?.turns.length > 0) && (combat?.round > 0)
+            const hideuntilturn = setting("hide-until-turn");
 
-            if (hasCombat && !started && !game.user.isGM) {
+            if (hasCombat && !game.user.isGM) {
                 //go through the turns(combatants) and remove any that don't have players attached
-                data.turns = data.turns.filter(t => {
+                data.turns = data.turns.filter((t, index) => {
                     let combatant = combat.turns.find(c => c.id == t.id);
-                    return combatant.hasPlayerOwner;
+                    return combatant.hasPlayerOwner || (started && (combat.round > 1 || !hideuntilturn || combat.turn >= index));
                 });
             }
 

@@ -246,7 +246,7 @@ export class MonksLittleDetails {
         if (game.modules.get("lib-wrapper")?.active) {
             libWrapper.register("monks-little-details", "Combat.prototype.startCombat", combatStart, "MIXED");
         } else {
-            const oldStartCombat = Token.prototype.startCombat;
+            const oldStartCombat = Combat.prototype.startCombat;
             Combat.prototype.startCombat = function () {
                 return combatStart.call(this, oldStartCombat.bind(this), ...arguments);
             }

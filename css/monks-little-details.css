@@ -515,3 +515,51 @@ body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffee5f5b', endColorstr='#ffbd362f', GradientType=0);
     filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
 }
+
+#your-turn {
+    width: 100%;
+    position: absolute;
+    top: 35%;
+    height: 180px;
+    font-size: 80px;
+    line-height: 180px;
+    text-align: center;
+    pointer-events: none;
+    z-index: 99;
+    color: #222;
+    opacity: 0;
+    transition: opacity 0.5s;
+    box-shadow: 0 0 10px var(--color-shadow-dark);
+}
+
+#your-turn.show {
+    opacity: 1;
+}
+
+#your-turn.next {
+    background: rgba(47, 80, 132, 0.8);
+    border-top: 4px solid #5c87b9;
+    border-bottom: 4px solid #5c87b9;
+}
+
+#your-turn.current {
+    background: rgba(214, 150, 0, 0.8);
+    border-top: 4px solid #d69e07;
+    border-bottom: 4px solid #d69e07;
+}
+
+.ignoring-update {
+    color: gray;
+}
+
+.fixing-update {
+    color: darkgreen;
+}
+
+.error-update {
+    color: darkred;
+}
+
+.cant-find-update {
+    color: darkred;
+}

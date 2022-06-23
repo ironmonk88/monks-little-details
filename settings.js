@@ -161,6 +161,14 @@ export const registerSettings = function () {
 		type: Boolean,
 		onChange: debouncedReload
 	});
+	game.settings.register(modulename, "hide-until-turn", {
+		name: i18n("MonksLittleDetails.hide-until-turn.name"),
+		hint: i18n("MonksLittleDetails.hide-until-turn.hint"),
+		scope: "world",
+		config: true,
+		default: false,
+		type: Boolean,
+	});
 	game.settings.register(modulename, "prevent-initiative", {
 		name: i18n("MonksLittleDetails.prevent-initiative.name"),
 		hint: i18n("MonksLittleDetails.prevent-initiative.hint"),
@@ -270,6 +278,15 @@ export const registerSettings = function () {
 		config: true,
 		default: true,
 		type: Boolean,
+	});
+	game.settings.register(modulename, "large-print", {
+		name: i18n("MonksLittleDetails.large-print.name"),
+		hint: i18n("MonksLittleDetails.large-print.hint"),
+		scope: "world",
+		config: true,
+		default: false,
+		type: Boolean,
+		onChange: debouncedReload
 	});
 	game.settings.register(modulename, "play-next-sound", {
 		name: i18n("MonksLittleDetails.next-sound.name"),
