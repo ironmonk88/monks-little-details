@@ -14,8 +14,11 @@ export class CombatBars {
                         let combatBar = token.getFlag('monks-little-details', 'displayBarsCombat');
                         combatBar = (combatBar == undefined || combatBar == -1 ? displayBars : combatBar);
 
-                        if (combatBar != displayBars)
+                        if (combatBar != displayBars) {
+                            if (displayBars == 0)
+                                token.object.drawBars();
                             token.object.refresh();
+                        }
                     }
                 }
             }
@@ -57,10 +60,10 @@ export class CombatBars {
         let tokenDrawBars = function (wrapped, ...args) {
             if (this.inCombat && this.data.displayBars === CONST.TOKEN_DISPLAY_MODES.NONE && this.document.data.flags['monks-little-details']?.displayBarsCombat !== CONST.TOKEN_DISPLAY_MODES.NONE) {
                 this.data.displayBars = 5;
-                wrapped.call(this);
+                wrapped.call(this, args);
                 this.data.displayBars = CONST.TOKEN_DISPLAY_MODES.NONE;
             } else
-                wrapped.call(this);
+                wrapped.call(this, args);
         }
 
         if (game.modules.get("lib-wrapper")?.active) {
@@ -69,6 +72,25 @@ export class CombatBars {
             const oldTokenDrawBars = Token.prototype.drawBars;
             Token.prototype.drawBars = function () {
                 return tokenDrawBars.call(this, oldTokenDrawBars.bind(this), ...arguments);
+            }
+        }
+
+        let tokenRefreshHUD = function (wrapped, ...args) {
+            wrapped.call(this, args);
+            if (this.inCombat) {
+                let combatBar = this.document.getFlag('monks-little-details', 'displayBarsCombat');
+                if (combatBar != undefined && combatBar != -1) {
+                    this.hud.bars.visible = CombatBars.canViewCombatMode.call(this, combatBar);
+                }
+            }
+        }
+
+        if (game.modules.get("lib-wrapper")?.active) {
+            libWrapper.register("monks-little-details", "Token.prototype.refreshHUD", tokenRefreshHUD, "WRAPPER");
+        } else {
+            const oldTokenRefreshHUD = Token.prototype.refreshHUD;
+            Token.prototype.refreshHUD = function () {
+                return tokenRefreshHUD.call(this, oldTokenRefreshHUD.bind(this), ...arguments);
             }
         }
     }

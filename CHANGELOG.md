@@ -1,3 +1,13 @@
+# Version 1.0.55
+
+Fixed issues with combat bars not showing if the non combat bar is set to never display.
+
+Fixed issue with combat marker when token is scaled
+
+Fixed combat turn notification so it only notifies when the turn actually changes.
+
+Fixed issues with status list being set to columns.
+
 # Version 1.0.54
 
 Added the option to hide combatants in the combat tracker until their turn has happened.

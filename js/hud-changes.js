@@ -30,22 +30,8 @@ export class HUDChanges {
                     });
                 }
 
+                /*
                 if (setting('sort-statuses') == 'columns') {
-                    /*
-                    let [blanks, temp] = CONFIG.statusEffects.partition(f => f.label != undefined);
-                    let effects = [];
-                    let mid = Math.ceil(temp.length / 4);
-                    let offset = (4 - ((mid * 4) - temp.length));
-                    for (let i = 0; i < mid; i++) {
-                        for (let j = 0; j < 4; j++) {
-                            let spot = (i + (mid * j) - (j > offset ? 1 : 0));
-                            if (spot < temp.length) {
-                                effects.push(temp[spot]);
-                            }
-                        }
-                    }
-                    CONFIG.statusEffects = effects.concat(blanks);
-                    */
                     let effects = [];
                     let temp = CONFIG.statusEffects.filter(e => e.id != "");
                     let mid = Math.ceil(temp.length / 4);
@@ -56,7 +42,7 @@ export class HUDChanges {
                         }
                     }
                     CONFIG.statusEffects = effects;
-                }
+                }*/
 
                 return wrapped(...args);
             }
@@ -132,6 +118,11 @@ export class HUDChanges {
                 $('.col.right .control-icon[data-action="effects"] .status-effects', html).append(
                     $('<div>').addClass('clear-all').html(`<i class="fas fa-times-circle"></i> ${i18n("MonksLittleDetails.ClearAll")}`).click($.proxy(HUDChanges.clearAll, this))
                 );
+            }
+
+            if (setting('sort-statuses') == 'columns') {
+                let rows = Math.max(Math.ceil(($('.status-effects', html).children().length - 1) / 4), 1);
+                $('.status-effects', html).css({ 'grid-template-rows': `repeat(${rows}, ${100 / rows}%)`, 'grid-auto-flow': 'column' });
             }
         }
     }

@@ -205,8 +205,8 @@ export class MonksLittleDetails {
         if (setting("alter-hud"))
             HUDChanges.init();
 
-        if (setting('hide-enemies'))
-            CONFIG.ui.combat = WithMonksCombatTracker(CONFIG.ui.combat);
+        //if (setting('hide-enemies') || setting("hide-until-turn"))
+        CONFIG.ui.combat = WithMonksCombatTracker(CONFIG.ui.combat);
 
         if (setting("show-bloodsplat") != "false")
             BloodSplats.init();

@@ -72,7 +72,8 @@ export class CombatTurn {
         });*/
 
         Hooks.on("updateCombat", async function (combat, delta) {
-            CombatTurn.checkCombatTurn(combat);
+            if (delta.turn != undefined)
+                CombatTurn.checkCombatTurn(combat);
 
             let combatStarted = (combat && (delta.round === 1 && combat.turn === 0 && combat.started === true));
             

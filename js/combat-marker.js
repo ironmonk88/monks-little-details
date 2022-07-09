@@ -45,6 +45,7 @@ export class CombatMarker {
             if (data.img != undefined ||
                 data.width != undefined ||
                 data.height != undefined ||
+                data.scale != undefined ||
                 foundry.utils.getProperty(data, 'flags.monks-little-details.token-highlight') != undefined ||
                 foundry.utils.getProperty(data, 'flags.monks-little-details.token-combat-animation') != undefined ||
                 foundry.utils.getProperty(data, 'flags.monks-little-details.token-combat-animation-hostile') != undefined) {
@@ -182,7 +183,7 @@ export class CombatMarker {
                         }
                     }
                     markericon.pivot.set(markericon.width / 2, markericon.height / 2);//.set(-(token.w / 2), -(token.h / 2));
-                    const size = Math.max(token.w, token.h) * setting("token-highlight-scale");
+                    const size = (Math.max(token.w, token.h) * token.data.scale) * setting("token-highlight-scale");
                     markericon.width = markericon.height = size;
                     markericon.position.set(token.w / 2, token.h / 2);
                     markericon.alpha = 0.8;

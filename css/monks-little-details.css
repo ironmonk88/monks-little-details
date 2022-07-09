@@ -525,7 +525,7 @@ body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details
     line-height: 180px;
     text-align: center;
     pointer-events: none;
-    z-index: 99;
+    z-index: 1000;
     color: #222;
     opacity: 0;
     transition: opacity 0.5s;
