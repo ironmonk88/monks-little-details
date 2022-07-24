@@ -20,17 +20,19 @@ export const WithMonksCombatTracker = (CombatTracker) => {
         }
 
         async MonksGetData(data) {
-            const combat = this.viewed;
-            const hasCombat = combat !== null;
-            const started = (combat?.turns.length > 0) && (combat?.round > 0)
             const hideuntilturn = setting("hide-until-turn");
+            if (setting('hide-enemies') || hideuntilturn) {
+                const combat = this.viewed;
+                const hasCombat = combat !== null;
+                const started = (combat?.turns.length > 0) && (combat?.round > 0)
 
-            if (hasCombat && !game.user.isGM) {
-                //go through the turns(combatants) and remove any that don't have players attached
-                data.turns = data.turns.filter((t, index) => {
-                    let combatant = combat.turns.find(c => c.id == t.id);
-                    return combatant.hasPlayerOwner || (started && (combat.round > 1 || !hideuntilturn || combat.turn >= index));
-                });
+                if (hasCombat && !game.user.isGM) {
+                    //go through the turns(combatants) and remove any that don't have players attached
+                    data.turns = data.turns.filter((t, index) => {
+                        let combatant = combat.turns.find(c => c.id == t.id);
+                        return combatant.hasPlayerOwner || (started && (combat.round > 1 || !hideuntilturn || combat.turn >= index));
+                    });
+                }
             }
 
             return data;

@@ -81,7 +81,7 @@ Hooks.on("renderChatMessage", (message, html, data) => {
 
         if ((Date.now() - start) >= Math.abs(time)) {
             //the timer is finished
-            let content = $(message.data.content);
+            let content = $(message.content);
             $(content).addClass('completed');
             updateTime(time, start);
             //$('.timer-time', content).html(parseInt(Math.abs(time) / 1000) + ' sec');
@@ -108,7 +108,7 @@ Hooks.on("renderChatMessage", (message, html, data) => {
                 //+++ check if message still exists
                 if (!updateTime(time, start)) {
                     //the timer is finished
-                    let content = $(message.data.content);
+                    let content = $(message.content);
                     $(content).addClass('complete');
                     updateTime(time, start);
                     //$('.timer-time', content).html((time < 0 ? Math.abs(time) - remaining : remaining) + ' sec');
@@ -118,9 +118,9 @@ Hooks.on("renderChatMessage", (message, html, data) => {
                             user: game.user.id,
                             flavor: message.getFlag('monks-little-details', 'flavor'),
                             content: message.getFlag('monks-little-details', 'followup'),
-                            speaker: message.data.speaker,
+                            speaker: message.speaker,
                             type: CONST.CHAT_MESSAGE_TYPES.OOC,
-                            whisper: message.data.whisper
+                            whisper: message.whisper
                         }, {});
                     }
 
@@ -182,7 +182,7 @@ Hooks.on("setupTileActions", (app) => {
                 let entities = await game.MonksActiveTiles.getEntities(args);
                 let entity = (entities.length > 0 ? entities[0] : null);
                 let tkn = (entity?.object || tokens[0]?.object);
-                let tokenOwners = (tkn ? Object.entries(tkn?.actor.data.permission).filter(([k, v]) => { return v == CONST.ENTITY_PERMISSIONS.OWNER }).map(a => { return a[0]; }) : []);
+                let tokenOwners = (tkn ? Object.entries(tkn?.actor.ownership).filter(([k, v]) => { return v == CONST.ENTITY_PERMISSIONS.OWNER }).map(a => { return a[0]; }) : []);
                 options.whisper = Array.from(new Set(ChatMessage.getWhisperRecipients("GM").map(u => u.id).concat(tokenOwners)));
             }
 

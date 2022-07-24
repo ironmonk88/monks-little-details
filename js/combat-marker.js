@@ -7,7 +7,7 @@ export class CombatMarker {
         Hooks.on("updateCombatant", function (combatant, data, options, userId) {
             const combat = combatant.parent;
             if (combat && combat.started) {
-                //const combatant = combat.data.combatants.find((o) => o.id === data.id);
+                //const combatant = combat.combatants.find((o) => o.id === data.id);
                 //let token = canvas.tokens.get(combatant.token._id);
                 let token = combatant.token.object;
                 CombatMarker.toggleTurnMarker(token, token.id == combat.current.tokenId);
@@ -33,7 +33,7 @@ export class CombatMarker {
         Hooks.on("createCombatant", function (combatant, options, userId) {
             let combat = combatant.parent;
             if (combat && combat.started) {
-                //let combatant = combat.data.combatants.find((o) => o.id === data.id);
+                //let combatant = combat.combatants.find((o) => o.id === data.id);
                 //let token = canvas.tokens.get(combatant.token._id);
                 let token = combatant.token.object;
                 CombatMarker.toggleTurnMarker(token, token.id == combat.current.tokenId);
@@ -42,10 +42,14 @@ export class CombatMarker {
 
         Hooks.on("updateToken", function (document, data, options, userid) {
             let token = document.object;
+            if (!token)
+                return;
+
             if (data.img != undefined ||
                 data.width != undefined ||
                 data.height != undefined ||
-                data.scale != undefined ||
+                data.texture?.scaleX != undefined ||
+                data.texture?.scaleY != undefined ||
                 foundry.utils.getProperty(data, 'flags.monks-little-details.token-highlight') != undefined ||
                 foundry.utils.getProperty(data, 'flags.monks-little-details.token-combat-animation') != undefined ||
                 foundry.utils.getProperty(data, 'flags.monks-little-details.token-combat-animation-hostile') != undefined) {
@@ -54,7 +58,7 @@ export class CombatMarker {
                 });
                 let activeTokens = activeCombats.map(c => { return c.current.tokenId });
 
-                if (activeTokens.includes(token.id)) {
+                if (activeTokens.includes(token?.id)) {
                     setTimeout(function () {
                         CombatMarker.removeTurnMarker(token);
                         CombatMarker.toggleTurnMarker(token, true);
@@ -64,6 +68,13 @@ export class CombatMarker {
             if (setting('token-highlight-remove') && (data.x != undefined || data.y != undefined)) {
                 token.preventMarker = true;
                 CombatMarker.removeTurnMarker(token);
+            }
+        });
+
+        Hooks.on("refreshToken", function (token) {
+            if (token?.ldmarker?.transform != undefined) {
+                token.ldmarker.position.set(token.x + (token.w / 2), token.y + (token.h / 2));
+                token.ldmarker.visible = token.ldmarker._visible && (!token._animation && (!token.document.hidden || game.user.isGM));
             }
         });
 
@@ -114,7 +125,7 @@ export class CombatMarker {
 
         Hooks.on("renderTokenConfig", (app, html, data) => {
             if (game.user.isGM) {
-                let tokenhighlight = getProperty(app?.object?.data?.flags, "monks-little-details.token-highlight");
+                let tokenhighlight = getProperty(app?.object?.flags, "monks-little-details.token-highlight");
                 $('<div>')
                     .addClass('form-group')
                     .append($('<label>').html(i18n("MonksLittleDetails.token-highlight-picture.name")))
@@ -141,7 +152,7 @@ export class CombatMarker {
                     )
                     .insertAfter($('[name="alpha"]', html).closest('.form-group'));
 
-                let tokenanimation = getProperty(app?.object?.data?.flags, "monks-little-details.token-combat-animation");
+                let tokenanimation = getProperty(app?.object?.flags, "monks-little-details.token-combat-animation");
                 let animation = {
                     '': '',
                     'none': i18n("MonksLittleDetails.animation.none"),
@@ -162,15 +173,52 @@ export class CombatMarker {
                 app.setPosition();
             }
         });
+
+        Hooks.on("destroyToken", (token) => {
+            if (token.ldmarker) {
+                canvas.primary.removeChild(token.ldmarker);
+                delete token.ldmarker;
+            }
+        });
+
+        let tokenDragStart = function (wrapped, ...args) {
+            wrapped.call(this, ...args);
+
+            if (this._original?.ldmarker?.transform != undefined) {
+                this._original.ldmarker.visible = false;
+            }
+        }
+
+        let tokenDragEnd = function (wrapped, ...args) {
+            wrapped.call(this, ...args);
+
+            if (this._original?.ldmarker?.transform != undefined) {
+                this._original.ldmarker.visible = !this._original.document.hidden || game.user.isGM;
+            }
+        }
+
+        if (game.modules.get("lib-wrapper")?.active) {
+            libWrapper.register("monks-little-details", "Token.prototype._onDragStart", tokenDragStart, "WRAPPER");
+            libWrapper.register("monks-little-details", "Token.prototype._onDragEnd", tokenDragEnd, "WRAPPER");
+        } else {
+            const oldTokenDragStart = Token.prototype._onDragStart;
+            Token.prototype._onDragStart = function () {
+                return tokenDragStart.call(this, oldTokenDragStart.bind(this), ...arguments);
+            }
+            const oldTokenDragEnd = Token.prototype._onDragEnd;
+            Token.prototype._onDragEnd = function () {
+                return tokenDragEnd.call(this, oldTokenDragEnd.bind(this), ...arguments);
+            }
+        }
     }
 
     static toggleTurnMarker(token, visible) {
         if (token && token.preventMarker !== true) {
             if (token?.ldmarker?.transform == undefined) {
-                let highlightFile = token.document.getFlag('monks-little-details', 'token-highlight') || (token.document.data.disposition != 1 ? setting("token-highlight-picture-hostile") : null) || setting("token-highlight-picture");
+                let highlightFile = token.document.getFlag('monks-little-details', 'token-highlight') || (token.document.disposition != 1 ? setting("token-highlight-picture-hostile") : null) || setting("token-highlight-picture");
                 loadTexture(highlightFile).then((tex) => { //"modules/monks-little-details/img/chest.png"
                     if (token.ldmarker != undefined) {
-                        token.removeChild(token.ldmarker);
+                        canvas.primary.removeChild(token.ldmarker);
                     }
                     const markericon = new PIXI.Sprite(tex);
                     if (highlightFile.endsWith('webm')) {
@@ -183,17 +231,21 @@ export class CombatMarker {
                         }
                     }
                     markericon.pivot.set(markericon.width / 2, markericon.height / 2);//.set(-(token.w / 2), -(token.h / 2));
-                    const size = (Math.max(token.w, token.h) * token.data.scale) * setting("token-highlight-scale");
+                    const size = Math.max(token.w * token.document.texture.scaleX, token.h * token.document.texture.scaleY) * setting("token-highlight-scale");
                     markericon.width = markericon.height = size;
-                    markericon.position.set(token.w / 2, token.h / 2);
+                    markericon.position.set(token.x + (token.w / 2), token.y + (token.h / 2));
                     markericon.alpha = 0.8;
                     markericon.pulse = { value: null, dir: 1 };
                     token.ldmarker = markericon;
-                    token.addChildAt(token.ldmarker, 0);
-                    token.ldmarker.visible = visible;
+                    //let idx = canvas.primary.children.indexOf(token.mesh) || 0;
+                    canvas.primary.addChildAt(token.ldmarker, 0);
+                    //token.addChildAt(token.ldmarker, 0);
+                    token.ldmarker.visible = visible && (!token.document.hidden || game.user.isGM);
+                    token.ldmarker._visible = visible;
                 });
             } else {
-                token.ldmarker.visible = visible;
+                token.ldmarker.visible = visible && (!token.document.hidden || game.user.isGM);
+                token.ldmarker._visible = visible;
                 const size = Math.max(token.w, token.h) * setting("token-highlight-scale");
                 token.ldmarker.width = token.ldmarker.height = size;
                 token.ldmarker.alpha = 0.8;
@@ -227,7 +279,7 @@ export class CombatMarker {
             return;
 
         if (token?.ldmarker) {
-            token.removeChild(token.ldmarker);
+            canvas.primary.removeChild(token.ldmarker);
             delete token.ldmarker;
         }
         delete CombatMarker.turnMarkerAnim[token.id];
@@ -244,7 +296,7 @@ export class CombatMarker {
             if (token?.ldmarker?.transform) {
                 let delta = interval / 10000;
                 try {
-                    let animation = getProperty(token.data?.flags, "monks-little-details.token-combat-animation") || (token.data.disposition != 1 ? setting("token-combat-animation-hostile") : null) || setting('token-combat-animation');
+                    let animation = getProperty(token.document.flags, "monks-little-details.token-combat-animation") || (token.disposition != 1 ? setting("token-combat-animation-hostile") : null) || setting('token-combat-animation');
                     if (animation == 'clockwise') {
                         token.ldmarker.rotation += (delta * dt);
                         if (token.ldmarker.rotation > (Math.PI * 2))

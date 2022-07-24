@@ -563,3 +563,14 @@ body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details
 .cant-find-update {
     color: darkred;
 }
+
+body.change-windows .window-app {
+    background-color: var(--color-border-dark-5);
+}
+
+body.change-windows .window-app > header {
+    border: 1px solid var(--color-border-dark-4);
+    border-bottom: 1px solid var(--color-border-dark);
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+}

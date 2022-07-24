@@ -126,6 +126,17 @@ export const registerSettings = function () {
 		type: Boolean,
 		onChange: debouncedReload
 	});
+	game.settings.register(modulename, "window-css-changes", {
+		name: i18n("MonksLittleDetails.window-css-changes.name"),
+		hint: i18n("MonksLittleDetails.window-css-changes.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+		onChange: (value) => {
+			$('body').toggleClass("change-windows", value);
+        }
+	});
 	game.settings.register(modulename, "compendium-view-artwork", {
 		name: game.i18n.localize("MonksLittleDetails.compendium-view-artwork.name"),
 		hint: game.i18n.localize("MonksLittleDetails.compendium-view-artwork.hint"),
@@ -562,7 +573,7 @@ export const registerSettings = function () {
 		hint: i18n("MonksLittleDetails.show-bloodsplat.hint"),
 		scope: "world",
 		config: true,
-		default: "false",
+		default: "true",
 		choices: bloodsplatoptions,
 		type: String,
 		onChange: debouncedReload
@@ -574,6 +585,19 @@ export const registerSettings = function () {
 		default: '#FF0000',
 		type: String,
 		onChange: debouncedReload
+	});
+	game.settings.register(modulename, "bloodsplat-size", {
+		name: i18n("MonksLittleDetails.bloodsplat-size.name"),
+		hint: i18n("MonksLittleDetails.bloodsplat-size.hint"),
+		scope: "world",
+		config: true,
+		default: 1,
+		type: Number,
+		range: {
+			min: 0.2,
+			max: 2,
+			step: 0.1
+		},
 	});
 	game.settings.register(modulename, "module-management-changes", {
 		name: i18n("MonksLittleDetails.module-management-changes.name"),

@@ -47,7 +47,7 @@ export class CombatTurn {
 
         Hooks.on("deleteCombat", function (combat) {
             if (setting('round-chatmessages') && combat && game.user.isGM && combat.started) {
-                ChatMessage.create({ user: null, flavor: "Round End" }, { roundmarker: true });
+                ChatMessage.create({ user: game.user, flavor: "Round End" }, { roundmarker: true });
             }
 
             if (combat && combat.started && setting('show-start')) {
@@ -98,7 +98,7 @@ export class CombatTurn {
             }
 
             if (combat && combat.started && game.user.isGM && setting("pan-to-combatant") && combat?.combatant?.token) {
-                canvas.animatePan({ x: combat?.combatant?.token.data.x, y: combat?.combatant?.token.data.y });
+                canvas.animatePan({ x: combat?.combatant?.token.x, y: combat?.combatant?.token.y });
             }
 
             if (combat && combat.started && setting('remember-previous') && combat?.combatant?.token?.isOwner) {
@@ -113,8 +113,8 @@ export class CombatTurn {
                     for (let id of targets) {
                         let token = canvas.tokens.get(id);
                         if (token
-                            && !token.data.hidden
-                            && !((token?.combatant && token?.combatant.data.defeated) || token.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId) || token.data.overlayEffect == CONFIG.controlIcons.defeated))
+                            && !token.hidden
+                            && !((token?.combatant && token?.combatant.defeated) || token.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId) || token.document.overlayEffect == CONFIG.controlIcons.defeated))
                             token.setTarget(true, { user: game.user, releaseOthers: false, groupSelection: false });
                     }
 
@@ -134,9 +134,9 @@ export class CombatTurn {
 
             if (setting('round-chatmessages') && combat && game.user.isGM) {
                 if (combatStarted)
-                    ChatMessage.create({ user: null, flavor: "Round Start" }, { roundmarker: true });
+                    ChatMessage.create({ user: game.user, flavor: "Round Start" }, { roundmarker: true });
                 else if (Object.keys(delta).some((k) => k === "round"))
-                    ChatMessage.create({ user: null, flavor: `Round ${delta.round}` }, { roundmarker: true });
+                    ChatMessage.create({ user: game.user, flavor: `Round ${delta.round}` }, { roundmarker: true });
             }
 
             if (setting('play-round-sound') && setting('round-sound') && Object.keys(delta).some((k) => k === "round")) {
@@ -175,74 +175,58 @@ export class CombatTurn {
 
         Hooks.on("preUpdateToken", (document, update, options, userId) => {
             if (setting('show-start') && 
-            document.combatant?.combat?.started && 
-            (update.x != undefined || update.y != undefined) && 
-            CombatTurn.shadows[document.id] == undefined) {
+                document.combatant?.combat?.started && 
+                (update.x != undefined || update.y != undefined) && 
+                CombatTurn.shadows[document.id] == undefined && 
+                !MonksLittleDetails.isDefeated(document._object))
+            {
                 CombatTurn.showShadow(document.object, document.object.x, document.object.y);
                 MonksLittleDetails.emit('showShadows', { uuid: document.uuid, x: document.object.x, y: document.object.y });
             }
         })
 
-        /*
         Hooks.on("updateToken", async (document, update, options, userId) => {
             if (setting('show-start')
-                && (document.isOwner || game.user.isGM)
+                && document.combatant?.combat?.started
                 && (update.x != undefined || update.y != undefined)
-                && CombatTurn.shadows[document.id] == undefined
-                && document.combatant?.combat?.started) {
-
-                let token = document.object;
-                //create a shadow
-                if (token.data.hidden && !game.user.isGM) return;
-
-                let shadow = new PIXI.Container();
-                canvas.background.addChild(shadow);
-                let colorMatrix = new PIXI.filters.ColorMatrixFilter();
-                colorMatrix.sepia(0.6);
-                shadow.filters = [colorMatrix];
-                shadow.x = token.x;
-                shadow.y = token.y;
-                shadow.alpha = 0.5;
-
-                let tokenImage = await loadTexture(token.data.img)
-                let sprite = new PIXI.Sprite(tokenImage)
-                sprite.x = 0;
-                sprite.y = 0;
-                sprite.height = token.h;
-                sprite.width = token.w;
-                shadow.addChild(sprite);
-
-                CombatTurn.shadows[token.id] = shadow;
+                && CombatTurn.shadows[document.id] != undefined
+                && !MonksLittleDetails.isDefeated(document._object))
+            {
+                let shadow = CombatTurn.shadows[document.id];
+                if (document.x == shadow._startX && document.y == shadow._startY) {
+                    CombatTurn.removeShadow(document.id);
+                    MonksLittleDetails.emit('removeShadow', { id: document.id });
+                }
             }
-        })*/
+        })
     }
 
     static async showShadow(token, x, y) {
         //create a shadow
-        if (token.data.hidden && !game.user.isGM) return;
+        if (token.hidden && !game.user.isGM) return;
 
         let shadow = new PIXI.Container();
-        canvas.background.addChild(shadow);
+        canvas.tiles.addChild(shadow);
         let colorMatrix = new PIXI.filters.ColorMatrixFilter();
         colorMatrix.sepia(0.6);
         shadow.filters = [colorMatrix];
         shadow.x = x + (token.w / 2);
         shadow.y = y + (token.h / 2);
         shadow.alpha = 0.5;
-        shadow.angle = token.data.rotation;
+        shadow.angle = token.document.rotation;
 
-        let width = token.w * token.data.scale;
-        let height = token.h * token.data.scale;
+        let width = token.w * token.document.texture.scaleX;
+        let height = token.h * token.document.texture.scaleY;
 
-        let tokenImage = await loadTexture(token.data.img)
+        let tokenImage = await loadTexture(token.document.texture.src || "icons/svg/mystery-man.svg")
         let sprite = new PIXI.Sprite(tokenImage)
         sprite.x = -(token.w / 2) - (width - token.w) / 2;
         sprite.y = -(token.h / 2) - (height - token.h) / 2;
-        if (token.data.mirrorX) {
+        if (token.mirrorX) {
             sprite.scale.x = -1;
             sprite.anchor.x = 1;
         }
-        if (token.data.mirrorY) {
+        if (token.mirrorY) {
             sprite.scale.y = -1;
             sprite.anchor.y = 1;
         }
@@ -250,6 +234,8 @@ export class CombatTurn {
         sprite.width = width;
         sprite.height = height;
         shadow.addChild(sprite);
+        shadow._startX = x;
+        shadow._startY = y;
 
         CombatTurn.shadows[token.id] = shadow;
     }
@@ -264,9 +250,13 @@ export class CombatTurn {
         }
     }
 
+    static removeShadow(id) {
+        canvas.tiles.removeChild(CombatTurn.shadows[id]);
+    }
+
     static clearShadows() {
         for (let shadow of Object.values(CombatTurn.shadows))
-            canvas.background.removeChild(shadow);
+            canvas.tiles.removeChild(shadow);
         CombatTurn.shadows = {};
     }
 
@@ -316,7 +306,7 @@ export class CombatTurn {
                 if (skip) {
                     for (let [i, t] of combat.turns.entries()) {
                         if (i <= from ||
-                            t.data.defeated ||
+                            t.defeated ||
                             t.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId)) continue;
                         next = i;
                         break;

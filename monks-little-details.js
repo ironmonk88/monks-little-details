@@ -72,7 +72,7 @@ export class MonksLittleDetails {
         /*
         Object.defineProperty(Scene.prototype, "thumbnail", {
             get: function () {
-                return this.getFlag('monks-little-details', 'thumb') || this.data.thumb;
+                return this.getFlag('monks-little-details', 'thumb') || this.thumb;
             }
         });
 
@@ -154,9 +154,9 @@ export class MonksLittleDetails {
                         callback: li => {
                             let entryId = li.attr('data-entry-id');
                             this.getEntity(entryId).then(entry => {
-                                let img = entry.data.img;
+                                let img = entry.img;
                                 if (VideoHelper.hasVideoExtension(img))
-                                    ImageHelper.createThumbnail(img, { width: entry.data.width, height: entry.data.height }).then(img => {
+                                    ImageHelper.createThumbnail(img, { width: entry.width, height: entry.height }).then(img => {
                                         new ImagePopout(img.thumb, {
                                             title: entry.name,
                                             shareable: true,
@@ -205,7 +205,6 @@ export class MonksLittleDetails {
         if (setting("alter-hud"))
             HUDChanges.init();
 
-        //if (setting('hide-enemies') || setting("hide-until-turn"))
         CONFIG.ui.combat = WithMonksCombatTracker(CONFIG.ui.combat);
 
         if (setting("show-bloodsplat") != "false")
@@ -214,6 +213,7 @@ export class MonksLittleDetails {
         if (setting('add-combat-bars'))
             CombatBars.init();
 
+        /*
         let tokenRefresh = function (wrapped, ...args) {
             wrapped.call(this);
 
@@ -230,7 +230,7 @@ export class MonksLittleDetails {
             Token.prototype.refresh = function () {
                 return tokenRefresh.call(this, oldTokenRefresh.bind(this), ...arguments);
             }
-        }
+        }*/
 
         let combatStart = async function (wrapped, ...args) {
             if (setting("prevent-initiative") && this.turns.find(c => c.initiative == undefined) != undefined) {
@@ -287,7 +287,7 @@ export class MonksLittleDetails {
                 }
 
                 // Play a notification sound effect
-                if (message.data.sound) AudioHelper.play({ src: message.data.sound });
+                if (message.sound) AudioHelper.play({ src: message.data.sound });
             }
 
             if (game.modules.get("lib-wrapper")?.active) {
@@ -301,8 +301,8 @@ export class MonksLittleDetails {
 
         let onDropData = async function (...args) {
             const [ event, data ] = args;
-            if (!data.img) return;
-            if (!this._active) this.activate();
+            if (!data.texture?.src) return;
+            if (!this.active) this.activate();
 
             // Get the data for the tile to create
             const createData = await this._getDropData(event, data);
@@ -319,10 +319,10 @@ export class MonksLittleDetails {
         }
 
         if (game.modules.get("lib-wrapper")?.active) {
-            libWrapper.register("monks-little-details", "MapLayer.prototype._onDropData", onDropData, "OVERRIDE");
+            libWrapper.register("monks-little-details", "TilesLayer.prototype._onDropData", onDropData, "OVERRIDE");
         } else {
             //const oldOnDropData = MapLayer.prototype._onDropData;
-            MapLayer.prototype._onDropData = function () {
+            TilesLayer.prototype._onDropData = function () {
                 return onDropData.call(this, ...arguments);
             }
         }
@@ -356,6 +356,8 @@ export class MonksLittleDetails {
         MonksLittleDetails._setting["token-combat-animation"] = setting("token-combat-animation");
         MonksLittleDetails._setting["token-combat-animation-hostile"] = setting("token-combat-animation-hostile");
         MonksLittleDetails._setting["token-highlight-scale"] = setting("token-highlight-scale");
+
+        $('body').toggleClass("change-windows", setting("window-css-changes"));
 
         CombatTurn.ready();
         HUDChanges.ready();
@@ -534,12 +536,12 @@ background-color: rgba(0, 0, 0, 0.5);
         if (game.user.isGM && moveKey && game.keyboard.downKeys.has(moveKey) && canvas.tokens.controlled.length > 0) {
             let pos = event.data.getLocalPosition(canvas.app.stage);
             let mid = {
-                x: canvas.tokens.controlled[0].data.x,
-                y: canvas.tokens.controlled[0].data.y
+                x: canvas.tokens.controlled[0].x,
+                y: canvas.tokens.controlled[0].y
             };
             for (let i = 1; i < canvas.tokens.controlled.length; i++) {
-                mid.x += canvas.tokens.controlled[i].data.x;
-                mid.y += canvas.tokens.controlled[i].data.y;
+                mid.x += canvas.tokens.controlled[i].x;
+                mid.y += canvas.tokens.controlled[i].y;
             }
             mid.x = (mid.x / canvas.tokens.controlled.length);
             mid.y = (mid.y / canvas.tokens.controlled.length);
@@ -548,8 +550,8 @@ background-color: rgba(0, 0, 0, 0.5);
             let updates = [];
             for (let i = 0; i < tokens.length; i++) {
                 let t = canvas.tokens.get(tokens[i]);
-                let offsetx = mid.x - t.data.x;
-                let offsety = mid.y - t.data.y;
+                let offsetx = mid.x - t.x;
+                let offsety = mid.y - t.y;
                 let gridPt = canvas.grid.grid.getGridPositionFromPixels(pos.x - offsetx, pos.y - offsety);
                 let px = canvas.grid.grid.getPixelsFromGridPosition(gridPt[0], gridPt[1]);
 
@@ -566,7 +568,7 @@ background-color: rgba(0, 0, 0, 0.5);
 
     static repositionCombat(app) {
         //we want to start the dialog in a different corner
-        let sidebar = document.getElementById("sidebar");
+        let sidebar = document.getElementById("ui-right");
         let players = document.getElementById("players");
 
         app.position.left = (combatposition().endsWith('left') ? 120 : (sidebar.offsetLeft - app.position.width));
@@ -596,26 +598,26 @@ background-color: rgba(0, 0, 0, 0.5);
         //get the APL of friendly combatants
         for (let combatant of combat.combatants) {
             if (combatant.actor != undefined && combatant.token != undefined) {
-                if (combatant.token.data.disposition == 1) {
+                if (combatant.token.disposition == 1) {
                     apl.count = apl.count + 1;
                     let levels = 0;
-                    if (combatant.actor.data.data?.classes) {
-                        levels = Object.values(combatant.actor.data.data?.classes).reduce((a, b) => {
+                    if (combatant.actor.system?.classes) {
+                        levels = Object.values(combatant.actor.system?.classes).reduce((a, b) => {
                             return a + (b?.levels || b?.level || 0);
                         }, 0);
                     } else {
-                        levels = combatant?.actor.data.data.details?.level?.value || combatant?.actor.data.data.details?.level || 0;
+                        levels = combatant?.actor.system.details?.level?.value || combatant?.actor.system.details?.level || 0;
                     }
 
                     apl.levels += levels;
                 } else {
-                    let combatantxp = combatant?.actor.data.data.details?.xp?.value;
+                    let combatantxp = combatant?.actor.system.details?.xp?.value;
                     if (combatantxp == undefined) {
                         let levels = 0;
-                        if (combatant?.actor.data.data?.classes && Object.entities(combatant.actor.data.data?.classes).length)
-                            levels = combatant.actor.data.data?.classes?.reduce(c => { return c.data.levels; });
-                        else if (combatant?.actor.data.data.details?.level?.value)
-                            levels = parseInt(combatant?.actor.data.data.details?.level?.value);
+                        if (combatant?.actor.system?.classes && Object.entities(combatant.actor.system?.classes).length)
+                            levels = combatant.actor.system?.classes?.reduce(c => { return c.levels; });
+                        else if (combatant?.actor.system.details?.level?.value)
+                            levels = parseInt(combatant?.actor.system.details?.level?.value);
                         combatantxp = MonksLittleDetails.xpchart[Math.clamped(levels, 0, MonksLittleDetails.xpchart.length - 1)];
                     }
                     xp += (combatantxp || 0);
@@ -678,8 +680,21 @@ background-color: rgba(0, 0, 0, 0.5);
         if (src != undefined) {
             loadTexture(src).then((texture) => {
                 if (texture != undefined) {
-                    let sprite = new PIXI.Sprite(texture);
-                    let pixels = canvas.app.renderer.plugins.extract.pixels(sprite);
+                    // Create a temporary Sprite using the Tile texture
+                    const sprite = new PIXI.Sprite(texture);
+                    sprite.width = texture.width;
+                    sprite.height = texture.height;
+                    sprite.anchor.set(0.5, 0.5);
+                    sprite.position.set(texture.width / 2, texture.height / 2);
+
+                    // Create or update the alphaMap render texture
+                    const tex = PIXI.RenderTexture.create({ width: texture.width, height: texture.height});
+
+                    // Render the sprite to the texture and extract its pixels
+                    canvas.app.renderer.render(sprite, tex);
+                    let pixels = canvas.app.renderer.extract.pixels(tex);
+                    tex.destroy(true);
+
                     const pixelCount = texture.width * texture.height;
 
                     const pixelArray = MonksLittleDetails.createPixelArray(pixels, pixelCount, 10);
@@ -748,8 +763,12 @@ background-color: rgba(0, 0, 0, 0.5);
         });
     }
 
+    static async removeShadow(data) {
+        CombatTurn.removeShadow(data.id);
+    }
+
     static isDefeated(token) {
-        return ((token.combatant && token.combatant.data.defeated) || token.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId) || token.data.overlayEffect == CONFIG.controlIcons.defeated);
+        return (token && (token.combatant && token.combatant.defeated) || token.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId) || token.document.overlayEffect == CONFIG.controlIcons.defeated);
     }
 
     static showUpdateImages() {
@@ -804,7 +823,7 @@ background-color: rgba(0, 0, 0, 0.5);
                         monname = monname.replace(/-/g, '').replace(/'/g, '').replace(/\(.*\)/, '').replace(/\s/g, '');
                         /*if (monname == 'ettin')
                             log('Ettin');
-                        var mtype = entry.data.data.details.type?.value.toLowerCase() || entry.data.data.traits.traits.value; //|| entry.data.data.details.creatureType?.toLowerCase()
+                        var mtype = entry.system.details.type?.value.toLowerCase() || entry.system.traits.traits.value; //|| entry.system.details.creatureType?.toLowerCase()
                         mtype = (mtype instanceof Array ? mtype : [mtype]);
                         for (let i = 0; i < mtype.length; i++) {
                             if (mtype[i].indexOf(',') > 0) {
@@ -822,7 +841,7 @@ background-color: rgba(0, 0, 0, 0.5);
                             //    alltypes.push(montype);
 
                             var imgname = `images/avatar/${system}/${monname}.png`;
-                            if (entry.data.img.toLowerCase() != imgname) {
+                            if (entry.img.toLowerCase() != imgname) {
                                 let files = await getFiles(imgname);
                                 if (files && files.length > 0) {
                                     await entry.update({ img: files[0] });
@@ -836,7 +855,7 @@ background-color: rgba(0, 0, 0, 0.5);
                                         monname = monname.replace('young', '');
 
                                     imgname = `images/avatar/${system}/${monname}.png`;
-                                    if (entry.data.img.toLowerCase() != imgname) {
+                                    if (entry.img.toLowerCase() != imgname) {
                                         let files = await getFiles(imgname);
                                         if (files && files.length > 0) {
                                             await entry.update({ img: files[0] });
@@ -850,7 +869,7 @@ background-color: rgba(0, 0, 0, 0.5);
                         /*
                             for (let tokentype of tokentypes) {
                                 var tokenname = `images/tokens/${tokentype}/${montype}/${monname}.png`; // + (wildcards ? "*" : '')
-                                if (entry.data.token.img == tokenname)
+                                if (entry.token.img == tokenname)
                                     break;
 
                                 let files = await getFiles(tokenname);
@@ -1004,7 +1023,7 @@ Hooks.on('renderSceneConfig', async (app, html, options) => {
             let element = $(this).siblings('.background-palette-container');
             if (element.length == 0) {
                 element = $('<div>').addClass('background-palette-container flexrow').insertAfter(this);
-                MonksLittleDetails.getPalette(MonksLittleDetails.currentScene.img, element);
+                MonksLittleDetails.getPalette(MonksLittleDetails.currentScene.background.src, element);
             } else {
                 element.remove();
             }
@@ -1109,30 +1128,33 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
 });
 
 Hooks.on("updateToken", async function (document, data, options, userid) {
-    //actorData.data.attributes.hp
+    let hp = getProperty(data, 'actorData.system.attributes.hp');
+    let token = document.object;
+
     if (setting('auto-defeated') != 'none' && game.user.isGM) {
-        let token = document.object;
-        let hp = getProperty(data, 'actorData.data.attributes.hp');
-        if (hp != undefined && (setting('auto-defeated').startsWith('all') || document.data.disposition != 1)) {
+        
+        
+        if (hp != undefined && (setting('auto-defeated').startsWith('all') || document.disposition != 1)) {
             let combatant = document.combatant;
 
             //check to see if the combatant has been defeated
             let defeated = (setting('auto-defeated').endsWith('negative') ? hp.value < 0 : hp.value == 0);
-            if (combatant != undefined && combatant.data.defeated != defeated) {
-                await combatant.update({ defeated: defeated }).then(() => {
-                    token.refresh();
-                });
+            if (combatant != undefined && combatant.defeated != defeated) {
+                await combatant.update({ defeated: defeated });
+            }
 
-                if (defeated && setting("invisible-dead")) {
-                    document.update({ hidden: true });
-                }
+            if (defeated && setting("invisible-dead")) {
+                await document.update({ hidden: true });
             }
         }
     }
 
+    if (hp != undefined) {
+        token.refresh();
+    }
+
     if (setting('auto-reveal') && game.user.isGM && data.hidden === false) {
-        let token = document.object;
-        let combatant = document.combatant;;
+        let combatant = document.combatant;
 
         if (combatant?.hidden === true) {
             await combatant.update({ hidden: false }).then(() => {
@@ -1152,9 +1174,11 @@ Hooks.on("updateCombatant", async function (combatant, data, options, userId) {
 
         let status = CONFIG.statusEffects.find(e => e.id === CONFIG.Combat.defeatedStatusId);
         let effect = a && status ? status : CONFIG.controlIcons.defeated;
-        const exists = (effect.icon == undefined ? (t.data.overlayEffect == effect) : (a.effects.find(e => e.getFlag("core", "statusId") === effect.id) != undefined));
-        if (exists != data.defeated)
+        const exists = (effect.icon == undefined ? (t.overlayEffect == effect) : (a.effects.find(e => e.getFlag("core", "statusId") === effect.id) != undefined));
+        if (exists != data.defeated) {
             await t.object.toggleEffect(effect, { overlay: true, active: data.defeated });
+            t.object.refresh();
+        }
     }
 });
 
@@ -1169,9 +1193,9 @@ Hooks.on("renderCompendium", (compendium, html, data) => {
 
                 let documentId = ev.currentTarget.closest('li').dataset.documentId;
                 compendium.collection.getDocument(documentId).then(entry => {
-                    let img = entry.data.img;
+                    let img = entry.background.src;
                     if (VideoHelper.hasVideoExtension(img))
-                        ImageHelper.createThumbnail(img, { width: entry.data.width, height: entry.data.height }).then(img => {
+                        ImageHelper.createThumbnail(img, { width: entry.width, height: entry.height }).then(img => {
                             new ImagePopout(img.thumb, {
                                 title: entry.name,
                                 shareable: true,
@@ -1331,11 +1355,11 @@ Hooks.on("getSidebarDirectoryFolderContext", (html, entries) => {
                     // Delete contained Documents
                     const deleteDocumentIds = [];
                     for (let d of folder.documentCollection) {
-                        if (d.data.folder !== folder.id) continue;
+                        if (d.folder !== folder.id) continue;
                         deleteDocumentIds.push(d.id);
                     }
                     if (deleteDocumentIds.length) {
-                        const cls = getDocumentClass(folder.data.type);
+                        const cls = getDocumentClass(folder.type);
                         return cls.deleteDocuments(deleteDocumentIds);
                     }
                 },

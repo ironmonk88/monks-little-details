@@ -46,6 +46,8 @@
 	"MonksLittleDetails.scene-palette.hint": "Show the top 5 dominant colours of a scene just in case you want to set the background colour to a similar colour.",
 	"MonksLittleDetails.core-css-changes.name": "Change Core CSS",
 	"MonksLittleDetails.core-css-changes.hint": "Update some of the core css to display things a little better",
+	"MonksLittleDetails.window-css-changes.name": "Change Window Styles",
+	"MonksLittleDetails.window-css-changes.hint": "The semi-transparent background of the windows makes it hard to see sometimes.",
 	"MonksLittleDetails.show-drag-points-together.name": "Show Drag Points Together",
 	"MonksLittleDetails.show-drag-points-together.hint": "Show a toggle button on the wall tools that will drag points together if they overlap exactly",
 	"MonksLittleDetails.movement-key.name": "Movement Key",
@@ -121,6 +123,8 @@
 	"MonksLittleDetails.hide-until-turn.hint": "Hide enemies on the combat tracker until they have their turn",
 	"MonksLittleDetails.large-print.name": "Large Size",
 	"MonksLittleDetails.large-print.hint": "Display the turn notification in large size",
+	"MonksLittleDetails.bloodsplat-size.name": "Bloodsplat size",
+	"MonksLittleDetails.bloodsplat-size.hint": "Set the size of the blood splat in comparison to the original token size.",
 
 	"MonksLittleDetails.PlayRoundSound": "Play new round sound",
 	"MonksLittleDetails.PlayRoundSoundHint": "Play a sound when the next round starts",

@@ -1,3 +1,7 @@
+# Version 1.0.56
+
+Adding v10 support
+
 # Version 1.0.55
 
 Fixed issues with combat bars not showing if the non combat bar is set to never display.
