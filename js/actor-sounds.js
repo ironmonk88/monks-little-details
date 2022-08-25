@@ -269,7 +269,8 @@ export class ActorSoundDialog extends FormApplication {
 }
 
 Hooks.on("setupTileActions", (app) => {
-    app.registerTileGroup('monks-little-details', "Monk's Little Details");
+    if (app.triggerGroups['monks-little-details'] == undefined)
+        app.registerTileGroup('monks-little-details', "Monk's Little Details");
     app.registerTileAction('monks-little-details', 'actor-sound', {
         name: 'Play Actor Sound',
         ctrls: [

@@ -287,7 +287,7 @@ export class MonksLittleDetails {
                 }
 
                 // Play a notification sound effect
-                if (message.sound) AudioHelper.play({ src: message.data.sound });
+                if (message.sound) AudioHelper.play({ src: message.sound });
             }
 
             if (game.modules.get("lib-wrapper")?.active) {
@@ -500,6 +500,19 @@ export class MonksLittleDetails {
 background-color: rgba(0, 0, 0, 0.5);
     padding: 5px 10px;
     border-radius: 4px;
+}
+
+#controls ol.control-tools .has-notes::after {
+    color: #bc8c4a;
+}
+
+#controls ol.control-tools .has-notes::before {
+    color: #bc8c4a;
+}
+
+#controls ol.control-tools li.active .has-notes::before,
+#controls ol.control-tools li:hover .has-notes::before {
+    color: #ffc163;
 }
 `;
 
@@ -1420,15 +1433,15 @@ Hooks.on('renderModuleManagement', (app, html, data) => {
         }
 
         for (let mod of data.modules) {
-            if (mod.dependencies.length) {
-                for (let dep of mod.dependencies) {
+            if (mod.relationships.requires.length) {
+                for (let dep of mod.relationships.requires) {
                     if (requires[dep] == undefined)
                         requires[dep] = [mod.name];
                     else
                         requires[dep].push(mod.name);
 
-                    let hasModule = data.modules.find(m => m.name == dep);
-                    $(`.package[data-module-name="${mod.name}"] .package-metadata .tag`, html).each(function () {
+                    let hasModule = data.modules.find(m => (m.id || m.name) == dep);
+                    $(`.package[data-module-id="${mod.id || mod.name}"] .package-metadata .tag`, html).each(function () {
                         if ($(this).html() == dep) {
                             $(this).addClass(hasModule ? (hasModule.active ? "success" : "info") : "danger");
                         }

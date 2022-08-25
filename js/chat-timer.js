@@ -132,7 +132,8 @@ Hooks.on("renderChatMessage", (message, html, data) => {
 });
 
 Hooks.on("setupTileActions", (app) => {
-    app.registerTileGroup('monks-little-details', "Monk's Little Details");
+    if (app.triggerGroups['monks-little-details'] == undefined)
+        app.registerTileGroup('monks-little-details', "Monk's Little Details");
     app.registerTileAction('monks-little-details', 'chat-timer', {
         name: 'Chat Timer',
         ctrls: [
@@ -182,7 +183,7 @@ Hooks.on("setupTileActions", (app) => {
                 let entities = await game.MonksActiveTiles.getEntities(args);
                 let entity = (entities.length > 0 ? entities[0] : null);
                 let tkn = (entity?.object || tokens[0]?.object);
-                let tokenOwners = (tkn ? Object.entries(tkn?.actor.ownership).filter(([k, v]) => { return v == CONST.ENTITY_PERMISSIONS.OWNER }).map(a => { return a[0]; }) : []);
+                let tokenOwners = (tkn ? Object.entries(tkn?.actor.ownership).filter(([k, v]) => { return v == CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER }).map(a => { return a[0]; }) : []);
                 options.whisper = Array.from(new Set(ChatMessage.getWhisperRecipients("GM").map(u => u.id).concat(tokenOwners)));
             }
 
