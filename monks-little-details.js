@@ -781,7 +781,7 @@ background-color: rgba(0, 0, 0, 0.5);
     }
 
     static isDefeated(token) {
-        return (token && (token.combatant && token.combatant.defeated) || token.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId) || token.document.overlayEffect == CONFIG.controlIcons.defeated);
+        return (token && (token.combatant && token.combatant.defeated) || token.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.specialStatusEffects.DEFEATED) || token.document.overlayEffect == CONFIG.controlIcons.defeated);
     }
 
     static showUpdateImages() {
@@ -1185,7 +1185,7 @@ Hooks.on("updateCombatant", async function (combatant, data, options, userId) {
         let t = combatant.token
         const a = combatant.token.actor;
 
-        let status = CONFIG.statusEffects.find(e => e.id === CONFIG.Combat.defeatedStatusId);
+        let status = CONFIG.statusEffects.find(e => e.id === CONFIG.specialStatusEffects.DEFEATED);
         let effect = a && status ? status : CONFIG.controlIcons.defeated;
         const exists = (effect.icon == undefined ? (t.overlayEffect == effect) : (a.effects.find(e => e.getFlag("core", "statusId") === effect.id) != undefined));
         if (exists != data.defeated) {
@@ -1516,4 +1516,50 @@ Hooks.on("getCompendiumEntryContext", (html, entries) => {
             }
         }
     });
+});
+
+Hooks.on("updateScene", (scene, data, options) => {
+    if ((data.darkness == 0 || data.darkness == 1) && options.animateDarkness != undefined && ui.controls.activeControl == "lighting") {
+        let tool = $(`#controls .sub-controls .control-tool[data-tool="${data.darkness == 0 ? 'day' : 'night'}"]`);
+        $('#darkness-progress').remove();
+
+        let leftSide = $("<div>").attr("deg", 0);
+        let rightSide = $("<div>").attr("deg", 0);
+
+        let progress = $('<div>')
+            .attr("id", "darkness-progress")
+            .append($("<div>").addClass("progress-left-side").append(leftSide))
+            .append($("<div>").addClass("progress-right-side").append(rightSide));
+
+        tool.append(progress).css({ "position": "relative", "overflow": "hidden" });
+
+        let halfTime = options.animateDarkness / 2;
+
+        $(rightSide).animate({ deg: 180 }, {
+            duration: halfTime,
+            step: function (now) {
+                if (!!rightSide.attr("stop"))
+                    rightSide.stop();
+                rightSide.css({
+                    transform: 'rotate(' + now + 'deg)'
+                });
+            },
+            complete: function () {
+                $(leftSide).animate({ deg: 180 }, {
+                    duration: halfTime,
+                    step: function (now) {
+                        if (!!leftSide.attr("stop"))
+                            leftSide.stop();
+                        leftSide.css({
+                            transform: 'rotate(' + now + 'deg)'
+                        });
+                    },
+                    complete: function () {
+                        progress.remove();
+                        tool.css({ "overflow": "" });
+                    }
+                });
+            }
+        });
+    }
 });

@@ -114,7 +114,7 @@ export class CombatTurn {
                         let token = canvas.tokens.get(id);
                         if (token
                             && !token.hidden
-                            && !((token?.combatant && token?.combatant.defeated) || token.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId) || token.document.overlayEffect == CONFIG.controlIcons.defeated))
+                            && !((token?.combatant && token?.combatant.defeated) || token.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.specialStatusEffects.DEFEATED) || token.document.overlayEffect == CONFIG.controlIcons.defeated))
                             token.setTarget(true, { user: game.user, releaseOthers: false, groupSelection: false });
                     }
 
@@ -307,7 +307,7 @@ export class CombatTurn {
                     for (let [i, t] of combat.turns.entries()) {
                         if (i <= from ||
                             t.defeated ||
-                            t.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId)) continue;
+                            t.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.specialStatusEffects.DEFEATED)) continue;
                         next = i;
                         break;
                     }

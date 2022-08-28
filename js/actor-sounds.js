@@ -3,7 +3,7 @@ import { MonksLittleDetails, i18n, log, setting } from "../monks-little-details.
 export class ActorSounds {
     static init() {
         Hooks.on('renderTokenHUD', async (app, html, options) => {
-            if (app.object.actor.getFlag('monks-little-details', 'sound-effect') != undefined) {
+            if (app.object?.actor?.getFlag('monks-little-details', 'sound-effect') != undefined) {
                 $('.col.right', html).append(
                     $('<div>').addClass('control-icon sound-effect')
                         .append('<img src="modules/monks-little-details/icons/volumeup.svg" width="36" height="36" title="Play Sound Effect">')

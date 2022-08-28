@@ -11,7 +11,7 @@ export class BloodSplats {
 
         let oldTokenDrawOverlay = Token.prototype._drawOverlay;
         Token.prototype._drawOverlay = async function (src, tint) {
-            if (((this.combatant && this.combatant.defeated) || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId) || this.document.overlayEffect == CONFIG.controlIcons.defeated) && this.actor?.type !== 'character') {
+            if (((this.combatant && this.combatant.defeated) || this.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.specialStatusEffects.DEFEATED) || this.document.overlayEffect == CONFIG.controlIcons.defeated) && this.actor?.type !== 'character') {
                 //this should be showing the bloodsplat, so don't show the skull overlay
                 return;
             } else

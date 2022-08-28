@@ -1,3 +1,9 @@
+# Version 1.0.58
+
+More v10 support
+
+Adding a timer for darkness transition.
+
 # Version 1.0.57
 
 More v10 support

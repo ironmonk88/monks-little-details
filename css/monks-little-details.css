@@ -578,3 +578,47 @@ body.change-windows .window-app > header {
 body.change-windows #context-menu {
     background: #0f002c;
 }
+
+#darkness-progress {
+    float: left;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 100%;
+    z-index: -1;
+    overflow: hidden;
+}
+
+#darkness-progress > div {
+    top: 0px;
+    height: 100%;
+    width: 50%;
+    overflow: hidden;
+    position: absolute;
+}
+
+#darkness-progress > div > div {
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    position: absolute;
+    background-color: #5f28cc;
+}
+
+#darkness-progress .progress-left-side {
+    left: 0px;
+}
+
+#darkness-progress .progress-left-side > div {
+    transform-origin: center right;
+    left: -100%;
+}
+
+#darkness-progress .progress-right-side {
+    left: 50%;
+}
+
+#darkness-progress .progress-right-side > div {
+    transform-origin: center left;
+}
