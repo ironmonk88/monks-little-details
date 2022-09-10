@@ -1,3 +1,13 @@
+# version 10.1
+
+Fixed an issue dropping a tile from the tile picker
+
+Added the option to right click the actor sidebar icon to open the last viewed Actor if you're the GM and your character sheet if you're a player.
+
+Fixed issue popping out the combat tracker.
+
+Fixed issue with combat turn
+
 # Version 1.0.58
 
 More v10 support

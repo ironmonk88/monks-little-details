@@ -333,7 +333,7 @@ export class CombatTurn {
                 isNext = nxtentry.actor?.isOwner; //_id === game.users.current.character?._id;
             }
 
-            debug('Check combat turn', entry.name, nxtentry?.name, !game.user.isGM, isActive, isNext, entry, nxtentry);
+            debug('Check combat turn', entry?.name, nxtentry?.name, !game.user.isGM, isActive, isNext, entry, nxtentry);
             if (entry !== undefined) {
                 if (isActive) {
                     CombatTurn.doDisplayTurn();

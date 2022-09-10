@@ -308,10 +308,8 @@ export class MonksLittleDetails {
             const createData = await this._getDropData(event, data);
 
             // Validate that the drop position is in-bounds and snap to grid
-            if ((createData.x + createData.width) < canvas.grid.hitArea.x ||
-                createData.x > (canvas.grid.hitArea.x + canvas.grid.hitArea.width) ||
-                createData.y > (canvas.grid.hitArea.y + canvas.grid.hitArea.height) ||
-                (createData.y + createData.height) < canvas.grid.hitArea.y) return false;
+            if (!canvas.dimensions.rect.contains(createData.x, createData.y))
+                return false;
 
             // Create the Tile Document
             const cls = getDocumentClass(this.constructor.documentName);
@@ -349,13 +347,34 @@ export class MonksLittleDetails {
 
             return result;
         }*/
+
+        let oldRenderPopout = ActorDirectory.prototype.renderPopout;
+        ActorDirectory.prototype.renderPopout = function () {
+            if (game.user.isGM) {
+                if (MonksLittleDetails._lastActor)
+                    MonksLittleDetails._lastActor.sheet.render(true, { focus: true });
+                else
+                    return oldRenderPopout.call(this);
+            } else {
+                if (game.user.character)
+                    game.user.character.sheet.render(true, { focus: true });
+                else
+                    return oldRenderPopout.call(this);
+            }
+        }
     }
 
-    static ready() {
+    static async ready() {
         MonksLittleDetails._setting["token-highlight-animate"] = setting("token-highlight-animate");
         MonksLittleDetails._setting["token-combat-animation"] = setting("token-combat-animation");
         MonksLittleDetails._setting["token-combat-animation-hostile"] = setting("token-combat-animation-hostile");
         MonksLittleDetails._setting["token-highlight-scale"] = setting("token-highlight-scale");
+
+        try {
+            let actorId = game.user.getFlag("monks-little-details", "last-actor");
+            if (actorId)
+                MonksLittleDetails._lastActor = await fromUuid(actorId);
+        } catch { }
 
         $('body').toggleClass("change-windows", setting("window-css-changes"));
 
@@ -992,7 +1011,7 @@ Hooks.on('renderTokenHUD', async (app, html, options) => {
 });
 
 Hooks.on('renderCombatTracker', async (app, html, data) => {
-    if (!MonksLittleDetails.tracker && app.options.id == "combat-popout") {
+    if (!MonksLittleDetails.tracker && app.options.id == "combat" && app.options.popOut) {
         MonksLittleDetails.tracker = true;
 
         if (combatposition() !== '') {
@@ -1300,7 +1319,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
         tokenControls.tools.push({
             name: "findtoken",
             title: "MonksLittleDetails.FindMyToken",
-            icon: "fas fa-crosshairs",
+            icon: "fas fa-users-viewfinder",
             onClick: async (away) => {
                 //Find token
                 let tokens = canvas.tokens.ownedTokens;
@@ -1336,6 +1355,11 @@ Hooks.on('renderAmbientSoundConfig', (app, html, data) => {
         .append($('<p>').addClass('hint').html('Specify the time between loops, set to -1 to have this play only once'))
         .insertBefore($('button[name="submit"]', html));
 })*/
+
+Hooks.on("renderActorSheet", (sheet) => {
+    MonksLittleDetails._lastActor = sheet.object;
+    game.user.setFlag("monks-little-details", "last-actor", sheet.object.uuid);
+})
 
 Hooks.on("getSidebarDirectoryFolderContext", (html, entries) => {
     entries.push({
