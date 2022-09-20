@@ -32,7 +32,11 @@ export class ActorSounds {
         let sheetNames = ["ActorSheet"];
 
         if (setting("actor-sounds") === "npc" || setting("actor-sounds") === 'true') {
-            let npcObject = (CONFIG.Actor.sheetClasses.npc || CONFIG.Actor.sheetClasses.minion);
+            let npcObject;
+            if (game.system.id == 'ds4') {
+                npcObject = CONFIG.Actor.sheetClasses.creature;
+            } else
+                npcObject = (CONFIG.Actor.sheetClasses.npc || CONFIG.Actor.sheetClasses.minion);
             if (npcObject != undefined) {
                 sheetNames = Object.values(npcObject)
                     .map((sheetClass) => sheetClass.cls)
