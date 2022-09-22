@@ -86,22 +86,31 @@ export class HUDChanges {
             $('#token-hud').addClass('monks-little-details').toggleClass('highlight-image', setting('alter-hud-colour'));
             const statuses = this._getStatusEffectChoices();
 
-            for (let img of $('.col.right .control-icon[data-action="effects"] .status-effects > img')) {
+            for (let img of $('> img,> picture', '.col.right .control-icon[data-action="effects"] .status-effects')) {
                 let src = $(img).attr('src');
                 if (src == '') {
                     $(img).css({ 'visibility': 'hidden' });
                 } else {
                     //const status = statuses[img.getAttribute("src")] || {};
                     let title = $(img).attr('title') || $(img).attr('data-condition');
-                    let div = $('<div>')
-                        .addClass('effect-container')//$(img).attr('class'))
-                        //.toggleClass('active', !!status.isActive)
-                        .attr('title', title)
-                        //.attr('src', $(img).attr('src'))
-                        .insertAfter(img)
-                        .append(img)//.removeClass('effect-control'))
-                        .append($('<div>').addClass('effect-name').html(title)
-                        );
+
+                    if (game.system.id == "pf2e") {
+                        $('<div>')
+                            .addClass('effect-name')
+                            .attr('title', title)
+                            .html(title)
+                            .insertAfter($('img', img));
+                    } else {
+                        $('<div>')
+                            .addClass('effect-container')//$(img).attr('class'))
+                            //.toggleClass('active', !!status.isActive)
+                            .attr('title', title)
+                            //.attr('src', $(img).attr('src'))
+                            .insertAfter(img)
+                            .append(img)//.removeClass('effect-control'))
+                            .append($('<div>').addClass('effect-name').html(title)
+                            );
+                    }
                 }
             };
 

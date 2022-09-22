@@ -146,9 +146,11 @@ export class CombatTurn {
             }
 
             if (combat && combat.started && (delta.round || delta.turn) && setting('auto-scroll')) {
-                $(`#combat-tracker li[data-combatant-id="${combat.current.combatantId}"]`).each(function () {
-                    log('scroll top', Math.max(this.offsetTop - $(this).height(), 0));
-                    $(this).parent().scrollTop(Math.max(this.offsetTop - $(this).height(), 0));
+                $(`#sidebar #combat-tracker li[data-combatant-id="${combat.current.combatantId}"]`).each(function () {
+                    $(this).parent().scrollTop(Math.max(this.offsetTop, 0)); // - $(this).height()
+                });
+                $(`#combat-popout #combat-tracker li[data-combatant-id="${combat.current.combatantId}"]`).each(function () {
+                    $(this).parent().scrollTop(Math.max(this.offsetTop - 96, 0)); // - $(this).height()
                 });
             }
         });

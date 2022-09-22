@@ -1,3 +1,19 @@
+# version 10.2
+
+Added the option to hide any defeated token from the combat tracker, only if defeated tokens are also ignored.
+
+Fixed the Combat round messages so the trash can icon lines up with the trash cans from the regular messages.
+
+Updated actor sounds to show a stop icon when the sound effect is playing.
+
+Fixed the auto scroll top top feature to correctly set the top when displayed on the combat tracker popout.
+
+Fixed issue with PF2E displaying the name of statuses.
+
+Removed a duplicate invisible status icon.
+
+Fixed issue with showing the combat CR.
+
 # version 10.1
 
 Fixed an issue dropping a tile from the tile picker

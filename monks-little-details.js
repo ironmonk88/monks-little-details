@@ -46,6 +46,17 @@ export let combatposition = () => {
     return game.settings.get("monks-little-details", "combat-position");
 };
 
+export let patchFunc = (prop, func, type = "WRAPPER") => {
+    if (game.modules.get("lib-wrapper")?.active) {
+        libWrapper.register("monks-little-details", prop, func, type);
+    } else {
+        const oldFunc = eval(prop);
+        eval(`${prop} = function (event) {
+            return func.call(this, oldFunc.bind(this), ...arguments);
+        }`);
+    }
+}
+
 export class MonksLittleDetails {
     static tracker = false;
     static tokenHUDimages = {};
@@ -126,7 +137,6 @@ export class MonksLittleDetails {
                     { "id": "exhausted", "label": "MonksLittleDetails.StatusExhausted", "icon": "modules/monks-little-details/icons/oppression.svg" },
                     { "id": "grappled", "label": "MonksLittleDetails.StatusGrappled", "icon": "modules/monks-little-details/icons/grab.svg" },
                     { "id": "incapacitated", "label": "MonksLittleDetails.StatusIncapacitated", "icon": "modules/monks-little-details/icons/internal-injury.svg" },
-                    { "id": "invisible", "label": "MonksLittleDetails.StatusInvisible", "icon": "modules/monks-little-details/icons/invisible.svg" },
                     { "id": "petrified", "label": "MonksLittleDetails.StatusPetrified", "icon": "modules/monks-little-details/icons/stone-pile.svg" },
                     { "id": "hasted", "label": "MonksLittleDetails.StatusHasted", "icon": "modules/monks-little-details/icons/running-shoe.svg" },
                     { "id": "slowed", "label": "MonksLittleDetails.StatusSlowed", "icon": "modules/monks-little-details/icons/turtle.svg" },
@@ -231,6 +241,13 @@ export class MonksLittleDetails {
                 return tokenRefresh.call(this, oldTokenRefresh.bind(this), ...arguments);
             }
         }*/
+
+        patchFunc("CombatTrackerConfig.prototype._updateObject", async (wrapped, ...args) => {
+            let [event, formData] = args;
+            game.settings.set("monks-little-details", "hide-defeated", formData.hideDefeated);
+            $('#combat-popout').toggleClass("hide-defeated", formData.hideDefeated == true);
+            return wrapped(...args);
+        });
 
         let combatStart = async function (wrapped, ...args) {
             if (setting("prevent-initiative") && this.turns.find(c => c.initiative == undefined) != undefined) {
@@ -1028,9 +1045,9 @@ Hooks.on('renderCombatTracker', async (app, html, data) => {
             let epicness = Math.clamped((crdata.cr - crdata.apl - 3), 0, 5);
 
             $('<nav>').addClass('encounters flexrow encounter-cr-row')
-                .append($('<h3>').html('CR: ' + MonksLittleDetails.getCRText(crdata.cr)))
+                .append($('<h4>').html('CR: ' + MonksLittleDetails.getCRText(crdata.cr)))
                 .append($('<div>').addClass('encounter-cr').attr('rating', crChallenge.rating).html(i18n(crChallenge.text) + "!".repeat(epicness)))
-                .insertAfter($('#combat-round .encounters:last'));
+                .insertAfter($('#combat .encounter-controls'));
         }
     }
 
@@ -1042,6 +1059,10 @@ Hooks.on('renderCombatTracker', async (app, html, data) => {
     //don't show the previous or next turn if this isn't the GM
     if (!game.user.isGM && data.combat && data.combat.started) {
         $('.combat-control[data-control="previousTurn"],.combat-control[data-control="nextTurn"]:last').css({visibility:'hidden'});
+    }
+
+    if (app.options.popOut) {
+        $(app.element).toggleClass("hide-defeated", setting("hide-defeated") == true);
     }
 });
 
@@ -1586,4 +1607,14 @@ Hooks.on("updateScene", (scene, data, options) => {
             }
         });
     }
+});
+
+Hooks.on("renderCombatTrackerConfig", (app, html, data) => {
+    $('<div>').addClass("form-group")
+        .append($('<label>').html("Hide Defeated?"))
+        .append($('<input>').attr("type", "checkbox").attr("name", "hideDefeated").attr('data-dtype', 'Boolean').prop("checked", setting("hide-defeated") == true))
+        .append($('<p>').addClass("notes").html("Automatically hide combatants marked as defeated?  Requires skip defeated."))
+        .insertAfter($('input[name="skipDefeated"]', html).closest(".form-group"));
+
+    app.setPosition({ height: 'auto' });
 });

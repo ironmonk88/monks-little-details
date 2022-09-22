@@ -38,6 +38,12 @@ export const WithMonksCombatTracker = (CombatTracker) => {
             return data;
         }
 
+        async _render(...args) {
+            await super._render(...args);
+            if (this.popOut)
+                $(this.element).toggleClass("hide-defeated", setting("hide-defeated") == true);
+        }
+
         activateListeners(html) {
             super.activateListeners(html);
 

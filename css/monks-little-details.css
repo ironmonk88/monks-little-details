@@ -462,8 +462,9 @@ body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details
     background-image: none;
 }
 
-#chat-log .message.round-marker .message-header .message-delete{
+#chat-log .message.round-marker .message-header .message-delete {
     color: var(--color-text-dark-secondary);
+    margin-right: 5px;
 }
 
 #combat #combat-tracker {
@@ -621,4 +622,8 @@ body.change-windows #context-menu {
 
 #darkness-progress .progress-right-side > div {
     transform-origin: center left;
+}
+
+.combat-sidebar.hide-defeated li.combatant.defeated {
+    display: none;
 }

@@ -4,9 +4,13 @@ export class ActorSounds {
     static init() {
         Hooks.on('renderTokenHUD', async (app, html, options) => {
             if (app.object?.actor?.getFlag('monks-little-details', 'sound-effect') != undefined) {
+                let icon = 'volumeup.svg';
+                if (app.object?.soundeffect && app.object?.soundeffect?.playing)
+                    icon = 'stop.svg';
+
                 $('.col.right', html).append(
                     $('<div>').addClass('control-icon sound-effect')
-                        .append('<img src="modules/monks-little-details/icons/volumeup.svg" width="36" height="36" title="Play Sound Effect">')
+                        .append(`<img src="modules/monks-little-details/icons/${icon}" width="36" height="36" title="Play Sound Effect">`)
                         .click(app.object.playSound.bind(app.object)));
             }
         });
@@ -258,13 +262,29 @@ export class ActorSoundDialog extends FormApplication {
     }
 
     async playSound() {
-        let volume = parseFloat($('input[name="volume"]', this.element).val());
-        let soundeffect = $('input[name="audiofile"]', this.element).val();
-        let sounds = await ActorSounds.getTokenSounds(soundeffect);
+        if (this.soundeffect) {
+            if (this.soundeffect.playing)
+                this.soundeffect.stop();
+            delete this.soundeffect;
+            $('button[name="play"] i', this.element).removeClass("fa-stop").addClass("fa-play");
+        } else {
+            let volume = parseFloat($('input[name="volume"]', this.element).val());
+            let soundeffect = $('input[name="audiofile"]', this.element).val();
+            let sounds = await ActorSounds.getTokenSounds(soundeffect);
 
-        const audiofile = sounds[Math.floor(Math.random() * sounds.length)];
+            const audiofile = sounds[Math.floor(Math.random() * sounds.length)];
 
-        ActorSounds.playSoundEffect(audiofile, volume);
+            ActorSounds.playSoundEffect(audiofile, volume).then((sound) => {
+                if (sound) {
+                    this.soundeffect = sound;
+                    this.soundeffect.on("end", () => {
+                        delete this.soundeffect;
+                    });
+                    $('button[name="play"] i', this.element).addClass("fa-stop").removeClass("fa-play");
+                    return sound;
+                }
+            });
+        }
     }
 }
 

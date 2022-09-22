@@ -658,4 +658,10 @@ export const registerSettings = function () {
 			type: Hotkeys.createConfig('Monks Little Details', ['monks-little-details'])
 		});
 	}*/
+	game.settings.register(modulename, "hide-defeated", {
+		scope: "world",
+		config: false,
+		default: false,
+		type: Boolean
+	});
 };
