@@ -1187,7 +1187,7 @@ Hooks.on("updateToken", async function (document, data, options, userid) {
     if (setting('auto-defeated') != 'none' && game.user.isGM) {
         
         
-        if (hp != undefined && (setting('auto-defeated').startsWith('all') || document.disposition != 1)) {
+        if (hp != undefined && ('value' in hp) && (setting('auto-defeated').startsWith('all') || document.disposition != 1)) {
             let combatant = document.combatant;
 
             //check to see if the combatant has been defeated
