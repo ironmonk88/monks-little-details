@@ -627,3 +627,62 @@ body.change-windows #context-menu {
 .combat-sidebar.hide-defeated li.combatant.defeated {
     display: none;
 }
+
+.filepicker .filepicker-body input[name="target"] {
+    margin-right: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+.filepicker .filepicker-body .quick-links {
+    flex: 0 0 32px;
+    text-align: center;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    margin-right: 5px !important;
+    padding: 4px 0px;
+}
+
+.quick-links-list {
+    display: none;
+    max-height: 150px;
+    overflow-y: auto;
+    color: black;
+    position: absolute;
+    float: left;
+    left: 0px;
+    top: calc(100% - 2px);
+    background: url(../../../ui/parchment.jpg) repeat;
+    border: 1px solid #808080;
+    width: calc(100% - 5px);
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    list-style: none;
+    margin: 0;
+    padding: 0px;
+    z-index: 100;
+}
+
+.quick-links-list.open {
+    display: block;
+}
+
+.quick-links-list .quick-link-item {
+    padding: 2px 4px;
+}
+
+.quick-links-list .quick-link-item:hover {
+    background-color: Highlight;
+    color: #fff;
+}
+
+.quick-links-list .quick-favorite {
+    flex: 0 0 20px;
+    cursor: pointer;
+}
+
+.quick-links-list .quick-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

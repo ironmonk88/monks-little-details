@@ -125,6 +125,10 @@
 	"MonksLittleDetails.large-print.hint": "Display the turn notification in large size",
 	"MonksLittleDetails.bloodsplat-size.name": "Bloodsplat size",
 	"MonksLittleDetails.bloodsplat-size.hint": "Set the size of the blood splat in comparison to the original token size.",
+	"MonksLittleDetails.open-actor.name": "Open Actor",
+	"MonksLittleDetails.open-actor.hint": "Right click on the actor sidebar icon to open the players character sheet, or the last opened actor sheet.",
+	"MonksLittleDetails.bloodsplat-opacity.name": "Bloodsplat Opacity",
+	"MonksLittleDetails.bloodsplat-opacity.hint": "Adjust the transparency of the token behnd the bloodsplat",
 
 	"MonksLittleDetails.PlayRoundSound": "Play new round sound",
 	"MonksLittleDetails.PlayRoundSoundHint": "Play a sound when the next round starts",

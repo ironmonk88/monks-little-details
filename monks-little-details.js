@@ -269,6 +269,48 @@ export class MonksLittleDetails {
             }
         }
 
+        patchFunc("FilePicker.prototype._onSubmit", async (wrapped, ...args) => {
+            let [ev] = args;
+            let path = ev.target.file.value;
+
+            if (path && path.length) {
+                let idx = path.lastIndexOf("/");
+                let target = path.substring(0, idx);
+
+                let quicklinks = (game.user.getFlag("monks-little-details", "quicklinks") || []);
+                let link = quicklinks.find(q => q.target == target);
+
+                let favorites = [];
+                let regular = quicklinks.filter(q => {
+                    if (q.favorite) favorites.push(q);
+                    return !q.favorite;
+                });
+
+                // if this link already exists
+                //      if a favorite then do nothing, not a favorite, then sort it to the top of the list
+                // if this link doesn't exist
+                // check to see if there are any non-favorite spots available and push to the list.  Pop any that are greater than 25
+
+                if (link) {
+                    if (!link.favorite) {
+                        regular.findSplice(q => q.target == target);
+                        regular.unshift(link);
+                    }
+                } else {
+                    if (favorites.length < 4) {
+                        regular.unshift({ target: target, favorite: false });
+                        if (regular.length + favorites.length > 4)
+                            regular = regular.slice(0, 4 - favorites.length);
+                    }
+                }
+
+                quicklinks = favorites.concat(regular);
+                game.user.setFlag("monks-little-details", "quicklinks", quicklinks);
+            }
+
+            return wrapped(...args);
+        });
+
         if (setting("actor-sounds"))
             ActorSounds.init();
 
@@ -367,17 +409,20 @@ export class MonksLittleDetails {
 
         let oldRenderPopout = ActorDirectory.prototype.renderPopout;
         ActorDirectory.prototype.renderPopout = function () {
-            if (game.user.isGM) {
-                if (MonksLittleDetails._lastActor)
-                    MonksLittleDetails._lastActor.sheet.render(true, { focus: true });
-                else
-                    return oldRenderPopout.call(this);
-            } else {
-                if (game.user.character)
-                    game.user.character.sheet.render(true, { focus: true });
-                else
-                    return oldRenderPopout.call(this);
-            }
+            if (setting("open-actor")) {
+                if (game.user.isGM) {
+                    if (MonksLittleDetails._lastActor)
+                        MonksLittleDetails._lastActor.sheet.render(true, { focus: true });
+                    else
+                        return oldRenderPopout.call(this);
+                } else {
+                    if (game.user.character)
+                        game.user.character.sheet.render(true, { focus: true });
+                    else
+                        return oldRenderPopout.call(this);
+                }
+            } else
+                return oldRenderPopout.call(this);
         }
     }
 
@@ -488,10 +533,12 @@ export class MonksLittleDetails {
             innerHTML += `
 .directory .directory-list .directory-item img {
     object-fit: contain !important;
+    object-position: center !important;
 }
 
 .filepicker .thumbs-list img {
     object-fit: contain !important;
+    object-position: center !important;
 }
 
 .control-icon.active > img {
@@ -1617,4 +1664,60 @@ Hooks.on("renderCombatTrackerConfig", (app, html, data) => {
         .insertAfter($('input[name="skipDefeated"]', html).closest(".form-group"));
 
     app.setPosition({ height: 'auto' });
+});
+
+Hooks.on("renderFilePicker", (app, html, data) => {
+    const selectItem = function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        app.browse(this.target);
+        $('.quick-links-list.open').removeClass('open');
+    }
+
+    const toggleFavorite = function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        let quicklinks = duplicate(game.user.getFlag("monks-little-details", "quicklinks") || []);
+        let link = quicklinks.find(q => q.target == this.target);
+        link.favorite = !link.favorite;
+        game.user.setFlag("monks-little-details", "quicklinks", quicklinks);
+        $(`.quick-link-item[target="${this.target}"] .quick-favorite i`).toggleClass("fa-solid", link.favorite).toggleClass("fa-regular", !link.favorite);
+    }
+
+    let quicklinks = game.user.getFlag("monks-little-details", "quicklinks") || [];
+    let favorites = [];
+    let regular = quicklinks.filter(q => {
+        if (q.favorite) favorites.push(q);
+        return !q.favorite;
+    })
+
+    let list = $('<ul>')
+        .addClass('quick-links-list');
+
+    if (quicklinks.length == 0)
+        list.append($("<li>").html("No quick links yet"));
+    else {
+        list.append(favorites.concat(regular).map(j => {
+            return $('<li>')
+                .addClass('quick-link-item flexrow')
+                .attr('target', j.target)
+                .append($('<div>').addClass('quick-favorite').html(`<i class="fa-star ${j.favorite ? "fa-solid" : "fa-regular"}"></i>`).click(toggleFavorite.bind(j)))
+                .append($('<div>').addClass('quick-title').html(j.target))
+                .click(selectItem.bind(j));
+        }));
+    }
+
+    $(html).click(function () { list.removeClass('open') });
+
+    $('input[name="target"]', html)
+        .after(
+            $("<button>")
+                .attr("type", "button")
+                .addClass("quick-links")
+                .append($("<i>").addClass("fas fa-caret-down"))
+                .click(function (evt) { $('.quick-links-list', html).removeClass('open'); list.toggleClass('open'); evt.preventDefault(); evt.stopPropagation(); })
+        )
+        .after(list);
+    $('input[name="target"]', html).parent().css({position: "relative"});
 });

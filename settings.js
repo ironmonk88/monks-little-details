@@ -559,6 +559,14 @@ export const registerSettings = function () {
 		default: false,
 		type: Boolean,
 	});
+	game.settings.register(modulename, "open-actor", {
+		name: i18n("MonksLittleDetails.open-actor.name"),
+		hint: i18n("MonksLittleDetails.open-actor.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean
+	});
 	game.settings.register(modulename, "reposition-collapse", {
 		name: i18n("MonksLittleDetails.reposition-collapse.name"),
 		hint: i18n("MonksLittleDetails.reposition-collapse.hint"),
@@ -596,6 +604,19 @@ export const registerSettings = function () {
 		range: {
 			min: 0.2,
 			max: 2,
+			step: 0.1
+		},
+	});
+	game.settings.register(modulename, "bloodsplat-opacity", {
+		name: i18n("MonksLittleDetails.bloodsplat-opacity.name"),
+		hint: i18n("MonksLittleDetails.bloodsplat-opacity.hint"),
+		scope: "world",
+		config: true,
+		default: 0.2,
+		type: Number,
+		range: {
+			min: 0,
+			max: 1,
 			step: 0.1
 		},
 	});

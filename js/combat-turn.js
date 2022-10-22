@@ -98,7 +98,9 @@ export class CombatTurn {
             }
 
             if (combat && combat.started && game.user.isGM && setting("pan-to-combatant") && combat?.combatant?.token) {
-                canvas.animatePan({ x: combat?.combatant?.token.x, y: combat?.combatant?.token.y });
+                if (canvas.dimensions.rect.contains(combat?.combatant?.token.x, combat?.combatant?.token.y)) {
+                    canvas.animatePan({ x: combat?.combatant?.token.x, y: combat?.combatant?.token.y });
+                }
             }
 
             if (combat && combat.started && setting('remember-previous') && combat?.combatant?.token?.isOwner) {
@@ -133,10 +135,11 @@ export class CombatTurn {
             }
 
             if (setting('round-chatmessages') && combat && game.user.isGM) {
-                if (combatStarted)
+                if (combatStarted) {
                     ChatMessage.create({ user: game.user, flavor: "Round Start" }, { roundmarker: true });
-                else if (Object.keys(delta).some((k) => k === "round"))
-                    ChatMessage.create({ user: game.user, flavor: `Round ${delta.round}` }, { roundmarker: true });
+                } else if (Object.keys(delta).some((k) => k === "round")) {
+                    await ChatMessage.create({ user: game.user, flavor: `Round ${delta.round}` }, { roundmarker: true });
+                }
             }
 
             if (setting('play-round-sound') && setting('round-sound') && Object.keys(delta).some((k) => k === "round")) {

@@ -136,7 +136,7 @@ export class BloodSplats {
 
                             //log('Font: ', token.id, (token.h * 1.5), token.bloodsplat.x, token.bloodsplat.y);
 
-                            const iconAlpha = (game.user.isGM || (setting("show-bloodsplat") == "both" && !token.document.hidden) ? 0.2 : 0);
+                            const iconAlpha = (game.user.isGM || (setting("show-bloodsplat") == "both" && !token.document.hidden) ? setting("bloodsplat-opacity") : 0);
                             if (animate) {
                                 //animate the bloodsplat alpha to 0.7
                                 //animate the icon alpha to (game.user.isGM || setting("show-bloodsplat") == "both" ? 0.2 : 0);
@@ -158,7 +158,7 @@ export class BloodSplats {
                             } else
                                 token.mesh.alpha = iconAlpha;
                         } else {
-                            const iconAlpha = (game.user.isGM || (setting("show-bloodsplat") == "both" && !token.document.hidden) ? 0.2 : 0);
+                            const iconAlpha = (game.user.isGM || (setting("show-bloodsplat") == "both" && !token.document.hidden) ? setting("bloodsplat-opacity") : 0);
                             if (token._animateTo != iconAlpha)
                                 token.mesh.alpha = iconAlpha;
                             token.bloodsplat.position.set(token.x + (token.w / 2), token.y + (token.h / 2));

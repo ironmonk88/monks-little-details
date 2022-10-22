@@ -1,3 +1,13 @@
+# version 10.3
+
+Added the option to set the opacity of the token when using bloodsplats
+
+Added a check to make sure when panning to the next combatant, that the combatant is within the viewable screen
+
+Added the option to right click the sidebar icon to open up a players Actor Sheet.
+
+Added support for quick links in the File Picker, so if you commonly pick images from a directory, you can quickly change bak to that directory.
+
 # version 10.2
 
 Added the option to hide any defeated token from the combat tracker, only if defeated tokens are also ignored.
