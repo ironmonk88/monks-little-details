@@ -409,8 +409,8 @@ export const registerSettings = function () {
 	game.settings.register(modulename, "pan-to-combatant", {
 		name: i18n("MonksLittleDetails.pan-to-combatant.name"),
 		hint: i18n("MonksLittleDetails.pan-to-combatant.hint"),
-		scope: "world",
-		default: true,
+		scope: "client",
+		default: false,
 		type: Boolean,
 		config: true
 	});
@@ -512,7 +512,7 @@ export const registerSettings = function () {
 		name: i18n("MonksLittleDetails.actor-sounds.name"),
 		hint: i18n("MonksLittleDetails.actor-sounds.hint"),
 		scope: "world",
-		config: true,
+		config: !game.modules.get("monks-sound-enhancements")?.active,
 		default: "npc",
 		choices: actorsoundsoptions,
 		type: String,
@@ -538,7 +538,7 @@ export const registerSettings = function () {
 	game.settings.register(modulename, "find-my-token", {
 		name: i18n("MonksLittleDetails.find-my-token.name"),
 		hint: i18n("MonksLittleDetails.find-my-token.hint"),
-		scope: "world",
+		scope: "client",
 		config: true,
 		default: true,
 		type: Boolean,

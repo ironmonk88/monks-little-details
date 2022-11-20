@@ -45,11 +45,12 @@ export class CombatMarker {
             if (!token)
                 return;
 
-            if (data.img != undefined ||
+            if (data.texture?.src != undefined ||
                 data.width != undefined ||
                 data.height != undefined ||
                 data.texture?.scaleX != undefined ||
                 data.texture?.scaleY != undefined ||
+                foundry.utils.getProperty(data, 'flags.monks-little-details.token-highlight-scale') != undefined ||
                 foundry.utils.getProperty(data, 'flags.monks-little-details.token-highlight') != undefined ||
                 foundry.utils.getProperty(data, 'flags.monks-little-details.token-combat-animation') != undefined ||
                 foundry.utils.getProperty(data, 'flags.monks-little-details.token-combat-animation-hostile') != undefined) {
@@ -74,7 +75,24 @@ export class CombatMarker {
         Hooks.on("refreshToken", function (token) {
             if (token?.ldmarker?.transform != undefined) {
                 token.ldmarker.position.set(token.x + (token.w / 2), token.y + (token.h / 2));
-                token.ldmarker.visible = token.ldmarker._visible && (!token._animation && (!token.document.hidden || game.user.isGM));
+                token.ldmarker.visible = token.ldmarker._visible && (!token._animation && token.isVisible && !MonksLittleDetails.isDefeated(token));
+            }
+        });
+
+        Hooks.on("sightRefresh", function () {
+            //clear all previous combat markers
+            CombatMarker.clearTurnMarker();
+
+            //check for current combats
+            let activeCombats = game.combats.filter(c => {
+                return c?.scene?.id == canvas.scene.id && c.started;
+            });
+
+            if (activeCombats.length) {
+                //add a combat marker for each active combatant
+                for (let combat of activeCombats) {
+                    CombatMarker.toggleTurnMarker(combat.combatant?.token?._object, true);
+                }
             }
         });
 
@@ -170,6 +188,16 @@ export class CombatMarker {
                     )
                     .insertAfter($('[name="alpha"]', html).closest('.form-group'));
 
+                let highlightscale = getProperty(app?.object?.flags, "monks-little-details.token-highlight-scale") || setting("token-highlight-scale");
+                $('<div>')
+                    .addClass('form-group')
+                    .append($('<label>').html(i18n("MonksLittleDetails.token-highlight-scale.name")))
+                    .append($('<div>').addClass('form-fields')
+                        .append($('<input>').attr({ 'type': 'range', 'name': 'flags.monks-little-details.token-highlight-scale', 'min': '0.2', max: '3', step: "0.05" }).val(highlightscale))
+                        .append($('<span>').addClass("range-value").html(highlightscale))
+                    )
+                    .insertAfter($('[name="alpha"]', html).closest('.form-group'));
+
                 app.setPosition();
             }
         });
@@ -193,7 +221,7 @@ export class CombatMarker {
             wrapped.call(this, ...args);
 
             if (this._original?.ldmarker?.transform != undefined) {
-                this._original.ldmarker.visible = !this._original.document.hidden || game.user.isGM;
+                this._original.ldmarker.visible = this._original.isVisible && !MonksLittleDetails.isDefeated(this._original);
             }
         }
 
@@ -231,7 +259,8 @@ export class CombatMarker {
                         }
                     }
                     markericon.pivot.set(markericon.width / 2, markericon.height / 2);//.set(-(token.w / 2), -(token.h / 2));
-                    const size = Math.max(token.w * token.document.texture.scaleX, token.h * token.document.texture.scaleY) * setting("token-highlight-scale");
+                    const scale = token.document.getFlag('monks-little-details', 'token-highlight-scale') || setting("token-highlight-scale");
+                    const size = Math.max(token.w, token.h) * scale;
                     markericon.width = markericon.height = size;
                     markericon.position.set(token.x + (token.w / 2), token.y + (token.h / 2));
                     markericon.alpha = 0.8;
@@ -240,13 +269,14 @@ export class CombatMarker {
                     //let idx = canvas.primary.children.indexOf(token.mesh) || 0;
                     canvas.primary.addChildAt(token.ldmarker, 0);
                     //token.addChildAt(token.ldmarker, 0);
-                    token.ldmarker.visible = visible && (!token.document.hidden || game.user.isGM);
+                    token.ldmarker.visible = visible && token.isVisible && !MonksLittleDetails.isDefeated(token);
                     token.ldmarker._visible = visible;
                 });
             } else {
-                token.ldmarker.visible = visible && (!token.document.hidden || game.user.isGM);
+                token.ldmarker.visible = visible && token.isVisible && !MonksLittleDetails.isDefeated(token);
                 token.ldmarker._visible = visible;
-                const size = Math.max(token.w, token.h) * setting("token-highlight-scale");
+                const scale = token.document.getFlag('monks-little-details', 'token-highlight-scale') || setting("token-highlight-scale");
+                const size = Math.max(token.w, token.h) * scale;
                 token.ldmarker.width = token.ldmarker.height = size;
                 token.ldmarker.alpha = 0.8;
             }
@@ -306,7 +336,7 @@ export class CombatMarker {
                         token.ldmarker.rotation -= (delta * dt);
                     }
                     else if (animation == 'pulse') {
-                        let tokenscale = setting("token-highlight-scale");
+                        let tokenscale = getProperty(token.document.flags, "monks-little-details.token-highlight-scale") || setting("token-highlight-scale");
                         let change = tokenscale / 6;
                         const maxval = tokenscale + change;
                         const minval = Math.max(tokenscale - change, 0);
@@ -330,7 +360,7 @@ export class CombatMarker {
                         token.ldmarker.width = token.ldmarker.height = size;
                     }
                     else if (animation == 'fadeout') {
-                        let tokenscale = setting("token-highlight-scale");
+                        let tokenscale = getProperty(token.document.flags, "monks-little-details.token-highlight-scale") || setting("token-highlight-scale");
                         token.ldmarker.pulse.value = token.ldmarker.pulse.value + (delta * dt);
                         let change = tokenscale / 6;
                         if (token.ldmarker.pulse.value > tokenscale + change) {
@@ -343,7 +373,7 @@ export class CombatMarker {
                         token.ldmarker.width = token.ldmarker.height = size;
                         //token.ldmarker.alpha = 1 - (token.ldmarker.pulse.value / tokenscale);
                     } else if (animation == 'fadein') {
-                        let tokenscale = setting("token-highlight-scale");
+                        let tokenscale = getProperty(token.document.flags, "monks-little-details.token-highlight-scale") || setting("token-highlight-scale");
                         token.ldmarker.pulse.value = token.ldmarker.pulse.value - (delta * dt);
                         let change = tokenscale / 4;
                         if (token.ldmarker.pulse.value > tokenscale - change) {

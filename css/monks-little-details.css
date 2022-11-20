@@ -265,6 +265,11 @@ body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details
     padding-right: calc(100% - 24px);
 }
 
+.system-pf2e #token-hud.monks-little-details .status-effects .effect-control,
+.system-pf2e #token-hud.monks-little-details .status-effects .pf2e-effect-control {
+    opacity: 0.7;
+}
+
 body.system-pf2e #token-hud.monks-little-details .status-effects .effect-control,
 body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details .status-effects .effect-control,
 body.system-pf2e #token-hud.monks-little-details .status-effects .pf2e-effect-control {
@@ -293,6 +298,10 @@ body.system-pf2e #token-hud.monks-little-details .status-effects .pf2e-effect-va
     opacity: 0.7;
 }
 
+.system-pf2e #token-hud.monks-little-details .status-effects .effect-control.active {
+    opacity: 0.8;
+}
+
 #token-hud.monks-little-details.highlight-image .status-effects .effect-control.active,
 #token-hud.monks-little-details.highlight-image .status-effects .pf2e-effect-control.active {
     border: 1px solid #fff;
@@ -318,6 +327,15 @@ body.system-pf2e #token-hud.monks-little-details .status-effects .pf2e-effect-va
     left: 24px;
     opacity: 0.6;
     color: #ccc;
+}
+
+.system-pf2e #token-hud.monks-little-details .status-effects .effect-name {
+    opacity: 0.8;
+    color: #fff;
+}
+
+.system-pf2e #token-hud.monks-little-details .status-effects .effect-control.active .effect-name {
+    opacity: 1;
 }
 
 body.system-pf2e #token-hud.monks-little-details .status-effects .effect-name,
@@ -435,7 +453,7 @@ body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details
     background: none;
     border: none;
     border-radius: 0px;
-    border-bottom: 1px solid #ff6400;
+    border-bottom: 1px solid #ff6400 !important;
     padding: 0pc 5px;
     margin: 0px;
     box-shadow: none;
@@ -565,11 +583,11 @@ body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details
     color: darkred;
 }
 
-body.change-windows .window-app:not(.image-popout) {
+body.change-windows:not(.system-forbidden-lands) .window-app:not(.image-popout) {
     background-color: var(--color-border-dark-5);
 }
 
-body.change-windows .window-app > header {
+body.change-windows:not(.system-forbidden-lands) .window-app > header {
     border: 1px solid var(--color-border-dark-4);
     border-bottom: 1px solid var(--color-border-dark);
     border-top-right-radius: 4px;
@@ -685,4 +703,9 @@ body.change-windows #context-menu {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.quick-links-list .no-quick-links {
+    color: #777;
+    text-align: center;
 }

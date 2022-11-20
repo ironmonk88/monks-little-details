@@ -26,7 +26,7 @@ export const WithMonksCombatTracker = (CombatTracker) => {
                 const hasCombat = combat !== null;
                 const started = (combat?.turns.length > 0) && (combat?.round > 0)
 
-                if (hasCombat && !game.user.isGM) {
+                if (hasCombat && !game.user.isGM && data.turns) {
                     //go through the turns(combatants) and remove any that don't have players attached
                     data.turns = data.turns.filter((t, index) => {
                         let combatant = combat.turns.find(c => c.id == t.id);
@@ -35,13 +35,17 @@ export const WithMonksCombatTracker = (CombatTracker) => {
                 }
             }
 
+            setProperty(data, "options.resizable", true);
+
             return data;
         }
 
         async _render(...args) {
             await super._render(...args);
-            if (this.popOut)
+            if (this.popOut) {
                 $(this.element).toggleClass("hide-defeated", setting("hide-defeated") == true);
+                //new Draggable(this, html, false, this.options.resizable);
+            }
         }
 
         activateListeners(html) {
@@ -76,3 +80,10 @@ export const WithMonksCombatTracker = (CombatTracker) => {
     Object.defineProperty(MonksCombatTracker.prototype.constructor, "name", { value: constructorName });
     return MonksCombatTracker;
 };
+
+Hooks.on("renderMonksCombatTracker", function (app, html, data) {
+    if (app.popOut) {
+        app.options.height = "";
+        let draggable = new Draggable(app, html, false, { resizeX: false });
+    }
+});

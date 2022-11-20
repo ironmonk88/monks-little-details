@@ -288,35 +288,38 @@ export class ActorSoundDialog extends FormApplication {
     }
 }
 
-Hooks.on("setupTileActions", (app) => {
-    if (app.triggerGroups['monks-little-details'] == undefined)
-        app.registerTileGroup('monks-little-details', "Monk's Little Details");
-    app.registerTileAction('monks-little-details', 'actor-sound', {
-        name: 'Play Actor Sound',
-        ctrls: [
-            {
-                id: "entity",
-                name: "Select Entity",
-                type: "select",
-                subtype: "entity",
-                options: { showToken: true, showWithin: true, showPlayers: true, showPrevious: true, showTagger: true },
-                restrict: (entity) => { return (entity instanceof Token); },
-            }
-        ],
-        group: 'monks-little-details',
-        fn: async (args = {}) => {
-            const { action, tokens } = args;
 
-            let entities = await game.MonksActiveTiles.getEntities(args);
-            for (let entity of entities) {
-                if (entity instanceof TokenDocument && entity._object) {
-                    entity._object.playSound();
+Hooks.on("setupTileActions", (app) => {
+    if (!game.modules.get("monks-sound-enhancements")?.active) {
+        if (app.triggerGroups['monks-little-details'] == undefined)
+            app.registerTileGroup('monks-little-details', "Monk's Little Details");
+        app.registerTileAction('monks-little-details', 'actor-sound', {
+            name: 'Play Actor Sound',
+            ctrls: [
+                {
+                    id: "entity",
+                    name: "Select Entity",
+                    type: "select",
+                    subtype: "entity",
+                    options: { showToken: true, showWithin: true, showPlayers: true, showPrevious: true, showTagger: true },
+                    restrict: (entity) => { return (entity instanceof Token); },
                 }
+            ],
+            group: 'monks-little-details',
+            fn: async (args = {}) => {
+                const { action, tokens } = args;
+
+                let entities = await game.MonksActiveTiles.getEntities(args);
+                for (let entity of entities) {
+                    if (entity instanceof TokenDocument && entity._object) {
+                        entity._object.playSound();
+                    }
+                }
+            },
+            content: async (trigger, action) => {
+                let entityName = await game.MonksActiveTiles.entityName(action.data?.entity);
+                return `<span class="logic-style">${trigger.name}</span> of <span class="entity-style">${entityName}</span>`;
             }
-        },
-        content: async (trigger, action) => {
-            let entityName = await game.MonksActiveTiles.entityName(action.data?.entity);
-            return `<span class="logic-style">${trigger.name}</span> of <span class="entity-style">${entityName}</span>`;
-        }
-    });
+        });
+    }
 });

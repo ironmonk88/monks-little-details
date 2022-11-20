@@ -66,7 +66,7 @@
 	"MonksLittleDetails.token-highlight-picture.hint": "Image to use as the animated image for combat tracking",
 	"MonksLittleDetails.token-highlight-picture-hostile.name": "Hostile Highlight Image",
 	"MonksLittleDetails.token-highlight-picture-hostile.hint": "Image to use as the animated image for hostiles in combat tracking",
-	"MonksLittleDetails.token-highlight-scale.name": "Highlight size",
+	"MonksLittleDetails.token-highlight-scale.name": "Combat Highlight size",
 	"MonksLittleDetails.token-highlight-scale.hint": "Size of the Highlight image in relation to the token",
 	"MonksLittleDetails.token-combat-animation.name": "Combat Highlight Animation",
 	"MonksLittleDetails.token-combat-animation.hint": "Chose how to animate the combat highlight",

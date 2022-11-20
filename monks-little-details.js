@@ -76,6 +76,14 @@ export class MonksLittleDetails {
         if (game.MonksLittleDetails == undefined)
             game.MonksLittleDetails = MonksLittleDetails;
 
+        try {
+            Object.defineProperty(User.prototype, "isTheGM", {
+                get: function isTheGM() {
+                    return this == (game.users.find(u => u.hasRole("GAMEMASTER")) || game.users.find(u => u.hasRole("ASSISTANT")));
+                }
+            });
+        } catch {}
+
         MonksLittleDetails.SOCKET = "module.monks-little-details";
 
         MonksLittleDetails.READY = true;
@@ -311,7 +319,7 @@ export class MonksLittleDetails {
             return wrapped(...args);
         });
 
-        if (setting("actor-sounds"))
+        if (setting("actor-sounds") && !game.modules.get("monks-sound-enhancements")?.active)
             ActorSounds.init();
 
         if (setting("token-combat-highlight"))
@@ -448,7 +456,7 @@ export class MonksLittleDetails {
         if (setting("actor-sounds") === 'false')
             game.settings.set("monks-little-details", "actor-sounds", "none");
 
-        if (!(setting("actor-sounds") === "none" || setting("actor-sounds") === 'false'))
+        if (!(setting("actor-sounds") === "none" || setting("actor-sounds") === 'false') && !game.modules.get('monks-sound-enhancements')?.active)
             ActorSounds.injectSoundCtrls();
 
         CombatTurn.checkCombatTurn(game.combats.active);
@@ -507,7 +515,7 @@ export class MonksLittleDetails {
                 MonksLittleDetails.switchTool = { control: control, tool: control.activeTool };
             let newcontrol = ui.controls.controls.find(c => { return c.name == controlName; });
             if (newcontrol != undefined) {
-                ui.controls.activeControl = newcontrol.name;
+                //ui.controls.activeControl = newcontrol.name;
                 if (newcontrol && newcontrol.layer)
                     canvas[newcontrol.layer].activate();
             }
@@ -519,7 +527,7 @@ export class MonksLittleDetails {
             if (MonksLittleDetails.switchTool.control) {
                 if (MonksLittleDetails.switchTool.control.layer)
                     canvas[MonksLittleDetails.switchTool.control.layer].activate();
-                ui.controls.activeControl = MonksLittleDetails.switchTool.control.name;
+                //ui.controls.activeControl = MonksLittleDetails.switchTool.control.name;
             }
             delete MonksLittleDetails.switchTool;
         }
@@ -1228,17 +1236,15 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
 });
 
 Hooks.on("updateToken", async function (document, data, options, userid) {
-    let hp = getProperty(data, 'actorData.system.attributes.hp');
+    let hp = getProperty(data, 'actorData.system.attributes.hp.value');
     let token = document.object;
 
     if (setting('auto-defeated') != 'none' && game.user.isGM) {
-        
-        
         if (hp != undefined && (setting('auto-defeated').startsWith('all') || document.disposition != 1)) {
             let combatant = document.combatant;
 
             //check to see if the combatant has been defeated
-            let defeated = (setting('auto-defeated').endsWith('negative') ? hp.value < 0 : hp.value == 0);
+            let defeated = (setting('auto-defeated').endsWith('negative') ? hp < 0 : hp == 0);
             if (combatant != undefined && combatant.defeated != defeated) {
                 await combatant.update({ defeated: defeated });
             }
@@ -1382,7 +1388,7 @@ Hooks.once('libChangelogsReady', function () {
 });
 
 Hooks.on("getSceneControlButtons", (controls) => {
-    if (setting("find-my-token") && !game.user.isGM) {
+    if (setting("find-my-token")) {
         let tokenControls = controls.find(control => control.name === "token")
         tokenControls.tools.push({
             name: "findtoken",
@@ -1403,6 +1409,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
                 if (!token) return;
 
                 canvas.pan({ x: token.x, y: token.y });
+                token.control({ releaseOthers: true });
 
                 lastIdx = (lastIdx + 1) % tokens.length;
                 await game.user.setFlag('monks-little-details', 'findTime', Date.now());
@@ -1437,43 +1444,45 @@ Hooks.on("getSidebarDirectoryFolderContext", (html, entries) => {
         callback: header => {
             const li = header.parent();
             const folder = game.folders.get(li.data("folderId"));
-            return Dialog.confirm({
-                title: `${i18n("FOLDER.Clear")} ${folder.name}`,
-                content: `<h4>${game.i18n.localize("AreYouSure")}</h4><p>${i18n("MonksLittleDetails.ClearWarning")}</p>`,
-                yes: () => {
-                    //const userId = game.user.id;
-                    //const db = CONFIG.DatabaseBackend;
-                    /*
-                    // Delete or move sub-Folders
-                    const deleteFolderIds = [];
-                    for (let f of folder.getSubfolders()) {
-                        deleteFolderIds.push(f.id);
-                    }
-                    if (deleteFolderIds.length) {
-                        db._handleDeleteDocuments({
-                            request: { type: "Folder", options: { deleteSubfolders: true, deleteContents: true, render: true } },
-                            result: deleteFolderIds,
-                            userId
-                        });
-                    }*/
+            if (folder) {
+                return Dialog.confirm({
+                    title: `${i18n("FOLDER.Clear")} ${folder.name}`,
+                    content: `<h4>${game.i18n.localize("AreYouSure")}</h4><p>${i18n("MonksLittleDetails.ClearWarning")}</p>`,
+                    yes: () => {
+                        //const userId = game.user.id;
+                        //const db = CONFIG.DatabaseBackend;
+                        /*
+                        // Delete or move sub-Folders
+                        const deleteFolderIds = [];
+                        for (let f of folder.getSubfolders()) {
+                            deleteFolderIds.push(f.id);
+                        }
+                        if (deleteFolderIds.length) {
+                            db._handleDeleteDocuments({
+                                request: { type: "Folder", options: { deleteSubfolders: true, deleteContents: true, render: true } },
+                                result: deleteFolderIds,
+                                userId
+                            });
+                        }*/
 
-                    // Delete contained Documents
-                    const deleteDocumentIds = [];
-                    for (let d of folder.documentCollection) {
-                        if (d.folder !== folder.id) continue;
-                        deleteDocumentIds.push(d.id);
+                        // Delete contained Documents
+                        const deleteDocumentIds = [];
+                        for (let d of folder.documentCollection) {
+                            if (d.folder !== folder.id) continue;
+                            deleteDocumentIds.push(d.id);
+                        }
+                        if (deleteDocumentIds.length) {
+                            const cls = getDocumentClass(folder.type);
+                            return cls.deleteDocuments(deleteDocumentIds);
+                        }
+                    },
+                    options: {
+                        top: Math.min(li[0].offsetTop, window.innerHeight - 350),
+                        left: window.innerWidth - 720,
+                        width: 400
                     }
-                    if (deleteDocumentIds.length) {
-                        const cls = getDocumentClass(folder.type);
-                        return cls.deleteDocuments(deleteDocumentIds);
-                    }
-                },
-                options: {
-                    top: Math.min(li[0].offsetTop, window.innerHeight - 350),
-                    left: window.innerWidth - 720,
-                    width: 400
-                }
-            });
+                });
+            }
         }
     });
 });
@@ -1667,6 +1676,9 @@ Hooks.on("renderCombatTrackerConfig", (app, html, data) => {
 });
 
 Hooks.on("renderFilePicker", (app, html, data) => {
+    if ($('button.quick-links', html).length)
+        return;
+
     const selectItem = function (event) {
         event.preventDefault();
         event.stopPropagation();
@@ -1696,7 +1708,7 @@ Hooks.on("renderFilePicker", (app, html, data) => {
         .addClass('quick-links-list');
 
     if (quicklinks.length == 0)
-        list.append($("<li>").html("No quick links yet"));
+        list.append($("<li>").addClass('no-quick-links').html("No quick links yet"));
     else {
         list.append(favorites.concat(regular).map(j => {
             return $('<li>')

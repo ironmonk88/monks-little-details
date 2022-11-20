@@ -46,7 +46,7 @@ export class CombatTurn {
         });
 
         Hooks.on("deleteCombat", function (combat) {
-            if (setting('round-chatmessages') && combat && game.user.isGM && combat.started) {
+            if (setting('round-chatmessages') && combat && game.user.isTheGM && combat.started) {
                 ChatMessage.create({ user: game.user, flavor: "Round End" }, { roundmarker: true });
             }
 
@@ -134,7 +134,7 @@ export class CombatTurn {
                 CombatTurn.clearShadows();
             }
 
-            if (setting('round-chatmessages') && combat && game.user.isGM) {
+            if (setting('round-chatmessages') && combat && game.user.isTheGM) {
                 if (combatStarted) {
                     ChatMessage.create({ user: game.user, flavor: "Round Start" }, { roundmarker: true });
                 } else if (Object.keys(delta).some((k) => k === "round")) {
@@ -204,6 +204,16 @@ export class CombatTurn {
                 }
             }
         })
+
+        Hooks.on("sightRefresh", function () {
+            for (let [id, shadow] of Object.entries(CombatTurn.shadows)) {
+                let token = canvas.tokens.get(id);
+                if (token) {
+                    const tolerance = Math.min(token.w, token.h) / 4;
+                    shadow.visible = canvas.effects.visibility.testVisibility({ x: shadow.x, y: shadow.y }, { tolerance, object: token });
+                }
+            }
+        });
     }
 
     static async showShadow(token, x, y) {
@@ -242,6 +252,8 @@ export class CombatTurn {
         shadow._startX = x;
         shadow._startY = y;
 
+        shadow.visible = token.isVisible;
+
         CombatTurn.shadows[token.id] = shadow;
     }
 
@@ -249,6 +261,7 @@ export class CombatTurn {
         game.settings.settings.get("monks-little-details.play-turn-sound").default = !game.user.isGM; //(game.user.isGM ? 0 : 60); //set the default when we have the users loaded
         game.settings.settings.get("monks-little-details.play-next-sound").default = !game.user.isGM;
         game.settings.settings.get("monks-little-details.clear-targets").default = game.user.isGM;
+        game.settings.settings.get("monks-little-details.find-my-token").default = !game.user.isGM;
 
         if (setting("large-print")) {
             $("<div>").attr("id", "your-turn").appendTo('body');
