@@ -1,3 +1,33 @@
+# version 10.4
+
+Fixed issue with getting combat tracker data when there are no players added.
+
+Added the ability to resize the popped out combat tracker window vertically, so you can set the height you want to see.
+
+Fixed issues with the status effect colours in pf2e.
+
+Fixed issue with combat marker when the image has changed or if the highlight scale has been changed
+
+Fixed issues with Combat Marker being shown even if the token isn't visible to the player.
+
+Added the option to set the token combat highlight scale individually per token.
+
+Fixed issue with the combat highglight being set to the wrong size on first rendering..
+
+Fixed combat round message ony being displayed once if there are multiple GMs logged in.
+
+Fixed issues with turn shadows being visible when they shouldn't be.
+
+Changed the "Find My Token" settings to be per user, this way a GM can turn it on to cycle through all tokens on the scene.
+
+Updated the Find My Token feature to control the token that is found.
+
+Fixed issues with using keys to toggle between layers.  There's still a bug with it as, thanks to v10, I can manually change the selected active control.  But it should reasonably work.
+
+Fixed issues with setting the token to defeated by dropping the hp to 0.
+
+Fixed issues with clearing a Folder of contents.
+
 # version 10.3
 
 Added the option to set the opacity of the token when using bloodsplats
