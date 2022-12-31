@@ -87,7 +87,7 @@ export class BloodSplats {
                 if (['dnd5e.LootSheetNPC5e', 'core.MerchantSheet'].includes(token.actor?.flags?.core?.sheetClass) || token.actor?.flags["item-piles"]?.data?.enabled == true) {
                     token.mesh.alpha = 0.5;
                     if (token.bloodsplat) {
-                        canvas.primary.removeChild(token.bloodsplat);
+                        token.bloodsplat.destroy();
                         delete token.bloodsplat;
                     }
                     if (token.actor?.flags["item-piles"]?.data?.enabled !== true) {
@@ -114,7 +114,7 @@ export class BloodSplats {
                         if (token.bloodsplat?.transform == undefined) {
                             let animate = canvas.ready && !token._original;
                             if (token.bloodsplat)
-                                canvas.primary.removeChild(token.bloodsplat);
+                                token.bloodsplat.destroy();
 
                             let glyph = token.document.getFlag('monks-little-details', 'glyph');
                             if (glyph == undefined) {
@@ -129,10 +129,7 @@ export class BloodSplats {
                             token.bloodsplat.anchor.set(0.5, 0.5);
                             token.bloodsplat.x = token.x + (token.w / 2);
                             token.bloodsplat.y = token.y + (token.h / 2);
-                            let idx = 0;
-                            if (token.ldmarker)
-                                idx = canvas.primary.children.indexOf(token.ldmarker) || 0;
-                            canvas.primary.addChildAt(token.bloodsplat, idx);
+                            canvas.grid.bloodsplats.addChild(token.bloodsplat);
 
                             //log('Font: ', token.id, (token.h * 1.5), token.bloodsplat.x, token.bloodsplat.y);
 
@@ -169,7 +166,7 @@ export class BloodSplats {
                 }
             } else {
                 if (token.bloodsplat) {
-                    canvas.primary.removeChild(token.bloodsplat);
+                    token.bloodsplat.destroy();
                     delete token.bloodsplat;
                 }
                 if (token.tresurechest) {
@@ -191,9 +188,13 @@ export class BloodSplats {
 
         Hooks.on("destroyToken", (token) => {
             if (token.bloodsplat) {
-                canvas.primary.removeChild(token.bloodsplat);
+                token.bloodsplat.destroy();
                 delete token.bloodsplat;
             }
+        });
+
+        Hooks.on("drawGridLayer", function (layer) {
+            layer.bloodsplats = layer.addChildAt(new PIXI.Container(), layer.ldmarkers?.parent ? layer.getChildIndex(layer.ldmarkers) : layer.getChildIndex(layer.borders));
         });
     }
 }

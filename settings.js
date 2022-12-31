@@ -4,7 +4,7 @@ export const registerSettings = function () {
     // Register any custom module settings here
 	let modulename = "monks-little-details";
 
-	const debouncedReload = foundry.utils.debounce(function () { window.location.reload(); }, 100);
+	const debouncedReload = foundry.utils.debounce(function () { window.location.reload(); }, 500);
 	
 	let dialogpositions = {
 		'': '—',
@@ -152,7 +152,7 @@ export const registerSettings = function () {
 		hint: i18n("MonksLittleDetails.show-combat-cr.hint"),
 		scope: "world",
 		config: MonksLittleDetails.canDo("show-combat-cr"),
-		default: true,
+		default: game.system.id != "pf2e",
 		type: Boolean,
 	});
 	game.settings.register(modulename, "switch-combat-tab", {
@@ -225,6 +225,14 @@ export const registerSettings = function () {
 	game.settings.register(modulename, "prevent-token-removal", {
 		name: i18n("MonksLittleDetails.prevent-token-removal.name"),
 		hint: i18n("MonksLittleDetails.prevent-token-removal.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "prevent-combat-spells", {
+		name: i18n("MonksLittleDetails.prevent-combat-spells.name"),
+		hint: i18n("MonksLittleDetails.prevent-combat-spells.hint"),
 		scope: "world",
 		config: true,
 		default: true,

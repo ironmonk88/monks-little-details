@@ -1,3 +1,15 @@
+# version 10.5
+
+Fixed stylings for Round messages.
+
+Added bloodsplats and combat marker to the grid layer so that it's no longer hidden under a Tile.  Thank you very much dev7355608 for the code for that.
+
+Fixed issues with compendium directories being squished.
+
+Fixed issue with Switch Layer hot keys being available to the players.
+
+Added the option to prevent changing prepared spells in the middle of combat.
+
 # version 10.4
 
 Fixed issue with getting combat tracker data when there are no players added.

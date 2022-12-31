@@ -450,13 +450,14 @@ body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details
 }
 
 #chat-log .message.round-marker {
-    background: none;
-    border: none;
+    background: none !important;
+    border: none !important;
     border-radius: 0px;
     border-bottom: 1px solid #ff6400 !important;
     padding: 0pc 5px;
     margin: 0px;
     box-shadow: none;
+    background-image: none !important;
 }
 
 #chat-log .message.round-marker .message-header {
@@ -467,6 +468,8 @@ body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details
 #chat-log .message.round-marker .message-header .message-timestamp,
 #chat-log .message.round-marker .message-content {
     display: none;
+    border-bottom: none !important;
+    padding: 0px 
 }
 
 #chat-log .message.round-marker .message-header .flavor-text {
@@ -483,6 +486,10 @@ body.illandril-token-hud-scale--hud-button-scale #token-hud.monks-little-details
 #chat-log .message.round-marker .message-header .message-delete {
     color: var(--color-text-dark-secondary);
     margin-right: 5px;
+}
+
+#chat-log .message.round-marker .message-header .message-delete:hover {
+    color: var(--stat-font);
 }
 
 #combat #combat-tracker {

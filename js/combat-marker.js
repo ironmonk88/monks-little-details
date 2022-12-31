@@ -204,9 +204,13 @@ export class CombatMarker {
 
         Hooks.on("destroyToken", (token) => {
             if (token.ldmarker) {
-                canvas.primary.removeChild(token.ldmarker);
+                token.ldmarker.destroy();
                 delete token.ldmarker;
             }
+        });
+
+        Hooks.on("drawGridLayer", function (layer) {
+            layer.ldmarkers = layer.addChildAt(new PIXI.Container(), layer.getChildIndex(layer.borders));
         });
 
         let tokenDragStart = function (wrapped, ...args) {
@@ -246,7 +250,7 @@ export class CombatMarker {
                 let highlightFile = token.document.getFlag('monks-little-details', 'token-highlight') || (token.document.disposition != 1 ? setting("token-highlight-picture-hostile") : null) || setting("token-highlight-picture");
                 loadTexture(highlightFile).then((tex) => { //"modules/monks-little-details/img/chest.png"
                     if (token.ldmarker != undefined) {
-                        canvas.primary.removeChild(token.ldmarker);
+                        token.ldmarker.destroy();
                     }
                     const markericon = new PIXI.Sprite(tex);
                     if (highlightFile.endsWith('webm')) {
@@ -266,9 +270,7 @@ export class CombatMarker {
                     markericon.alpha = 0.8;
                     markericon.pulse = { value: null, dir: 1 };
                     token.ldmarker = markericon;
-                    //let idx = canvas.primary.children.indexOf(token.mesh) || 0;
-                    canvas.primary.addChildAt(token.ldmarker, 0);
-                    //token.addChildAt(token.ldmarker, 0);
+                    canvas.grid.ldmarkers.addChild(token.ldmarker);
                     token.ldmarker.visible = visible && token.isVisible && !MonksLittleDetails.isDefeated(token);
                     token.ldmarker._visible = visible;
                 });
@@ -309,7 +311,7 @@ export class CombatMarker {
             return;
 
         if (token?.ldmarker) {
-            canvas.primary.removeChild(token.ldmarker);
+            token.ldmarker.destroy();
             delete token.ldmarker;
         }
         delete CombatMarker.turnMarkerAnim[token.id];

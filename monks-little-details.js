@@ -480,28 +480,30 @@ export class MonksLittleDetails {
 
         if (game.settings.get("monks-little-details", "key-swap-tool")) {
             let layers = [
-                { name: "Token Layer", tool: 'token', def: "KeyG" },
-                { name: "Measure Layer", tool: 'measure' },
-                { name: "Tile Layer", tool: 'tiles', def: "KeyH" },
-                { name: "Drawing Layer", tool: 'drawings' },
-                { name: "Wall Layer", tool: 'walls' },
-                { name: "Lighting Layer", tool: 'lighting', def: "KeyJ" },
-                { name: "Sound Layer", tool: 'sounds', def: "KeyK" },
-                { name: "Note Layer", tool: 'notes' }
+                { name: "Token Layer", tool: 'token', def: "KeyG", restricted: false },
+                { name: "Measure Layer", tool: 'measure', restricted: false },
+                { name: "Tile Layer", tool: 'tiles', def: "KeyH", restricted: true },
+                { name: "Drawing Layer", tool: 'drawings', restricted: false },
+                { name: "Wall Layer", tool: 'walls', restricted: true },
+                { name: "Lighting Layer", tool: 'lighting', def: "KeyJ", restricted: true },
+                { name: "Sound Layer", tool: 'sounds', def: "KeyK", restricted: true },
+                { name: "Note Layer", tool: 'notes', restricted: false }
             ];
             if (game.modules["enhanced-terrain-layer"]?.active)
-                layers.push({ name: i18n("MonksLittleDetails.TerrainLayer"), tool: 'terrain', def: "KeyL" });
+                layers.push({ name: i18n("MonksLittleDetails.TerrainLayer"), tool: 'terrain', def: "KeyL", restricted: true });
 
             layers.map(l => {
                 game.keybindings.register('monks-little-details', `swap-${l.tool}-control`, {
                     name: `Quick show ${l.name}`,
                     editable: (l.def ? [{ key: l.def }] : []),
+                    restricted: l.restricted,
                     onDown: () => { MonksLittleDetails.swapTool(l.tool, true); },
                     onUp: () => { MonksLittleDetails.releaseTool(); }
                 });
                 game.keybindings.register('monks-little-details', `change-${l.tool}-control`, {
                     name: `Change to ${l.name}`,
                     editable: (l.def ? [{ key: l.def, modifiers: [KeyboardManager.MODIFIER_KEYS?.SHIFT] }] : []),
+                    restricted: l.restricted,
                     onDown: () => { MonksLittleDetails.swapTool(l.tool, false); },
                 });
             });
@@ -572,6 +574,7 @@ export class MonksLittleDetails {
 
 .compendium.directory .directory-list .directory-item.scene {
     position: relative;
+    height: calc(var(--sidebar-item-height) + 2px);
 }
 
 .compendium.directory .directory-list .directory-item.scene img {
@@ -585,6 +588,7 @@ export class MonksLittleDetails {
     text-align: center;
     text-shadow: 1px 1px 3px #000;
     color: #f0f0e0;
+    margin: 0px;
 }
 
 .compendium.directory .directory-list .directory-item.scene h4 a{
@@ -1732,4 +1736,21 @@ Hooks.on("renderFilePicker", (app, html, data) => {
         )
         .after(list);
     $('input[name="target"]', html).parent().css({position: "relative"});
+});
+
+Hooks.on("preUpdateItem", (item, data, options, user) => {
+    if (setting("prevent-combat-spells") && !game.user.isGM && getProperty(data, "system.preparation.prepared") != undefined) {
+        //Is this actor involved in a combat
+        let inCombat = game.combats.some(c => {
+            return c.started && c.active && c.turns.some(t => t.actorId == item.actor.id);
+        });
+
+        if (inCombat) {
+            ui.notifications.warn("Cannot change prepared spells while in combat");
+            delete data.system.preparation.prepared;
+            if (Object.keys(data.system.preparation).length == 0) delete data.system.preparation;
+            if (Object.keys(data.system).length == 0) delete data.system;
+            if (Object.keys(data).length == 0) return false;
+        }
+    }
 });

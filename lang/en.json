@@ -129,6 +129,8 @@
 	"MonksLittleDetails.open-actor.hint": "Right click on the actor sidebar icon to open the players character sheet, or the last opened actor sheet.",
 	"MonksLittleDetails.bloodsplat-opacity.name": "Bloodsplat Opacity",
 	"MonksLittleDetails.bloodsplat-opacity.hint": "Adjust the transparency of the token behnd the bloodsplat",
+	"MonksLittleDetails.prevent-combat-spells.name": "Prevent Spell changes",
+	"MonksLittleDetails.prevent-combat-spells.hint": "When a token is in combat, prevent prepared spells from being changed.",
 
 	"MonksLittleDetails.PlayRoundSound": "Play new round sound",
 	"MonksLittleDetails.PlayRoundSoundHint": "Play a sound when the next round starts",
