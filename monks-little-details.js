@@ -703,44 +703,96 @@ background-color: rgba(0, 0, 0, 0.5);
         var apl = { count: 0, levels: 0 };
         var xp = 0;
 
-        //get the APL of friendly combatants
-        for (let combatant of combat.combatants) {
-            if (combatant.actor != undefined && combatant.token != undefined) {
-                if (combatant.token.disposition == 1) {
-                    apl.count = apl.count + 1;
-                    let levels = 0;
-                    if (combatant.actor.system?.classes) {
-                        levels = Object.values(combatant.actor.system?.classes).reduce((a, b) => {
-                            return a + (b?.levels || b?.level || 0);
-                        }, 0);
-                    } else {
-                        levels = combatant?.actor.system.details?.level?.value || combatant?.actor.system.details?.level || 0;
-                    }
+        if (game.system.id == 'pf2e') {
+            //cr will just be a -1 to 3 value (representing trivial - extreme)
+            //apl will not be passed forward, instead XP is passed forward
 
-                    apl.levels += levels;
-                } else {
-                    let combatantxp = combatant?.actor.system.details?.xp?.value;
-                    if (combatantxp == undefined) {
+            //note, should be referenced by xpByRelLevel[relLevel + 4]
+            var xpByRelLevel = [10, 15, 20, 30, 40, 60, 80, 120, 160];
+
+            //note that this needs to be multiplied by party size
+            var crsByXp = [10, 15, 20, 30, 40]
+            
+            //determine APL, and modifiers if necessary
+            for (let combatant of combat.combatants) {
+                if (combatant.actor != undefined && combatant.token != undefined) {
+                    if (combatant.token.disposition == 1) {
+                        apl.count = apl.count + 1;
                         let levels = 0;
-                        if (combatant?.actor.system?.classes && Object.entities(combatant.actor.system?.classes).length)
-                            levels = combatant.actor.system?.classes?.reduce(c => { return c.levels; });
-                        else if (combatant?.actor.system.details?.level?.value)
-                            levels = parseInt(combatant?.actor.system.details?.level?.value);
-                        combatantxp = MonksLittleDetails.xpchart[Math.clamped(levels, 0, MonksLittleDetails.xpchart.length - 1)];
+                        if (combatant.actor.system?.classes) {
+                            levels = Object.values(combatant.actor.system?.classes).reduce((a, b) => {
+                                return a + (b?.levels || b?.level || 0);
+                            }, 0);
+                        } else {
+                            levels = combatant?.actor.system.details?.level?.value || combatant?.actor.system.details?.level || 0;
+                        }
+    
+                        apl.levels += levels;
                     }
-                    xp += (combatantxp || 0);
                 }
             }
-        };
 
-        var calcAPL = 0;
-        if (apl.count > 0)
-            calcAPL = Math.round(apl.levels / apl.count) + (apl.count < 4 ? -1 : (apl.count > 5 ? 1 : 0));
+            var calcAPL = 0;
+            if (apl.count > 0)
+                calcAPL = Math.round(apl.levels / apl.count);
+                //this approximation is fine -- most pf2e parties should all be the same level, but otherwise we can just round
 
-        //get the CR of any unfriendly/neutral
-        let cr = Math.clamped(MonksLittleDetails.xpchart.findIndex(cr => cr > xp) - 1, 0, MonksLittleDetails.xpchart.length - 1);
+            //for each enemy, determine its xp value
+            for (let combatant of combat.combatants) {
+                if (combatant.actor != undefined && combatant.token != undefined) {
+                    if (combatant.token.disposition != 1) {
+                        var level = 0;
+                        level = parseInt(combatant?.actor.system.details?.level?.value);
+                        var relLevel = level - calcAPL;
+                        xp += xpByRelLevel[Math.clamped(relLevel + 4, 0, xpByRelLevel.length - 1)];
+                    }
+                }
+            } 
 
-        return { cr: cr, apl: calcAPL };
+            var partyCrsByXp = crsByXp.map(x => x * apl.count);
+
+            let cr = partyCrsByXp.findIndex(cr => cr >= xp ) - 1;
+
+            return { cr: cr, xp: xp };
+        } else {
+            //get the APL of friendly combatants
+            for (let combatant of combat.combatants) {
+                if (combatant.actor != undefined && combatant.token != undefined) {
+                    if (combatant.token.disposition == 1) {
+                        apl.count = apl.count + 1;
+                        let levels = 0;
+                        if (combatant.actor.system?.classes) {
+                            levels = Object.values(combatant.actor.system?.classes).reduce((a, b) => {
+                                return a + (b?.levels || b?.level || 0);
+                            }, 0);
+                        } else {
+                            levels = combatant?.actor.system.details?.level?.value || combatant?.actor.system.details?.level || 0;
+                        }
+
+                        apl.levels += levels;
+                    } else {
+                        let combatantxp = combatant?.actor.system.details?.xp?.value;
+                        if (combatantxp == undefined) {
+                            let levels = 0;
+                            if (combatant?.actor.system?.classes && Object.entities(combatant.actor.system?.classes).length)
+                                levels = combatant.actor.system?.classes?.reduce(c => { return c.levels; });
+                            else if (combatant?.actor.system.details?.level?.value)
+                                levels = parseInt(combatant?.actor.system.details?.level?.value);
+                            combatantxp = MonksLittleDetails.xpchart[Math.clamped(levels, 0, MonksLittleDetails.xpchart.length - 1)];
+                        }
+                        xp += (combatantxp || 0);
+                    }
+                }
+            };
+
+            var calcAPL = 0;
+            if (apl.count > 0)
+                calcAPL = Math.round(apl.levels / apl.count) + (apl.count < 4 ? -1 : (apl.count > 5 ? 1 : 0));
+
+            //get the CR of any unfriendly/neutral
+            let cr = Math.clamped(MonksLittleDetails.xpchart.findIndex(cr => cr > xp) - 1, 0, MonksLittleDetails.xpchart.length - 1);
+            return { cr: cr, apl: calcAPL };
+        }        
     }
 
     static getDiceSound(hasMaestroSound = false) {
@@ -1100,11 +1152,22 @@ Hooks.on('renderCombatTracker', async (app, html, data) => {
         let crdata = MonksLittleDetails.getCR(data.combat);
 
         if ($('#combat-round .encounter-cr-row').length == 0 && data.combat.combatants.size > 0) {
-            let crChallenge = MonksLittleDetails.crChallenge[Math.clamped(crdata.cr - crdata.apl, -1, 3) + 1];
-            let epicness = Math.clamped((crdata.cr - crdata.apl - 3), 0, 5);
+            let crChallenge = '';
+            let epicness = '';
+            let crText = '';
+            if (game.system.id == 'pf2e') {
+                crChallenge = MonksLittleDetails.crChallenge[Math.clamped(crdata.cr, -1, 3) + 1];
+                epicness = Math.clamped((crdata.cr-1), 0, 5);
+                crText = 'XP: ' + crdata.xp;
+            }
+            else {
+                crChallenge = MonksLittleDetails.crChallenge[Math.clamped(crdata.cr - crdata.apl, -1, 3) + 1];
+                epicness = Math.clamped((crdata.cr - crdata.apl - 3), 0, 5);
+                crText = 'CR: ' + MonksLittleDetails.getCRText(crdata.cr);
+            }
 
             $('<nav>').addClass('encounters flexrow encounter-cr-row')
-                .append($('<h4>').html('CR: ' + MonksLittleDetails.getCRText(crdata.cr)))
+                .append($('<h4>').html(crText))
                 .append($('<div>').addClass('encounter-cr').attr('rating', crChallenge.rating).html(i18n(crChallenge.text) + "!".repeat(epicness)))
                 .insertAfter($('#combat .encounter-controls'));
         }
