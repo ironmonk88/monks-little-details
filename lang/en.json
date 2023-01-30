@@ -90,6 +90,8 @@
 	"MonksLittleDetails.sort-by-columns.hint": "Sort token hud status effect by columns instead of rows",
 	"MonksLittleDetails.add-combat-bars.name": "Add Combat Bars",
 	"MonksLittleDetails.add-combat-bars.hint": "Use a different setting for resource bars while token is in combat",
+	"MonksLittleDetails.combat-bar-opacity.name": "Combat Bar Opacity",
+	"MonksLittleDetails.combat-bar-opacity.hint": "Change the opacity of the combat bar when they are not controlled.",
 	"MonksLittleDetails.move-pause.name": "Move the Pause icon up",
 	"MonksLittleDetails.move-pause.hint": "Move the Pause icon up the screen so that it is more centered and to avoid wondering why tokens can't move.",
 	"MonksLittleDetails.round-chatmessages.name": "Combat Round Messages",
@@ -225,6 +227,10 @@
 	"MonksLittleDetails.sortstatus.columns": "Columns",
 	"MonksLittleDetails.select-combatant.name": "Select Combatants",
 	"MonksLittleDetails.select-combatant.hint": "Automatically select combatant token on its turn",
+
+	"MonksLittleDetails.spelloptions.prevent": "Prevent Change",
+	"MonksLittleDetails.spelloptions.true": "Show Chat Message",
+	"MonksLittleDetails.spelloptions.false": "Ignore",
 
 	"MonksLittleDetails.actorsoundsoptions.none": "None",
 	"MonksLittleDetails.actorsoundsoptions.npc": "NPCs",

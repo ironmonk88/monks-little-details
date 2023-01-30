@@ -1,3 +1,25 @@
+# version 10.6
+
+Fixed issue with bloodsplats being above the fog of war.
+
+Updated Jaanese translation, thank you touge.
+
+Added option to change the opacity of the combat bar
+
+Changed the combat marker images to use webm instead of png.
+
+Added the combat marker image to a cache so every time the token image gets shifted to another token it doesn't have to import the file.
+
+Fixed issue with an error being posted when an animated combat image tries to play as the game is just being loaded before the user has had a chance to activate the browser.
+
+Changed the option to prevent spells being changed in combat to allow the option to notify the GM instead of blocking it completely.
+
+Fixed issue with the settings layout when Sound Enhancements is active, since a setting is removed from the list.
+
+Updated the combat encounter in PF2E to display the severity properly.  thank you rmressler.
+
+Fixed issues with the module listing enhancements.
+
 # version 10.5
 
 Fixed stylings for Round messages.

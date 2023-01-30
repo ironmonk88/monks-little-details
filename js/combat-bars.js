@@ -67,7 +67,7 @@ export class CombatBars {
                 if (combatBar != undefined && combatBar != -1) {
                     token.bars.visible = CombatBars.canViewCombatMode.call(token, combatBar);
                     token.bars.alpha = ((token.controlled && (combatBar == CONST.TOKEN_DISPLAY_MODES.CONTROL || combatBar == CONST.TOKEN_DISPLAY_MODES.OWNER || combatBar == CONST.TOKEN_DISPLAY_MODES.ALWAYS)) ||
-                        (token.hover && (combatBar == CONST.TOKEN_DISPLAY_MODES.HOVER || combatBar == CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER)) ? 1 : 0.3);
+                        (token.hover && (combatBar == CONST.TOKEN_DISPLAY_MODES.HOVER || combatBar == CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER)) ? 1 : setting("combat-bar-opacity"));
                 }
             } else {
                 if (token?.bars?.alpha)

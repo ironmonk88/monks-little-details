@@ -129,6 +129,7 @@ export class BloodSplats {
                             token.bloodsplat.anchor.set(0.5, 0.5);
                             token.bloodsplat.x = token.x + (token.w / 2);
                             token.bloodsplat.y = token.y + (token.h / 2);
+                            token.bloodsplat.visible = token.isVisible;
                             canvas.grid.bloodsplats.addChild(token.bloodsplat);
 
                             //log('Font: ', token.id, (token.h * 1.5), token.bloodsplat.x, token.bloodsplat.y);
@@ -159,6 +160,7 @@ export class BloodSplats {
                             if (token._animateTo != iconAlpha)
                                 token.mesh.alpha = iconAlpha;
                             token.bloodsplat.position.set(token.x + (token.w / 2), token.y + (token.h / 2));
+                            token.bloodsplat.visible = token.isVisible;
                         }
                         if (token.tresurechest != undefined)
                             token.tresurechest.alpha = 0;
@@ -190,6 +192,13 @@ export class BloodSplats {
             if (token.bloodsplat) {
                 token.bloodsplat.destroy();
                 delete token.bloodsplat;
+            }
+        });
+
+        Hooks.on("sightRefresh", function () {
+            for (let token of canvas.tokens.placeables) {
+                if (token.bloodsplat)
+                    token.bloodsplat.visible = token.isVisible;
             }
         });
 

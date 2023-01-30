@@ -247,8 +247,11 @@ export class CombatMarker {
     static toggleTurnMarker(token, visible) {
         if (token && token.preventMarker !== true) {
             if (token?.ldmarker?.transform == undefined) {
-                let highlightFile = token.document.getFlag('monks-little-details', 'token-highlight') || (token.document.disposition != 1 ? setting("token-highlight-picture-hostile") : null) || setting("token-highlight-picture");
-                loadTexture(highlightFile).then((tex) => { //"modules/monks-little-details/img/chest.png"
+                let highlightFile = token.document.getFlag('monks-little-details', 'token-highlight') || (token.document.disposition != 1 ? setting("token-highlight-picture-hostile") : null) || setting("token-highlight-picture") || "";
+                if (highlightFile.startsWith("modules/monks-little-details/markers/marker") && highlightFile.endsWith("png"))
+                    highlightFile = highlightFile.substring(0, highlightFile.length - 3) + "webp";
+
+                const setHighlight = (tex) => { //"modules/monks-little-details/img/chest.png"
                     if (token.ldmarker != undefined) {
                         token.ldmarker.destroy();
                     }
@@ -256,6 +259,7 @@ export class CombatMarker {
                     if (highlightFile.endsWith('webm')) {
                         tex.baseTexture.resource.source.autoplay = true;
                         tex.baseTexture.resource.source.loop = true;
+                        tex.baseTexture.resource.source.muted = true;
                         try {
                             tex.baseTexture.resource.source.play();
                         } catch {
@@ -273,7 +277,16 @@ export class CombatMarker {
                     canvas.grid.ldmarkers.addChild(token.ldmarker);
                     token.ldmarker.visible = visible && token.isVisible && !MonksLittleDetails.isDefeated(token);
                     token.ldmarker._visible = visible;
-                });
+                }
+
+                if (MonksLittleDetails.markerCache[highlightFile])
+                    setHighlight(MonksLittleDetails.markerCache[highlightFile]);
+                else {
+                    loadTexture(highlightFile).then((tex) => {
+                        setHighlight(tex);
+                        MonksLittleDetails.markerCache[highlightFile] = tex
+                    });
+                }
             } else {
                 token.ldmarker.visible = visible && token.isVisible && !MonksLittleDetails.isDefeated(token);
                 token.ldmarker._visible = visible;

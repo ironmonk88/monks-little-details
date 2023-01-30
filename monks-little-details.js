@@ -62,6 +62,7 @@ export class MonksLittleDetails {
     static tokenHUDimages = {};
     static movingToken = false;
     static _setting = {};
+    static markerCache = {};
 
     static canDo(setting) {
         //needs to not be on the reject list, and if there is an only list, it needs to be on it.
@@ -107,6 +108,8 @@ export class MonksLittleDetails {
         if (game.system.id == 'dnd5e')
             MonksLittleDetails.xpchart = CONFIG.DND5E.CR_EXP_LEVELS;
         else if (game.system.id == 'pf2e') {
+            MonksLittleDetails.xpchart = [40, 60, 80, 120, 160];
+        } else if (game.system.id == 'pf1e') {
             MonksLittleDetails.xpchart = [50, 400, 600, 800, 1200, 1600, 2400, 3200, 4800, 6400, 9600, 12800, 19200, 25600, 38400, 51200, 76800, 102400, 153600, 204800, 307200, 409600, 614400, 819200, 1228800, 1638400, 2457600, 3276800, 4915200, 6553600, 9830400];
         }
 
@@ -703,44 +706,89 @@ background-color: rgba(0, 0, 0, 0.5);
         var apl = { count: 0, levels: 0 };
         var xp = 0;
 
-        //get the APL of friendly combatants
-        for (let combatant of combat.combatants) {
-            if (combatant.actor != undefined && combatant.token != undefined) {
-                if (combatant.token.disposition == 1) {
+        if (game.system.id == 'pf2e') {
+            //cr will just be a -1 to 3 value (representing trivial - extreme)
+            //apl will not be passed forward, instead XP is passed forward
+
+            //note, should be referenced by xpByRelLevel[relLevel + 4]
+            var xpByRelLevel = [0, 10, 15, 20, 30, 40, 60, 80, 120, 160];
+
+            //note that this needs to be multiplied by party size
+            var AdjByXP = [10, 15, 20, 30, 40]
+
+            //determine APL, and modifiers if necessary
+            for (let combatant of combat.combatants) {
+                if (combatant.actor != undefined && combatant.token != undefined && combatant.token.disposition == 1) {
                     apl.count = apl.count + 1;
-                    let levels = 0;
-                    if (combatant.actor.system?.classes) {
-                        levels = Object.values(combatant.actor.system?.classes).reduce((a, b) => {
-                            return a + (b?.levels || b?.level || 0);
-                        }, 0);
-                    } else {
-                        levels = combatant?.actor.system.details?.level?.value || combatant?.actor.system.details?.level || 0;
-                    }
+                    let levels = combatant?.actor.system.details?.level?.value || combatant?.actor.system.details?.level || 0;
 
                     apl.levels += levels;
-                } else {
-                    let combatantxp = combatant?.actor.system.details?.xp?.value;
-                    if (combatantxp == undefined) {
-                        let levels = 0;
-                        if (combatant?.actor.system?.classes && Object.entities(combatant.actor.system?.classes).length)
-                            levels = combatant.actor.system?.classes?.reduce(c => { return c.levels; });
-                        else if (combatant?.actor.system.details?.level?.value)
-                            levels = parseInt(combatant?.actor.system.details?.level?.value);
-                        combatantxp = MonksLittleDetails.xpchart[Math.clamped(levels, 0, MonksLittleDetails.xpchart.length - 1)];
-                    }
-                    xp += (combatantxp || 0);
                 }
             }
-        };
 
-        var calcAPL = 0;
-        if (apl.count > 0)
-            calcAPL = Math.round(apl.levels / apl.count) + (apl.count < 4 ? -1 : (apl.count > 5 ? 1 : 0));
+            var calcAPL = 0;
+            if (apl.count > 0)
+                calcAPL = Math.round(apl.levels / apl.count);
+            //this approximation is fine -- most pf2e parties should all be the same level, but otherwise we can just round
 
-        //get the CR of any unfriendly/neutral
-        let cr = Math.clamped(MonksLittleDetails.xpchart.findIndex(cr => cr > xp) - 1, 0, MonksLittleDetails.xpchart.length - 1);
+            //for each enemy, determine its xp value
+            for (let combatant of combat.combatants) {
+                if (combatant.actor != undefined && combatant.token != undefined && combatant.token.disposition != 1) {
+                    var level = 0;
+                    level = parseInt(combatant?.actor.system.details?.level?.value ?? 0);
+                    var relLevel = level - calcAPL;
+                    xp += xpByRelLevel[Math.clamped(relLevel + 5, 0, xpByRelLevel.length - 1)];
+                }
+            }
 
-        return { cr: cr, apl: calcAPL };
+            if (apl.count != 4) {
+                let partyAdj = MonksLittleDetails.xpchart.filter((budget, index) => xp >= budget || index == 0);
+                let partyXP = AdjByXP[Math.clamped(partyAdj.length - 1, 0, AdjByXP.length - 1)];
+                xp += partyXP * (apl.count - 4) * -1;
+            }
+
+            var partyCR = MonksLittleDetails.xpchart.filter((budget, index) => xp >= budget || index == 0);
+            return { cr: partyCR.length - 1, xp: xp };
+        } else {
+            //get the APL of friendly combatants
+            for (let combatant of combat.combatants) {
+                if (combatant.actor != undefined && combatant.token != undefined) {
+                    if (combatant.token.disposition == 1) {
+                        apl.count = apl.count + 1;
+                        let levels = 0;
+                        if (combatant.actor.system?.classes) {
+                            levels = Object.values(combatant.actor.system?.classes).reduce((a, b) => {
+                                return a + (b?.levels || b?.level || 0);
+                            }, 0);
+                        } else {
+                            levels = combatant?.actor.system.details?.level?.value || combatant?.actor.system.details?.level || 0;
+                        }
+
+                        apl.levels += levels;
+                    } else {
+                        let combatantxp = combatant?.actor.system.details?.xp?.value;
+                        if (combatantxp == undefined) {
+                            let levels = 0;
+                            if (combatant?.actor.system?.classes && Object.entities(combatant.actor.system?.classes).length)
+                                levels = combatant.actor.system?.classes?.reduce(c => { return c.levels; });
+                            else if (combatant?.actor.system.details?.level?.value)
+                                levels = parseInt(combatant?.actor.system.details?.level?.value);
+                            combatantxp = MonksLittleDetails.xpchart[Math.clamped(levels, 0, MonksLittleDetails.xpchart.length - 1)];
+                        }
+                        xp += (combatantxp || 0);
+                    }
+                }
+            };
+
+            var calcAPL = 0;
+            if (apl.count > 0)
+                calcAPL = Math.round(apl.levels / apl.count) + (apl.count < 4 ? -1 : (apl.count > 5 ? 1 : 0));
+
+            //get the CR of any unfriendly/neutral
+            let cr = Math.clamped(MonksLittleDetails.xpchart.findIndex(cr => cr > xp) - 1, 0, MonksLittleDetails.xpchart.length - 1);
+
+            return { cr: cr, apl: calcAPL };
+        }
     }
 
     static getDiceSound(hasMaestroSound = false) {
@@ -873,6 +921,19 @@ background-color: rgba(0, 0, 0, 0.5);
 
     static async removeShadow(data) {
         CombatTurn.removeShadow(data.id);
+    }
+
+    static async spellChange(data) {
+        if (game.user.isTheGM) {
+            let whisper = ChatMessage.getWhisperRecipients("GM");
+            let player = game.users.find(u => u.id == data.user);
+            let actor = game.actors.find(a => a.id == data.actor);
+            ChatMessage.create({
+                user: game.user,
+                content: `<i>${player?.name}</i> has changed prepared spells (${data.name}) for <b>${actor?.name}</b> while token is in combat.`,
+                whisper: whisper
+            });
+        }
     }
 
     static isDefeated(token) {
@@ -1095,24 +1156,29 @@ Hooks.on('renderCombatTracker', async (app, html, data) => {
         }
     }
 
-    if (game.user.isGM && data.combat && !data.combat.started && setting('show-combat-cr') && MonksLittleDetails.xpchart != undefined) {
+    if (!app.popOut && game.user.isGM && data.combat && !data.combat.started && setting('show-combat-cr') && MonksLittleDetails.xpchart != undefined) {
         //calculate CR
         let crdata = MonksLittleDetails.getCR(data.combat);
 
         if ($('#combat-round .encounter-cr-row').length == 0 && data.combat.combatants.size > 0) {
-            let crChallenge = MonksLittleDetails.crChallenge[Math.clamped(crdata.cr - crdata.apl, -1, 3) + 1];
-            let epicness = Math.clamped((crdata.cr - crdata.apl - 3), 0, 5);
+            let crChallenge = '';
+            let epicness = '';
+            let crText = '';
+            if (game.system.id == 'pf2e') {
+                crChallenge = MonksLittleDetails.crChallenge[Math.clamped(crdata.cr, 0, MonksLittleDetails.crChallenge.length - 1)];
+                crText = 'XP: ' + crdata.xp;
+            }
+            else {
+                crChallenge = MonksLittleDetails.crChallenge[Math.clamped(crdata.cr - crdata.apl, -1, 3) + 1];
+                epicness = Math.clamped((crdata.cr - crdata.apl - 3), 0, 5);
+                crText = 'CR: ' + MonksLittleDetails.getCRText(crdata.cr);
+            }
 
             $('<nav>').addClass('encounters flexrow encounter-cr-row')
-                .append($('<h4>').html('CR: ' + MonksLittleDetails.getCRText(crdata.cr)))
+                .append($('<h4>').html(crText))
                 .append($('<div>').addClass('encounter-cr').attr('rating', crChallenge.rating).html(i18n(crChallenge.text) + "!".repeat(epicness)))
                 .insertAfter($('#combat .encounter-controls'));
         }
-    }
-
-    if (data.combat == undefined) {
-        //+++ if the sound module is active
-        $('#combat-round h3', html).css({ fontSize: '16px', lineHeight: '15px'});
     }
 
     //don't show the previous or next turn if this isn't the GM
@@ -1236,7 +1302,7 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
     $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.CombatTracker")).insertBefore($('[name="monks-little-details.show-combat-cr"]').parents('div.form-group:first'));
     $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.CombatTurn")).insertBefore($('[name="monks-little-details.shownextup"]').parents('div.form-group:first'));
     $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.CombatTokenHighlight")).insertBefore($('[name="monks-little-details.token-combat-highlight"]').parents('div.form-group:first'));
-    $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.AddedFeatures")).insertBefore($('[name="monks-little-details.actor-sounds"]').parents('div.form-group:first'));
+    $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.AddedFeatures")).insertBefore($('[name="monks-little-details.scene-palette"]').parents('div.form-group:first'));
 });
 
 Hooks.on("updateToken", async function (document, data, options, userid) {
@@ -1531,7 +1597,7 @@ Hooks.on('renderModuleManagement', (app, html, data) => {
 
         let scrollToView = function (ev) {
             let module = $(ev.currentTarget).html();
-            let div = $(`.package[data-module-name="${module}"]`, html);
+            let div = $(`.package[data-module-id="${module}"]`, html);
             if (div.length) {
                 div[0].scrollIntoView({ behavior: "smooth" });
             }
@@ -1557,7 +1623,7 @@ Hooks.on('renderModuleManagement', (app, html, data) => {
         }
 
         for (let [req, values] of Object.entries(requires)) {
-            let li = $('<li>').appendTo($(`.package[data-module-name="${req}"] .package-metadata`, html));
+            let li = $('<li>').appendTo($(`.package[data-module-id="${req}"] .package-metadata`, html));
             li.append($("<strong>").html("Supports:"));
             for (let val of values) {
                 li.append($("<span>").addClass("tag").html(val).on("click", scrollToView.bind(this)));
@@ -1739,18 +1805,22 @@ Hooks.on("renderFilePicker", (app, html, data) => {
 });
 
 Hooks.on("preUpdateItem", (item, data, options, user) => {
-    if (setting("prevent-combat-spells") && !game.user.isGM && getProperty(data, "system.preparation.prepared") != undefined) {
+    if (setting("prevent-combat-spells") != "false" && !game.user.isGM && user == game.user.id && getProperty(data, "system.preparation.prepared") != undefined) {
         //Is this actor involved in a combat
         let inCombat = game.combats.some(c => {
             return c.started && c.active && c.turns.some(t => t.actorId == item.actor.id);
         });
 
         if (inCombat) {
-            ui.notifications.warn("Cannot change prepared spells while in combat");
-            delete data.system.preparation.prepared;
-            if (Object.keys(data.system.preparation).length == 0) delete data.system.preparation;
-            if (Object.keys(data.system).length == 0) delete data.system;
-            if (Object.keys(data).length == 0) return false;
+            if (setting("prevent-combat-spells") == "prevent") {
+                ui.notifications.warn("Cannot change prepared spells while in combat");
+                delete data.system.preparation.prepared;
+                if (Object.keys(data.system.preparation).length == 0) delete data.system.preparation;
+                if (Object.keys(data.system).length == 0) delete data.system;
+                if (Object.keys(data).length == 0) return false;
+            } else if (setting("prevent-combat-spells") == "true") {
+                MonksLittleDetails.emit('spellChange', { user: game.user.id, actor: item.actor.id, name: item.name });
+            }
         }
     }
 });

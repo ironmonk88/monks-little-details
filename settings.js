@@ -54,7 +54,13 @@ export const registerSettings = function () {
 		'false': i18n("MonksLittleDetails.bloodsplatoptions.false"),
 		'true': i18n("MonksLittleDetails.bloodsplatoptions.true"),
 		'both': i18n("MonksLittleDetails.bloodsplatoptions.both")
-    }
+	}
+
+	let spelloptions = {
+		'prevent': i18n("MonksLittleDetails.spelloptions.prevent"),
+		'true': i18n("MonksLittleDetails.spelloptions.true"),
+		'false': i18n("MonksLittleDetails.spelloptions.false")
+	}
 
 	//System changes
 	game.settings.register(modulename, "swap-buttons", {
@@ -235,8 +241,9 @@ export const registerSettings = function () {
 		hint: i18n("MonksLittleDetails.prevent-combat-spells.hint"),
 		scope: "world",
 		config: true,
+		choices: spelloptions,
 		default: true,
-		type: Boolean,
+		type: String,
 	});
 	game.settings.register(modulename, "auto-defeated", {
 		name: i18n("MonksLittleDetails.auto-defeated.name"),
@@ -272,6 +279,20 @@ export const registerSettings = function () {
 		default: false,
 		type: Boolean,
 	});
+	game.settings.register(modulename, "combat-bar-opacity", {
+		name: i18n("MonksLittleDetails.combat-bar-opacity.name"),
+		hint: i18n("MonksLittleDetails.combat-bar-opacity.hint"),
+		scope: "world",
+		config: true,
+		range: {
+			min: 0,
+			max: 1,
+			step: 0.05,
+		},
+		default: 0.3,
+		type: Number,
+	});
+
 	game.settings.register(modulename, "auto-scroll", {
 		name: i18n("MonksLittleDetails.auto-scroll.name"),
 		hint: i18n("MonksLittleDetails.auto-scroll.hint"),
@@ -285,7 +306,7 @@ export const registerSettings = function () {
 	game.settings.register(modulename, "shownextup", {
 		name: i18n("MonksLittleDetails.shownextup.name"),
 		hint: i18n("MonksLittleDetails.shownextup.hint"),
-		scope: "world",
+		scope: "client",
 		config: true,
 		default: true,
 		type: Boolean,
@@ -293,7 +314,7 @@ export const registerSettings = function () {
 	game.settings.register(modulename, "showcurrentup", {
 		name: i18n("MonksLittleDetails.showcurrentup.name"),
 		hint: i18n("MonksLittleDetails.showcurrentup.hint"),
-		scope: "world",
+		scope: "client",
 		config: true,
 		default: true,
 		type: Boolean,
@@ -301,7 +322,7 @@ export const registerSettings = function () {
 	game.settings.register(modulename, "large-print", {
 		name: i18n("MonksLittleDetails.large-print.name"),
 		hint: i18n("MonksLittleDetails.large-print.hint"),
-		scope: "world",
+		scope: "client",
 		config: true,
 		default: false,
 		type: Boolean,
@@ -458,7 +479,7 @@ export const registerSettings = function () {
 		hint: i18n("MonksLittleDetails.token-highlight-picture.hint"),
 		scope: "world",
 		config: true,
-		default: "modules/monks-little-details/markers/marker02.png",
+		default: "modules/monks-little-details/markers/marker02.webp",
 		type: String,
 		//filePicker: true,
 		onChange: debouncedReload
@@ -468,7 +489,7 @@ export const registerSettings = function () {
 		hint: i18n("MonksLittleDetails.token-highlight-picture-hostile.hint"),
 		scope: "world",
 		config: true,
-		default: "modules/monks-little-details/markers/marker01.png",
+		default: "modules/monks-little-details/markers/marker01.webp",
 		type: String,
 		//filePicker: true,
 		onChange: debouncedReload
@@ -516,6 +537,14 @@ export const registerSettings = function () {
 	});
 
 	//Added Features
+	game.settings.register(modulename, "scene-palette", {
+		name: i18n("MonksLittleDetails.scene-palette.name"),
+		hint: i18n("MonksLittleDetails.scene-palette.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
 	game.settings.register(modulename, "actor-sounds", {
 		name: i18n("MonksLittleDetails.actor-sounds.name"),
 		hint: i18n("MonksLittleDetails.actor-sounds.hint"),
@@ -525,14 +554,6 @@ export const registerSettings = function () {
 		choices: actorsoundsoptions,
 		type: String,
 		onChange: debouncedReload
-	});
-	game.settings.register(modulename, "scene-palette", {
-		name: i18n("MonksLittleDetails.scene-palette.name"),
-		hint: i18n("MonksLittleDetails.scene-palette.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
 	});
 	/*
 	game.settings.register(modulename, "movement-key", {
