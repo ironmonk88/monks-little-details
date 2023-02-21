@@ -707,48 +707,32 @@ background-color: rgba(0, 0, 0, 0.5);
         var xp = 0;
 
         if (game.system.id == 'pf2e') {
-            //cr will just be a -1 to 3 value (representing trivial - extreme)
-            //apl will not be passed forward, instead XP is passed forward
-
-            //note, should be referenced by xpByRelLevel[relLevel + 4]
-            var xpByRelLevel = [0, 10, 15, 20, 30, 40, 60, 80, 120, 160];
-
-            //note that this needs to be multiplied by party size
-            var AdjByXP = [10, 15, 20, 30, 40]
-
-            //determine APL, and modifiers if necessary
-            for (let combatant of combat.combatants) {
-                if (combatant.actor != undefined && combatant.token != undefined && combatant.token.disposition == 1) {
-                    apl.count = apl.count + 1;
-                    let levels = combatant?.actor.system.details?.level?.value || combatant?.actor.system.details?.level || 0;
-
-                    apl.levels += levels;
-                }
-            }
-
-            var calcAPL = 0;
-            if (apl.count > 0)
-                calcAPL = Math.round(apl.levels / apl.count);
-            //this approximation is fine -- most pf2e parties should all be the same level, but otherwise we can just round
-
-            //for each enemy, determine its xp value
-            for (let combatant of combat.combatants) {
-                if (combatant.actor != undefined && combatant.token != undefined && combatant.token.disposition != 1) {
-                    var level = 0;
-                    level = parseInt(combatant?.actor.system.details?.level?.value ?? 0);
-                    var relLevel = level - calcAPL;
-                    xp += xpByRelLevel[Math.clamped(relLevel + 5, 0, xpByRelLevel.length - 1)];
-                }
-            }
-
-            if (apl.count != 4) {
-                let partyAdj = MonksLittleDetails.xpchart.filter((budget, index) => xp >= budget || index == 0);
-                let partyXP = AdjByXP[Math.clamped(partyAdj.length - 1, 0, AdjByXP.length - 1)];
-                xp += partyXP * (apl.count - 4) * -1;
-            }
-
-            var partyCR = MonksLittleDetails.xpchart.filter((budget, index) => xp >= budget || index == 0);
-            return { cr: partyCR.length - 1, xp: xp };
+            //updated approach
+            //to do: figure out token award xp (monk's token bar?
+            let combatants = combat.combatants.filter(
+                (combatant) => combatant.actor != undefined && combatant.token != undefined
+            );
+            let party = combatants
+                .filter((combatant) => combatant.token.disposition == 1)
+                .map((hero) => hero?.actor.system.details?.level?.value ?? 0);
+            let party_level = Math.round(party.reduce((sum, level) => (sum += level), 0) / party.length;
+            let enemies = combatants
+                .filter((combatant) => combatant.token.disposition != 1 && combatant.actor.type != "hazard")
+                .map((enemy) => enemy?.actor.system.details?.level?.value ?? 0);
+            let hazards = combatants
+                .filter((combatant) => combatant.token.disposition != 1 && combatant.actor.type == "hazard")
+                .map((hazard) => {
+                    return {
+                        level: hazard?.actor.system.details?.level?.value ?? 0,
+                        isComplex: hazard?.actor.system.details?.isComplex,
+                    };
+                });
+	    console.log(party.length)
+            let reward = game.pf2e.gm.calculateXP(party_level, party.length, enemies, hazards, {});
+            return {
+                cr: ["trivial", "low", "moderate", "severe", "extreme"].indexOf(reward.rating),
+                xp: reward.xpPerPlayer,
+            };
         } else {
             //get the APL of friendly combatants
             for (let combatant of combat.combatants) {
