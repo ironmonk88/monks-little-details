@@ -1,8 +1,20 @@
+# version 10.7
+
+Splitting multiple other modules off of this one.
+
+Created Monk's Chat Timer to take over the chat timer functionality.
+
+Created Monk's Combat Marker to handle the token marker to indicate a token's turn in combat.
+
+Created Monk's Bloodsplats to show bloodsplats when a creature has died.
+
+Created Monk's Combat Details to handle all the features that Monk's Little Details handled to help automate combats
+
 # version 10.6
 
 Fixed issue with bloodsplats being above the fog of war.
 
-Updated Jaanese translation, thank you touge.
+Updated Japanese translation, thank you touge.
 
 Added option to change the opacity of the combat bar
 

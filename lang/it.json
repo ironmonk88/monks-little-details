@@ -50,8 +50,6 @@
 	"MonksLittleDetails.movement-key.hint": "Imposta il tasto da premere per spostare i token in una nuova posizione.",
 	"MonksLittleDetails.show-notify.name": "Mantieni Notifica",
 	"MonksLittleDetails.show-notify.hint": "Lascia accesa l'icona di notifica della chat se ti trovi in un'altra scheda e arriva un messaggio.",
-	"MonksLittleDetails.show-bloodsplat.name": "Mostra Macchia di Sangue",
-	"MonksLittleDetails.show-bloodsplat.hint": "Quando un mostro muore, mostralo come una macchia di sangue, nascondendo l'immagine, le barre e gli effetti. Dopotutto è morto.",
 	"MonksLittleDetails.token-combat-highlight.name": "Evidenzia Token",
 	"MonksLittleDetails.token-combat-highlight.hint": "Evidenzia il token che è attualmente attivo in combattimento",
 	"MonksLittleDetails.token-highlight-animate.name": "Velocità Animazione Evidenziazione",
@@ -82,7 +80,6 @@
 	"MonksLittleDetails.move-pause.hint": "Alza l'icona Pausa sullo schermo in modo che sia più centrata e per evitare di chiederti perché i token non possono muoversi.",
 	"MonksLittleDetails.round-chatmessages.name": "Messaggi Round di Combattimento",
 	"MonksLittleDetails.round-chatmessages.hint": "Aggiungi un messaggio di chat ogni round per delineare i messaggi di combattimento",
-	"MonksLittleDetails.bloodsplat-colour.name": "Colore schizzi di sangue",
 	"MonksLittleDetails.show-start.name": "Mostra inizio token",
 	"MonksLittleDetails.show-start.hint": "Mostra dove il token ha iniziato il suo turno",
 

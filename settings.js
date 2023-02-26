@@ -6,61 +6,11 @@ export const registerSettings = function () {
 
 	const debouncedReload = foundry.utils.debounce(function () { window.location.reload(); }, 500);
 	
-	let dialogpositions = {
-		'': '—',
-		'topleft': 'Top Left',
-		'topright': 'Top Right',
-		'bottomleft': 'Bottom Left',
-		'bottomright': 'Bottom Right'
-	};
-
-	let opencombatoptions = {
-		'none': i18n("MonksLittleDetails.combatopen.none"),
-		'everyone': i18n("MonksLittleDetails.combatopen.everyone"),
-		'gmonly': i18n("MonksLittleDetails.combatopen.gm"),
-		'playersonly': i18n("MonksLittleDetails.combatopen.players")
-	};
-
-	let autodefeated = {
-		'none': i18n("MonksLittleDetails.autodefeated.none"),
-		'npc-zero': i18n("MonksLittleDetails.autodefeated.npc-zero"),
-		'npc-negative': i18n("MonksLittleDetails.autodefeated.npc-negative"),
-		'all-zero': i18n("MonksLittleDetails.autodefeated.all-zero"),
-		'all-negative': i18n("MonksLittleDetails.autodefeated.all-negative")
-	};
-
-	let animation = {
-		'none': i18n("MonksLittleDetails.animation.none"),
-		'clockwise': i18n("MonksLittleDetails.animation.clockwise"),
-		'counterclockwise': i18n("MonksLittleDetails.animation.counterclockwise"),
-		'pulse': i18n("MonksLittleDetails.animation.pulse"),
-		'fadeout': i18n("MonksLittleDetails.animation.fadeout"),
-		'fadein': i18n("MonksLittleDetails.animation.fadein")
-	};
-
 	let sortstatus = {
 		'none': i18n("MonksLittleDetails.sortstatus.none"),
 		'rows': i18n("MonksLittleDetails.sortstatus.rows"),
 		'columns': i18n("MonksLittleDetails.sortstatus.columns")
 	};
-
-	let actorsoundsoptions = {
-		'none': i18n("MonksLittleDetails.actorsoundsoptions.none"),
-		'npc': i18n("MonksLittleDetails.actorsoundsoptions.npc"),
-		'everyone': i18n("MonksLittleDetails.actorsoundsoptions.everyone")
-	};
-
-	let bloodsplatoptions = {
-		'false': i18n("MonksLittleDetails.bloodsplatoptions.false"),
-		'true': i18n("MonksLittleDetails.bloodsplatoptions.true"),
-		'both': i18n("MonksLittleDetails.bloodsplatoptions.both")
-	}
-
-	let spelloptions = {
-		'prevent': i18n("MonksLittleDetails.spelloptions.prevent"),
-		'true': i18n("MonksLittleDetails.spelloptions.true"),
-		'false': i18n("MonksLittleDetails.spelloptions.false")
-	}
 
 	//System changes
 	game.settings.register(modulename, "swap-buttons", {
@@ -152,390 +102,6 @@ export const registerSettings = function () {
 		type: Boolean,
 	});
 
-	//combat tracker
-	game.settings.register(modulename, "show-combat-cr", {
-		name: i18n("MonksLittleDetails.show-combat-cr.name"),
-		hint: i18n("MonksLittleDetails.show-combat-cr.hint"),
-		scope: "world",
-		config: MonksLittleDetails.canDo("show-combat-cr"),
-		default: game.system.id != "pf2e",
-		type: Boolean,
-	});
-	game.settings.register(modulename, "switch-combat-tab", {
-		name: i18n("MonksLittleDetails.switch-combat-tab.name"),
-		hint: i18n("MonksLittleDetails.switch-combat-tab.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean
-	});
-	game.settings.register(modulename, "hide-enemies", {
-		name: i18n("MonksLittleDetails.hide-enemies.name"),
-		hint: i18n("MonksLittleDetails.hide-enemies.hint"),
-		scope: "world",
-		config: true,
-		default: false,
-		type: Boolean,
-		onChange: debouncedReload
-	});
-	game.settings.register(modulename, "hide-until-turn", {
-		name: i18n("MonksLittleDetails.hide-until-turn.name"),
-		hint: i18n("MonksLittleDetails.hide-until-turn.hint"),
-		scope: "world",
-		config: true,
-		default: false,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "prevent-initiative", {
-		name: i18n("MonksLittleDetails.prevent-initiative.name"),
-		hint: i18n("MonksLittleDetails.prevent-initiative.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "popout-combat", {
-		name: i18n("MonksLittleDetails.opencombat.name"),
-		hint: i18n("MonksLittleDetails.opencombat.hint"),
-		scope: "client",
-		config: true,
-		default: true,
-		type: Boolean
-	});
-	game.settings.register(modulename, "opencombat", {
-		name: i18n("MonksLittleDetails.opencombat.name"),
-		hint: i18n("MonksLittleDetails.opencombat.hint"),
-		scope: "world",
-		config: true,
-		choices: opencombatoptions,
-		default: "everyone",
-		type: String
-	});
-	game.settings.register(modulename, "combat-position", {
-		name: i18n("MonksLittleDetails.combat-position.name"),
-		hint: i18n("MonksLittleDetails.combat-position.hint"),
-		scope: "client",
-		default: "bottomright",
-		type: String,
-		choices: dialogpositions,
-		config: true
-	});
-	game.settings.register(modulename, "close-combat-when-done", {
-		name: i18n("MonksLittleDetails.close-combat-when-done.name"),
-		hint: i18n("MonksLittleDetails.close-combat-when-done.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "prevent-token-removal", {
-		name: i18n("MonksLittleDetails.prevent-token-removal.name"),
-		hint: i18n("MonksLittleDetails.prevent-token-removal.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "prevent-combat-spells", {
-		name: i18n("MonksLittleDetails.prevent-combat-spells.name"),
-		hint: i18n("MonksLittleDetails.prevent-combat-spells.hint"),
-		scope: "world",
-		config: true,
-		choices: spelloptions,
-		default: true,
-		type: String,
-	});
-	game.settings.register(modulename, "auto-defeated", {
-		name: i18n("MonksLittleDetails.auto-defeated.name"),
-		hint: i18n("MonksLittleDetails.auto-defeated.hint"),
-		scope: "world",
-		config: true,
-		choices: autodefeated,
-		default: (game.system.id == 'D35E' || game.system.id == 'pf1' ? 'npc-negative' : 'npc-zero'),
-		type: String,
-	});
-	game.settings.register(modulename, "invisible-dead", {
-		name: i18n("MonksLittleDetails.invisible-dead.name"),
-		hint: i18n("MonksLittleDetails.invisible-dead.hint"),
-		scope: "world",
-		config: true,
-		default: false,
-		type: Boolean,
-		onChange: debouncedReload
-	});
-	game.settings.register(modulename, "auto-reveal", {
-		name: i18n("MonksLittleDetails.auto-reveal.name"),
-		hint: i18n("MonksLittleDetails.auto-reveal.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "add-combat-bars", {
-		name: i18n("MonksLittleDetails.add-combat-bars.name"),
-		hint: i18n("MonksLittleDetails.add-combat-bars.hint"),
-		scope: "world",
-		config: true,
-		default: false,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "combat-bar-opacity", {
-		name: i18n("MonksLittleDetails.combat-bar-opacity.name"),
-		hint: i18n("MonksLittleDetails.combat-bar-opacity.hint"),
-		scope: "world",
-		config: true,
-		range: {
-			min: 0,
-			max: 1,
-			step: 0.05,
-		},
-		default: 0.3,
-		type: Number,
-	});
-
-	game.settings.register(modulename, "auto-scroll", {
-		name: i18n("MonksLittleDetails.auto-scroll.name"),
-		hint: i18n("MonksLittleDetails.auto-scroll.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-
-	//Combat Turn
-	game.settings.register(modulename, "shownextup", {
-		name: i18n("MonksLittleDetails.shownextup.name"),
-		hint: i18n("MonksLittleDetails.shownextup.hint"),
-		scope: "client",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "showcurrentup", {
-		name: i18n("MonksLittleDetails.showcurrentup.name"),
-		hint: i18n("MonksLittleDetails.showcurrentup.hint"),
-		scope: "client",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "large-print", {
-		name: i18n("MonksLittleDetails.large-print.name"),
-		hint: i18n("MonksLittleDetails.large-print.hint"),
-		scope: "client",
-		config: true,
-		default: false,
-		type: Boolean,
-		onChange: debouncedReload
-	});
-	game.settings.register(modulename, "play-next-sound", {
-		name: i18n("MonksLittleDetails.next-sound.name"),
-		hint: i18n("MonksLittleDetails.next-sound.hint"),
-		scope: "client",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "play-turn-sound", {
-		name: i18n("MonksLittleDetails.turn-sound.name"),
-		hint: i18n("MonksLittleDetails.turn-sound.hint"),
-		scope: "client",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "play-round-sound", {
-		name: i18n("MonksLittleDetails.round-sound.name"),
-		hint: i18n("MonksLittleDetails.round-sound.hint"),
-		scope: "client",
-		config: true,
-		default: true,
-		type: Boolean,
-	});
-	game.settings.register(modulename, "next-sound", {
-		name: i18n("MonksLittleDetails.next-sound.name"),
-		hint: i18n("MonksLittleDetails.next-sound.hint"),
-		scope: "world",
-		config: true,
-		default: "modules/monks-little-details/sounds/next.ogg",
-		type: String,
-		//filePicker: 'audio',
-	});
-	game.settings.register(modulename, "turn-sound", {
-		name: i18n("MonksLittleDetails.turn-sound.name"),
-		hint: i18n("MonksLittleDetails.turn-sound.hint"),
-		scope: "world",
-		config: true,
-		default: "modules/monks-little-details/sounds/turn.ogg",
-		type: String,
-		//filePicker: 'audio',
-	});
-	game.settings.register(modulename, "round-sound", {
-		name: i18n("MonksLittleDetails.round-sound.name"),
-		hint: i18n("MonksLittleDetails.round-sound.hint"),
-		scope: "world",
-		config: true,
-		default: "modules/monks-little-details/sounds/round.ogg",
-		type: String,
-		//filePicker: 'audio',
-	});
-	game.settings.register(modulename, "volume", {
-		name: i18n("MonksLittleDetails.volume.name"),
-		hint: i18n("MonksLittleDetails.volume.hint"),
-		scope: "client",
-		config: true,
-		range: {
-			min: 0,
-			max: 100,
-			step: 10,
-		},
-		default: 60,
-		type: Number,
-	});
-	/*
-	game.settings.register(modulename, "disablesounds", {
-		name: i18n("MonksLittleDetails.disablesounds.name"),
-		hint: i18n("MonksLittleDetails.disablesounds.hint"),
-		scope: "world",
-		config: true,
-		default: false,
-		type: Boolean,
-	});*/
-	game.settings.register(modulename, "clear-targets", {
-		name: i18n("MonksLittleDetails.clear-targets.name"),
-		hint: i18n("MonksLittleDetails.clear-targets.hint"),
-		scope: "client",
-		config: true,
-		default: true,
-		type: Boolean
-	});
-	game.settings.register(modulename, "remember-previous", {
-		name: i18n("MonksLittleDetails.remember-previous.name"),
-		hint: i18n("MonksLittleDetails.remember-previous.hint"),
-		scope: "client",
-		config: true,
-		default: true,
-		type: Boolean,
-		onChange: debouncedReload
-	});
-	game.settings.register(modulename, "round-chatmessages", {
-		name: i18n("MonksLittleDetails.round-chatmessages.name"),
-		hint: i18n("MonksLittleDetails.round-chatmessages.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean
-	});
-	game.settings.register(modulename, "show-start", {
-		name: i18n("MonksLittleDetails.show-start.name"),
-		hint: i18n("MonksLittleDetails.show-start.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean
-	});
-
-	game.settings.register(modulename, "pan-to-combatant", {
-		name: i18n("MonksLittleDetails.pan-to-combatant.name"),
-		hint: i18n("MonksLittleDetails.pan-to-combatant.hint"),
-		scope: "client",
-		default: false,
-		type: Boolean,
-		config: true
-	});
-
-	//Combat Token Highlight
-	game.settings.register(modulename, "token-combat-highlight", {
-		name: i18n("MonksLittleDetails.token-combat-highlight.name"),
-		hint: i18n("MonksLittleDetails.token-combat-highlight.hint"),
-		scope: "world",
-		config: true,
-		default: true,
-		type: Boolean
-	});
-	game.settings.register(modulename, "token-highlight-remove", {
-		name: i18n("MonksLittleDetails.token-highlight-remove.name"),
-		hint: i18n("MonksLittleDetails.token-highlight-remove.hint"),
-		scope: "world",
-		config: true,
-		default: false,
-		type: Boolean
-	});
-	game.settings.register(modulename, "token-highlight-animate", {
-		name: i18n("MonksLittleDetails.token-highlight-animate.name"),
-		hint: i18n("MonksLittleDetails.token-highlight-animate.hint"),
-		scope: "world",
-		config: true,
-		default: 100,
-		type: Number,
-		range: {
-			min: 0,
-			max: 1000,
-			step: 10
-		}
-	});
-	game.settings.register(modulename, "token-highlight-picture", {
-		name: i18n("MonksLittleDetails.token-highlight-picture.name"),
-		hint: i18n("MonksLittleDetails.token-highlight-picture.hint"),
-		scope: "world",
-		config: true,
-		default: "modules/monks-little-details/markers/marker02.webp",
-		type: String,
-		//filePicker: true,
-		onChange: debouncedReload
-	});
-	game.settings.register(modulename, "token-highlight-picture-hostile", {
-		name: i18n("MonksLittleDetails.token-highlight-picture-hostile.name"),
-		hint: i18n("MonksLittleDetails.token-highlight-picture-hostile.hint"),
-		scope: "world",
-		config: true,
-		default: "modules/monks-little-details/markers/marker01.webp",
-		type: String,
-		//filePicker: true,
-		onChange: debouncedReload
-	});
-	game.settings.register(modulename, "token-highlight-scale", {
-		name: i18n("MonksLittleDetails.token-highlight-scale.name"),
-		hint: i18n("MonksLittleDetails.token-highlight-scale.hint"),
-		scope: "world",
-		config: true,
-		default: 1.5,
-		type: Number,
-		range: {
-			min: 1,
-			max: 2,
-			step: 0.1
-		},
-		onChange: debouncedReload
-	});
-	game.settings.register(modulename, "token-combat-animation", {
-		name: i18n("MonksLittleDetails.token-combat-animation.name"),
-		hint: i18n("MonksLittleDetails.token-combat-animation.hint"),
-		scope: "world",
-		default: 'clockwise',
-		type: String,
-		choices: animation,
-		config: true
-	});
-	game.settings.register(modulename, "token-combat-animation-hostile", {
-		name: i18n("MonksLittleDetails.token-combat-animation-hostile.name"),
-		hint: i18n("MonksLittleDetails.token-combat-animation-hostile.hint"),
-		scope: "world",
-		default: 'clockwise',
-		type: String,
-		choices: animation,
-		config: true
-	});
-
-	game.settings.register(modulename, "select-combatant", {
-		name: i18n("MonksLittleDetails.select-combatant.name"),
-		hint: i18n("MonksLittleDetails.select-combatant.hint"),
-		scope: "client",
-		config: true,
-		default: true,
-		type: Boolean
-	});
-
 	//Added Features
 	game.settings.register(modulename, "scene-palette", {
 		name: i18n("MonksLittleDetails.scene-palette.name"),
@@ -545,25 +111,6 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean,
 	});
-	game.settings.register(modulename, "actor-sounds", {
-		name: i18n("MonksLittleDetails.actor-sounds.name"),
-		hint: i18n("MonksLittleDetails.actor-sounds.hint"),
-		scope: "world",
-		config: !game.modules.get("monks-sound-enhancements")?.active,
-		default: "npc",
-		choices: actorsoundsoptions,
-		type: String,
-		onChange: debouncedReload
-	});
-	/*
-	game.settings.register(modulename, "movement-key", {
-		name: i18n("MonksLittleDetails.movement-key.name"),
-		hint: i18n("MonksLittleDetails.movement-key.hint"),
-		scope: "world",
-		config: true,
-		default: "m",
-		type: String,
-	});*/
 	game.settings.register(modulename, "find-my-token", {
 		name: i18n("MonksLittleDetails.find-my-token.name"),
 		hint: i18n("MonksLittleDetails.find-my-token.hint"),
@@ -605,50 +152,7 @@ export const registerSettings = function () {
 		type: Boolean,
 		onChange: debouncedReload
 	});
-	game.settings.register(modulename, "show-bloodsplat", {
-		name: i18n("MonksLittleDetails.show-bloodsplat.name"),
-		hint: i18n("MonksLittleDetails.show-bloodsplat.hint"),
-		scope: "world",
-		config: true,
-		default: "true",
-		choices: bloodsplatoptions,
-		type: String,
-		onChange: debouncedReload
-	});
-	game.settings.register(modulename, "bloodsplat-colour", {
-		name: i18n("MonksLittleDetails.bloodsplat-colour.name"),
-		scope: "world",
-		config: true,
-		default: '#FF0000',
-		type: String,
-		onChange: debouncedReload
-	});
-	game.settings.register(modulename, "bloodsplat-size", {
-		name: i18n("MonksLittleDetails.bloodsplat-size.name"),
-		hint: i18n("MonksLittleDetails.bloodsplat-size.hint"),
-		scope: "world",
-		config: true,
-		default: 1,
-		type: Number,
-		range: {
-			min: 0.2,
-			max: 2,
-			step: 0.1
-		},
-	});
-	game.settings.register(modulename, "bloodsplat-opacity", {
-		name: i18n("MonksLittleDetails.bloodsplat-opacity.name"),
-		hint: i18n("MonksLittleDetails.bloodsplat-opacity.hint"),
-		scope: "world",
-		config: true,
-		default: 0.2,
-		type: Number,
-		range: {
-			min: 0,
-			max: 1,
-			step: 0.1
-		},
-	});
+	
 	game.settings.register(modulename, "module-management-changes", {
 		name: i18n("MonksLittleDetails.module-management-changes.name"),
 		hint: i18n("MonksLittleDetails.module-management-changes.hint"),
@@ -665,30 +169,7 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean
 	});
-	game.settings.register(modulename, "treasure-chest", {
-		name: i18n("MonksLittleDetails.treasure-chest.name"),
-		hint: i18n("MonksLittleDetails.treasure-chest.hint"),
-		scope: "world",
-		config: true,
-		default: "icons/svg/chest.svg",
-		type: String,
-		//filePicker: true,
-		onChange: debouncedReload
-	});
-	game.settings.register(modulename, "treasure-chest-size", {
-		name: i18n("MonksLittleDetails.treasure-chest-size.name"),
-		hint: i18n("MonksLittleDetails.treasure-chest-size.hint"),
-		scope: "world",
-		config: true,
-		default: 0.9,
-		type: Number,
-		range: {
-			min: 0.2,
-			max: 1,
-			step: 0.1
-		},
-		onChange: debouncedReload
-	});
+	
 	game.settings.register(modulename, "key-swap-tool", {
 		name: i18n("MonksLittleDetails.key-swap-tool.name"),
 		hint: i18n("MonksLittleDetails.key-swap-tool.hint"),
@@ -697,21 +178,305 @@ export const registerSettings = function () {
 		default: false,
 		type: Boolean,
 	});
-	/*
-	if (game.modules.get('lib-df-hotkeys')?.active) {
-		game.settings.registerMenu(modulename, 'hot-keys', {
-			name: 'Change Hotkeys',
-			label: 'Change Hotkeys',
-			hint: 'Change the hotkeys that this module uses',
-			icon: 'fas fa-keyboard',
-			restricted: true,
-			type: Hotkeys.createConfig('Monks Little Details', ['monks-little-details'])
-		});
-	}*/
+
+	game.settings.register(modulename, "show-warning", {
+		scope: "world",
+		config: false,
+		default: true,
+		type: Boolean
+	});
+
+
+	// Save these to transfer to the other modules
+	game.settings.register(modulename, "show-combat-cr", {
+		scope: "world",
+		config: false,
+		default: game.system.id != "pf2e",
+		type: Boolean,
+	});
+	game.settings.register(modulename, "switch-combat-tab", {
+		scope: "world",
+		config: false,
+		default: true,
+		type: Boolean
+	});
+	game.settings.register(modulename, "hide-enemies", {
+		scope: "world",
+		config: false,
+		default: false,
+		type: Boolean
+	});
+	game.settings.register(modulename, "hide-until-turn", {
+		scope: "world",
+		config: false,
+		default: false,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "prevent-initiative", {
+		scope: "world",
+		config: false,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "popout-combat", {
+		scope: "client",
+		config: false,
+		default: true,
+		type: Boolean
+	});
+	game.settings.register(modulename, "opencombat", {
+		scope: "world",
+		config: false,
+		default: "everyone",
+		type: String
+	});
+	game.settings.register(modulename, "combat-position", {
+		scope: "client",
+		default: "bottomright",
+		type: String,
+		config: false
+	});
+	game.settings.register(modulename, "close-combat-when-done", {
+		scope: "world",
+		config: false,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "prevent-token-removal", {
+		scope: "world",
+		config: false,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "prevent-combat-spells", {
+		scope: "world",
+		config: false,
+		default: true,
+		type: String,
+	});
+	game.settings.register(modulename, "auto-defeated", {
+		scope: "world",
+		config: false,
+		default: (game.system.id == 'D35E' || game.system.id == 'pf1' ? 'npc-negative' : 'npc-zero'),
+		type: String,
+	});
+	game.settings.register(modulename, "invisible-dead", {
+		scope: "world",
+		config: false,
+		default: false,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "auto-reveal", {
+		scope: "world",
+		config: false,
+		default: true,
+		type: Boolean,
+	});
+
+	game.settings.register(modulename, "auto-scroll", {
+		scope: "world",
+		config: false,
+		default: true,
+		type: Boolean,
+	});
+
+	game.settings.register(modulename, "add-combat-bars", {
+		scope: "world",
+		config: false,
+		default: false,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "combat-bar-opacity", {
+		scope: "world",
+		config: false,
+		default: 0.3,
+		type: Number,
+	});
+
+	//Combat Turn
+	game.settings.register(modulename, "shownextup", {
+		scope: "client",
+		config: false,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "showcurrentup", {
+		scope: "client",
+		config: false,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "large-print", {
+		scope: "client",
+		config: false,
+		default: false,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "play-next-sound", {
+		scope: "client",
+		config: false,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "play-turn-sound", {
+		scope: "client",
+		config: false,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "play-round-sound", {
+		scope: "client",
+		config: false,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "next-sound", {
+		scope: "world",
+		config: false,
+		default: "modules/monks-combat-details/sounds/next.ogg",
+		type: String,
+	});
+	game.settings.register(modulename, "turn-sound", {
+		scope: "world",
+		config: false,
+		default: "modules/monks-combat-details/sounds/turn.ogg",
+		type: String,
+	});
+	game.settings.register(modulename, "round-sound", {
+		scope: "world",
+		config: false,
+		default: "modules/monks-combat-details/sounds/round.ogg",
+		type: String,
+	});
+	game.settings.register(modulename, "volume", {
+		scope: "client",
+		config: false,
+		default: 60,
+		type: Number,
+	});
+	game.settings.register(modulename, "clear-targets", {
+		scope: "client",
+		config: false,
+		default: true,
+		type: Boolean
+	});
+	game.settings.register(modulename, "remember-previous", {
+		scope: "client",
+		config: false,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "round-chatmessages", {
+		scope: "world",
+		config: false,
+		default: true,
+		type: Boolean
+	});
+	game.settings.register(modulename, "show-start", {
+		scope: "world",
+		config: false,
+		default: true,
+		type: Boolean
+	});
+
+	game.settings.register(modulename, "pan-to-combatant", {
+		scope: "client",
+		default: false,
+		type: Boolean,
+		config: false
+	});
+
+	game.settings.register(modulename, "select-combatant", {
+		scope: "client",
+		config: false,
+		default: true,
+		type: Boolean
+	});
+
 	game.settings.register(modulename, "hide-defeated", {
 		scope: "world",
 		config: false,
 		default: false,
 		type: Boolean
+	});
+
+	game.settings.register(modulename, "token-highlight-remove", {
+		scope: "world",
+		config: false,
+		default: false,
+		type: Boolean
+	});
+	game.settings.register(modulename, "token-highlight-animate", {
+		scope: "world",
+		config: false,
+		default: 100,
+		type: Number,
+	});
+	game.settings.register(modulename, "token-highlight-picture", {
+		scope: "world",
+		config: false,
+		default: "modules/monks-combat-marker/markers/marker02.webp",
+		type: String,
+	});
+	game.settings.register(modulename, "token-highlight-picture-hostile", {
+		scope: "world",
+		config: false,
+		default: "modules/monks-combat-marker/markers/marker01.webp",
+		type: String,
+	});
+	game.settings.register(modulename, "token-highlight-scale", {
+		scope: "world",
+		config: false,
+		default: 1.5,
+		type: Number,
+	});
+	game.settings.register(modulename, "token-combat-animation", {
+		scope: "world",
+		default: 'clockwise',
+		type: String,
+		config: false
+	});
+	game.settings.register(modulename, "token-combat-animation-hostile", {
+		scope: "world",
+		default: 'clockwise',
+		type: String,
+		config: false
+	});
+
+	game.settings.register(modulename, "show-bloodsplat", {
+		scope: "world",
+		config: false,
+		default: "true",
+		type: String,
+	});
+	game.settings.register(modulename, "bloodsplat-colour", {
+		scope: "world",
+		config: false,
+		default: '#FF0000',
+		type: String,
+	});
+	game.settings.register(modulename, "bloodsplat-size", {
+		scope: "world",
+		config: false,
+		default: 1,
+		type: Number,
+	});
+	game.settings.register(modulename, "bloodsplat-opacity", {
+		scope: "world",
+		config: false,
+		default: 0.2,
+		type: Number,
+	});
+	game.settings.register(modulename, "treasure-chest", {
+		scope: "world",
+		config: false,
+		default: "icons/svg/chest.svg",
+		type: String,
+	});
+	game.settings.register(modulename, "treasure-chest-size", {
+		scope: "world",
+		config: false,
+		default: 0.9,
+		type: Number,
 	});
 };

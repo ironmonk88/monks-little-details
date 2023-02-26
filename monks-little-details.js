@@ -1,14 +1,7 @@
 ﻿import { registerSettings } from "./settings.js";
 import { MMCQ } from "./quantize.js";
-import { WithMonksCombatTracker } from "./apps/combattracker.js";
 import { UpdateImages } from "./apps/update-images.js";
-//import { MonksPlaylistConfig } from "./apps/monksplaylistconfig.js";
-import { BloodSplats } from "./js/bloodsplats.js";
-import { CombatBars } from "./js/combat-bars.js";
-import { CombatMarker } from "./js/combat-marker.js";
-import { CombatTurn } from "./js/combat-turn.js";
-import { ActorSounds } from "./js/actor-sounds.js";
-import { ChatTimer } from "./js/chat-timer.js";
+import { ModuleWarning } from "./apps/module-warning.js";
 import { HUDChanges } from "./js/hud-changes.js";
 
 export let debugEnabled = 0;
@@ -33,17 +26,7 @@ export let i18n = key => {
     return game.i18n.localize(key);
 };
 export let setting = key => {
-    if (MonksLittleDetails._setting.hasOwnProperty(key))
-        return MonksLittleDetails._setting[key];
-    else
-        return game.settings.get("monks-little-details", key);
-};
-/*
-export let volume = () => {
-    return game.settings.get("monks-little-details", "volume") / 100.0;
-};*/
-export let combatposition = () => {
-    return game.settings.get("monks-little-details", "combat-position");
+    return game.settings.get("monks-little-details", key);
 };
 
 export let patchFunc = (prop, func, type = "WRAPPER") => {
@@ -58,11 +41,8 @@ export let patchFunc = (prop, func, type = "WRAPPER") => {
 }
 
 export class MonksLittleDetails {
-    static tracker = false;
     static tokenHUDimages = {};
     static movingToken = false;
-    static _setting = {};
-    static markerCache = {};
 
     static canDo(setting) {
         //needs to not be on the reject list, and if there is an only list, it needs to be on it.
@@ -80,49 +60,14 @@ export class MonksLittleDetails {
         try {
             Object.defineProperty(User.prototype, "isTheGM", {
                 get: function isTheGM() {
-                    return this == (game.users.find(u => u.hasRole("GAMEMASTER")) || game.users.find(u => u.hasRole("ASSISTANT")));
+                    return this == (game.users.find(u => u.hasRole("GAMEMASTER") && u.active) || game.users.find(u => u.hasRole("ASSISTANT") && u.active));
                 }
             });
-        } catch {}
+        } catch { }
 
         MonksLittleDetails.SOCKET = "module.monks-little-details";
 
-        MonksLittleDetails.READY = true;
-
-        /*
-        Object.defineProperty(Scene.prototype, "thumbnail", {
-            get: function () {
-                return this.getFlag('monks-little-details', 'thumb') || this.thumb;
-            }
-        });
-
-        let oldUpdateObject = SceneConfig.prototype._updateObject;
-        SceneConfig.prototype._updateObject = async function (event, formData) {
-            let img = formData['flags.monks-little-details.thumbnail'];
-            let td = (img ? await this.document.createThumbnail({ img: img }) : null);
-            formData['flags.monks-little-details.thumb'] = td?.thumb;
-
-            return oldUpdateObject.call(this, event, formData);
-        }*/
-
-        if (game.system.id == 'dnd5e')
-            MonksLittleDetails.xpchart = CONFIG.DND5E.CR_EXP_LEVELS;
-        else if (game.system.id == 'pf2e') {
-            MonksLittleDetails.xpchart = [40, 60, 80, 120, 160];
-        } else if (game.system.id == 'pf1e') {
-            MonksLittleDetails.xpchart = [50, 400, 600, 800, 1200, 1600, 2400, 3200, 4800, 6400, 9600, 12800, 19200, 25600, 38400, 51200, 76800, 102400, 153600, 204800, 307200, 409600, 614400, 819200, 1228800, 1638400, 2457600, 3276800, 4915200, 6553600, 9830400];
-        }
-
-        MonksLittleDetails.crChallenge = [
-            { text: (game.system.id == 'pf2e' ? "MonksLittleDetails.trivial" : "MonksLittleDetails.easy"), rating: 'easy' },
-            { text: (game.system.id == 'pf2e' ? "MonksLittleDetails.low" : "MonksLittleDetails.average"), rating: 'average' },
-            { text: (game.system.id == 'pf2e' ? "MonksLittleDetails.moderate" : "MonksLittleDetails.challenging"), rating: 'challenging' },
-            { text: (game.system.id == 'pf2e' ? "MonksLittleDetails.severe" : "MonksLittleDetails.hard"), rating: 'hard' },
-            { text: (game.system.id == 'pf2e' ? "MonksLittleDetails.extreme" : "MonksLittleDetails.epic"), rating: 'epic' }
-        ];
-
         MonksLittleDetails._rejectlist = {
-            //"alter-hud": ["pf2e"]
         }
         MonksLittleDetails._onlylist = {
             "sort-by-columns": ["dnd5e"],
@@ -130,7 +75,6 @@ export class MonksLittleDetails {
         }
 
         registerSettings();
-
         MonksLittleDetails.registerHotKeys();
 
         if (setting("reposition-collapse"))
@@ -221,64 +165,8 @@ export class MonksLittleDetails {
             }
         }*/
 
-        CombatTurn.init();
-
         if (setting("alter-hud"))
             HUDChanges.init();
-
-        CONFIG.ui.combat = WithMonksCombatTracker(CONFIG.ui.combat);
-
-        if (setting("show-bloodsplat") != "false")
-            BloodSplats.init();
-
-        if (setting('add-combat-bars'))
-            CombatBars.init();
-
-        /*
-        let tokenRefresh = function (wrapped, ...args) {
-            wrapped.call(this);
-
-            if (setting("show-bloodsplat") != "false")
-                BloodSplats.tokenRefresh.call(this);
-            if (setting('add-combat-bars'))
-                CombatBars.tokenRefresh.call(this);
-        }
-
-        if (game.modules.get("lib-wrapper")?.active) {
-            libWrapper.register("monks-little-details", "Token.prototype.refresh", tokenRefresh, "WRAPPER");
-        } else {
-            const oldTokenRefresh = Token.prototype.refresh;
-            Token.prototype.refresh = function () {
-                return tokenRefresh.call(this, oldTokenRefresh.bind(this), ...arguments);
-            }
-        }*/
-
-        patchFunc("CombatTrackerConfig.prototype._updateObject", async (wrapped, ...args) => {
-            let [event, formData] = args;
-            game.settings.set("monks-little-details", "hide-defeated", formData.hideDefeated);
-            $('#combat-popout').toggleClass("hide-defeated", formData.hideDefeated == true);
-            return wrapped(...args);
-        });
-
-        let combatStart = async function (wrapped, ...args) {
-            if (setting("prevent-initiative") && this.turns.find(c => c.initiative == undefined) != undefined) {
-                return await Dialog.confirm({
-                    title: "Not all Initiative have been rolled",
-                    content: `<p>There are combatants that havn't rolled their initiative.<br/>Do you wish to continue with starting the combat?</p>`,
-                    yes: () => { return wrapped.call(this); }
-                })
-            } else 
-                return wrapped.call(this);
-        }
-
-        if (game.modules.get("lib-wrapper")?.active) {
-            libWrapper.register("monks-little-details", "Combat.prototype.startCombat", combatStart, "MIXED");
-        } else {
-            const oldStartCombat = Combat.prototype.startCombat;
-            Combat.prototype.startCombat = function () {
-                return combatStart.call(this, oldStartCombat.bind(this), ...arguments);
-            }
-        }
 
         patchFunc("FilePicker.prototype._onSubmit", async (wrapped, ...args) => {
             let [ev] = args;
@@ -322,25 +210,6 @@ export class MonksLittleDetails {
             return wrapped(...args);
         });
 
-        if (setting("actor-sounds") && !game.modules.get("monks-sound-enhancements")?.active)
-            ActorSounds.init();
-
-        if (setting("token-combat-highlight"))
-            CombatMarker.init();
-
-        if (game.settings.get("monks-little-details", "prevent-token-removal")) {
-            let oldToggleCombat = TokenHUD.prototype._onToggleCombat;
-            TokenHUD.prototype._onToggleCombat = function (event) {
-                if (this.object.inCombat) {
-                    ui.notifications.warn(i18n("MonksLittleDetails.PreventTokenMessage"));
-                    event.preventDefault();
-                    return false;
-                } else {
-                    return oldToggleCombat.call(this, event);
-                }
-            }
-        }
-
         if (game.settings.get("monks-little-details", "show-notify")) {
             let chatLogNotify = function (...args) {
                 let message = args[0]
@@ -370,7 +239,7 @@ export class MonksLittleDetails {
         }
 
         let onDropData = async function (...args) {
-            const [ event, data ] = args;
+            const [event, data] = args;
             if (!data.texture?.src) return;
             if (!this.active) this.activate();
 
@@ -395,29 +264,6 @@ export class MonksLittleDetails {
             }
         }
 
-        /*
-        let oldSync = AmbientSound.prototype.sync;
-        AmbientSound.prototype.sync = function sync(isAudible, volume, options) {
-            let result = oldSync.call(this, isAudible, volume, options);
-
-            let delay = this.document.getFlag('monks-little-details', 'loop-delay');
-            if (delay && delay != 0) {
-                this.sound.loop = false;
-
-                if (delay > 0) {
-                    if (this.sound.loopdelay == null) {
-                        $(this.sound).on('ended', function () {
-                            this.sound.loopdelay = window.setTimeout(function () {
-                                this.sound.play();
-                            }, delay * 1000);
-                        });
-                    }
-                }
-            }
-
-            return result;
-        }*/
-
         let oldRenderPopout = ActorDirectory.prototype.renderPopout;
         ActorDirectory.prototype.renderPopout = function () {
             if (setting("open-actor")) {
@@ -438,11 +284,6 @@ export class MonksLittleDetails {
     }
 
     static async ready() {
-        MonksLittleDetails._setting["token-highlight-animate"] = setting("token-highlight-animate");
-        MonksLittleDetails._setting["token-combat-animation"] = setting("token-combat-animation");
-        MonksLittleDetails._setting["token-combat-animation-hostile"] = setting("token-combat-animation-hostile");
-        MonksLittleDetails._setting["token-highlight-scale"] = setting("token-highlight-scale");
-
         try {
             let actorId = game.user.getFlag("monks-little-details", "last-actor");
             if (actorId)
@@ -451,25 +292,19 @@ export class MonksLittleDetails {
 
         $('body').toggleClass("change-windows", setting("window-css-changes"));
 
-        CombatTurn.ready();
+        game.settings.settings.get("monks-little-details.find-my-token").default = !game.user.isGM;
+
+        if (setting("show-warning") && game.user.isGM) {
+            new ModuleWarning().render(true);
+        }
+
         HUDChanges.ready();
-
-        if (setting("actor-sounds") === 'true')
-            game.settings.set("monks-little-details", "actor-sounds", "npc");
-        if (setting("actor-sounds") === 'false')
-            game.settings.set("monks-little-details", "actor-sounds", "none");
-
-        if (!(setting("actor-sounds") === "none" || setting("actor-sounds") === 'false') && !game.modules.get('monks-sound-enhancements')?.active)
-            ActorSounds.injectSoundCtrls();
-
-        CombatTurn.checkCombatTurn(game.combats.active);
-
         game.socket.on(MonksLittleDetails.SOCKET, MonksLittleDetails.onMessage);
 
         //remove notify
         $('#sidebar-tabs a[data-tab="chat"]').on('click.monks-little-details', function (event) {
             let icon = $('#chat-notification');
-            if(icon.is(":visible")) icon.fadeOut(100);
+            if (icon.is(":visible")) icon.fadeOut(100);
         });
     }
 
@@ -677,131 +512,6 @@ background-color: rgba(0, 0, 0, 0.5);
         }
     }
 
-    static repositionCombat(app) {
-        //we want to start the dialog in a different corner
-        let sidebar = document.getElementById("ui-right");
-        let players = document.getElementById("players");
-
-        app.position.left = (combatposition().endsWith('left') ? 120 : (sidebar.offsetLeft - app.position.width));
-        app.position.top = (combatposition().startsWith('top') ?
-            (combatposition().endsWith('left') ? 70 : (sidebar.offsetTop - 3)) :
-            (combatposition().endsWith('left') ? (players.offsetTop - app.position.height - 3) : (sidebar.offsetTop + sidebar.offsetHeight - app.position.height - 3)));
-
-        $(app._element).css({ top: app.position.top, left: app.position.left });
-    }
-
-    static getCRText (cr) {
-        switch (cr) {
-            case 0.13: return '⅛';
-            case 0.17: return '⅙';
-            case 0:
-            case 0.25: return '¼';
-            case 0.33: return '⅓';
-            case 0.5: return '½';
-            default: return cr;
-        }
-    }
-
-    static getCR(combat) {
-        var apl = { count: 0, levels: 0 };
-        var xp = 0;
-
-        if (game.system.id == 'pf2e') {
-            //cr will just be a -1 to 3 value (representing trivial - extreme)
-            //apl will not be passed forward, instead XP is passed forward
-
-            //note, should be referenced by xpByRelLevel[relLevel + 4]
-            var xpByRelLevel = [0, 10, 15, 20, 30, 40, 60, 80, 120, 160];
-
-            //note that this needs to be multiplied by party size
-            var AdjByXP = [10, 15, 20, 30, 40]
-
-            //determine APL, and modifiers if necessary
-            for (let combatant of combat.combatants) {
-                if (combatant.actor != undefined && combatant.token != undefined && combatant.token.disposition == 1) {
-                    apl.count = apl.count + 1;
-                    let levels = combatant?.actor.system.details?.level?.value || combatant?.actor.system.details?.level || 0;
-
-                    apl.levels += levels;
-                }
-            }
-
-            var calcAPL = 0;
-            if (apl.count > 0)
-                calcAPL = Math.round(apl.levels / apl.count);
-            //this approximation is fine -- most pf2e parties should all be the same level, but otherwise we can just round
-
-            //for each enemy, determine its xp value
-            for (let combatant of combat.combatants) {
-                if (combatant.actor != undefined && combatant.token != undefined && combatant.token.disposition != 1) {
-                    var level = 0;
-                    level = parseInt(combatant?.actor.system.details?.level?.value ?? 0);
-                    var relLevel = level - calcAPL;
-                    xp += xpByRelLevel[Math.clamped(relLevel + 5, 0, xpByRelLevel.length - 1)];
-                }
-            }
-
-            if (apl.count != 4) {
-                let partyAdj = MonksLittleDetails.xpchart.filter((budget, index) => xp >= budget || index == 0);
-                let partyXP = AdjByXP[Math.clamped(partyAdj.length - 1, 0, AdjByXP.length - 1)];
-                xp += partyXP * (apl.count - 4) * -1;
-            }
-
-            var partyCR = MonksLittleDetails.xpchart.filter((budget, index) => xp >= budget || index == 0);
-            return { cr: partyCR.length - 1, xp: xp };
-        } else {
-            //get the APL of friendly combatants
-            for (let combatant of combat.combatants) {
-                if (combatant.actor != undefined && combatant.token != undefined) {
-                    if (combatant.token.disposition == 1) {
-                        apl.count = apl.count + 1;
-                        let levels = 0;
-                        if (combatant.actor.system?.classes) {
-                            levels = Object.values(combatant.actor.system?.classes).reduce((a, b) => {
-                                return a + (b?.levels || b?.level || 0);
-                            }, 0);
-                        } else {
-                            levels = combatant?.actor.system.details?.level?.value || combatant?.actor.system.details?.level || 0;
-                        }
-
-                        apl.levels += levels;
-                    } else {
-                        let combatantxp = combatant?.actor.system.details?.xp?.value;
-                        if (combatantxp == undefined) {
-                            let levels = 0;
-                            if (combatant?.actor.system?.classes && Object.entities(combatant.actor.system?.classes).length)
-                                levels = combatant.actor.system?.classes?.reduce(c => { return c.levels; });
-                            else if (combatant?.actor.system.details?.level?.value)
-                                levels = parseInt(combatant?.actor.system.details?.level?.value);
-                            combatantxp = MonksLittleDetails.xpchart[Math.clamped(levels, 0, MonksLittleDetails.xpchart.length - 1)];
-                        }
-                        xp += (combatantxp || 0);
-                    }
-                }
-            };
-
-            var calcAPL = 0;
-            if (apl.count > 0)
-                calcAPL = Math.round(apl.levels / apl.count) + (apl.count < 4 ? -1 : (apl.count > 5 ? 1 : 0));
-
-            //get the CR of any unfriendly/neutral
-            let cr = Math.clamped(MonksLittleDetails.xpchart.findIndex(cr => cr > xp) - 1, 0, MonksLittleDetails.xpchart.length - 1);
-
-            return { cr: cr, apl: calcAPL };
-        }
-    }
-
-    static getDiceSound(hasMaestroSound = false) {
-        const has3DDiceSound = game.dice3d ? game.settings.get("dice-so-nice", "settings").enabled : false;
-        const playRollSounds = true; //game.settings.get("betterrolls5e", "playRollSounds")
-
-        if (playRollSounds && !has3DDiceSound && !hasMaestroSound) {
-            return CONFIG.sounds.dice;
-        }
-
-        return null;
-    }
-
     static rgbToHex(r, g, b) {
         var componentToHex = function (c) {
             var hex = c.toString(16);
@@ -844,7 +554,7 @@ background-color: rgba(0, 0, 0, 0.5);
                     sprite.position.set(texture.width / 2, texture.height / 2);
 
                     // Create or update the alphaMap render texture
-                    const tex = PIXI.RenderTexture.create({ width: texture.width, height: texture.height});
+                    const tex = PIXI.RenderTexture.create({ width: texture.width, height: texture.height });
 
                     // Render the sprite to the texture and extract its pixels
                     canvas.app.renderer.render(sprite, tex);
@@ -877,30 +587,6 @@ background-color: rgba(0, 0, 0, 0.5);
         await MonksLittleDetails.currentScene.update({ backgroundColor: hexCode });
     }
 
-    static checkPopout(combat, delta) {
-        let combatStarted = (combat && combat.started === true && ((delta.round === 1 && combat.turn === 0 ) || delta.bypass));
-
-        //log("update combat", combat);
-        let opencombat = setting("opencombat");
-
-        //popout combat (if gm and opencombat is everyone or gm only), (if player and opencombat is everyone or players only and popout-combat)
-        if (((game.user.isGM && ['everyone', 'gmonly'].includes(opencombat)) ||
-            (!game.user.isGM && ['everyone', 'playersonly'].includes(opencombat) && game.settings.get("monks-little-details", "popout-combat")))
-            && combatStarted) {
-            //new combat, pop it out
-            const tabApp = ui["combat"];
-            tabApp.renderPopout(tabApp);
-
-            if (ui.sidebar.activeTab !== "chat")
-                ui.sidebar.activateTab("chat");
-        }
-
-        if (combatposition() !== '' && delta.active === true) {
-            //+++ make sure if it's not this players turn and it's not the GM to add padding for the button at the bottom
-            MonksLittleDetails.tracker = false;   //delete this so that the next render will reposition the popout, changing between combats changes the height
-        }
-    }
-
     static emit(action, args = {}) {
         args.action = action;
         args.senderId = game.user.id;
@@ -911,31 +597,6 @@ background-color: rgba(0, 0, 0, 0.5);
         MonksLittleDetails[data.action].call(MonksLittleDetails, data);
     }
 
-    static async showShadows(data) {
-        fromUuid(data.uuid).then((token) => {
-            if (token && (token.isOwner || game.user.isGM)) {
-                CombatTurn.showShadow(token.object, data.x, data.y);
-            }
-        });
-    }
-
-    static async removeShadow(data) {
-        CombatTurn.removeShadow(data.id);
-    }
-
-    static async spellChange(data) {
-        if (game.user.isTheGM) {
-            let whisper = ChatMessage.getWhisperRecipients("GM");
-            let player = game.users.find(u => u.id == data.user);
-            let actor = game.actors.find(a => a.id == data.actor);
-            ChatMessage.create({
-                user: game.user,
-                content: `<i>${player?.name}</i> has changed prepared spells (${data.name}) for <b>${actor?.name}</b> while token is in combat.`,
-                whisper: whisper
-            });
-        }
-    }
-
     static isDefeated(token) {
         return (token && (token.combatant && token.combatant.defeated) || token.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.specialStatusEffects.DEFEATED) || token.document.overlayEffect == CONFIG.controlIcons.defeated);
     }
@@ -943,198 +604,14 @@ background-color: rgba(0, 0, 0, 0.5);
     static showUpdateImages() {
         new UpdateImages().render(true);
     }
-
-    static async fixImages({ wildcards = true, packs = "dnd5e.monsters", system = "dnd", tokentypes = ['overhead', 'disc', 'artwork'] } = {}) {
-        let getFiles = async function(filename) {
-            let source = "data";
-            let pattern = filename;
-            const browseOptions = { wildcard: wildcards };
-
-            if (typeof ForgeVTT != "undefined" && ForgeVTT.usingTheForge) {
-                source = "forgevtt";
-            }
-
-            // Support S3 matching
-            if (/\.s3\./.test(pattern)) {
-                source = "s3";
-                const { bucket, keyPrefix } = FilePicker.parseS3URL(pattern);
-                if (bucket) {
-                    browseOptions.bucket = bucket;
-                    pattern = keyPrefix;
-                }
-            }
-
-            // Retrieve wildcard content
-            try {
-                const content = await FilePicker.browse(source, pattern, browseOptions);
-                return content.files;
-            } catch (err) {
-                error(err);
-                return null;
-            }
-            return [];
-        }
-
-        let alltypes = [];
-
-        packs = (packs instanceof Array ? packs : [packs]);
-
-        for (let pack of packs) {
-
-            var monsters = game.packs.get(pack);
-            if (monsters) {
-                await monsters.configure({ locked: false });
-
-                await monsters.getDocuments().then(async (entries) => {
-                    for (var i = 0; i < entries.length; i++) {
-                        var entry = entries[i];
-                        var monname = entry.name.toLowerCase();
-                        monname = monname.replace(/-/g, '').replace(/'/g, '').replace(/\(.*\)/, '').replace(/\s/g, '');
-                        /*if (monname == 'ettin')
-                            log('Ettin');
-                        var mtype = entry.system.details.type?.value.toLowerCase() || entry.system.traits.traits.value; //|| entry.system.details.creatureType?.toLowerCase()
-                        mtype = (mtype instanceof Array ? mtype : [mtype]);
-                        for (let i = 0; i < mtype.length; i++) {
-                            if (mtype[i].indexOf(',') > 0) {
-                                let temp = mtype[i].split(',');
-                                mtype[i] = temp[0];
-                                for (let j = 1; j < temp.length; j++)
-                                    mtype.push(temp[j]);
-                            }
-                            mtype[i] = mtype[i].replace(/\(.*\)/, '').replace(/\s/g, '');
-                        }
-                        //mtype = mtype.replace(/\(.*\)/, '').replace(/\s/g, '').split(',');
-
-                        for (let montype of mtype) {*/
-                            //if (!alltypes.find(t => t == montype))
-                            //    alltypes.push(montype);
-
-                            var imgname = `images/avatar/${system}/${monname}.png`;
-                            if (entry.img.toLowerCase() != imgname) {
-                                let files = await getFiles(imgname);
-                                if (files && files.length > 0) {
-                                    await entry.update({ img: files[0] });
-                                    log('Fixing:', entry.name, files[0]);
-                                } else {
-                                    if (monname.startsWith('ancient'))
-                                        monname = monname.replace('ancient', '');
-                                    if (monname.startsWith('adult'))
-                                        monname = monname.replace('adult', '');
-                                    if (monname.startsWith('young'))
-                                        monname = monname.replace('young', '');
-
-                                    imgname = `images/avatar/${system}/${monname}.png`;
-                                    if (entry.img.toLowerCase() != imgname) {
-                                        let files = await getFiles(imgname);
-                                        if (files && files.length > 0) {
-                                            await entry.update({ img: files[0] });
-                                            log('Fixing:', entry.name, files[0]);
-                                        } //else {
-                                            //log('Cant find:' + monname + ', ' + montype);
-                                        //}
-                                    }
-                                }
-                            }
-                        /*
-                            for (let tokentype of tokentypes) {
-                                var tokenname = `images/tokens/${tokentype}/${montype}/${monname}.png`; // + (wildcards ? "*" : '')
-                                if (entry.token.img == tokenname)
-                                    break;
-
-                                let files = await getFiles(tokenname);
-                                if (files && files.length > 0) {
-                                    await entry.update({ token: { img: files[0] } });
-                                    log('Fixing Token:', entry.name, files[0]);
-                                    break;
-                                }
-                            }*/
-                        }
-                    //}
-
-                    monsters.configure({ locked: true });
-                    log("Completed: " + monsters.title);
-                });
-            }
-        }
-
-        log('All monster types:' + alltypes);
-    }
 }
+    
 
-Hooks.once('init', async function () {
-    MonksLittleDetails.init();
-});
-
-Hooks.on("createCombat", function (data, delta) {
-    //when combat is created, switch to combat tab
-    if (game.user.isGM && setting("switch-combat-tab") && ui.sidebar.activeTab !== "combat")
-        ui.sidebar.activateTab("combat");
-});
-
-Hooks.on("deleteCombat", function (combat) {
-    MonksLittleDetails.tracker = false;   //if the combat gets deleted, make sure to clear this out so that the next time the combat popout gets rendered it repositions the dialog
-
-    //if there are no more combats left, then close the combat window
-    if (game.combats.combats.length == 0 && game.settings.get("monks-little-details", 'close-combat-when-done')) {
-        const tabApp = ui["combat"];
-        if (tabApp._popout != undefined) {
-            MonksLittleDetails.closeCount = 0;
-            MonksLittleDetails.closeTimer = setInterval(function () {
-                MonksLittleDetails.closeCount++;
-                const tabApp = ui["combat"];
-                if (MonksLittleDetails.closeCount > 100 || tabApp._popout == undefined) {
-                    clearInterval(MonksLittleDetails.closeTimer);
-                    return;
-                }
-
-                const states = tabApp?._popout.constructor.RENDER_STATES;
-                if (![states.CLOSING, states.RENDERING].includes(tabApp?._popout._state)) {
-                    tabApp?._popout.close();
-                    clearInterval(MonksLittleDetails.closeTimer);
-                }
-            }, 100);
-        }
-    }
-});
-
-Hooks.on("updateCombat", async function (combat, delta) {
-    MonksLittleDetails.checkPopout(combat, delta);
-    /*
-    let combatStarted = (combat && (delta.round === 1 && combat.turn === 0 && combat.started === true));
-
-    //log("update combat", combat);
-    let opencombat = setting("opencombat");
-
-    //popout combat (if gm and opencombat is everyone or gm only), (if player and opencombat is everyone or players only and popout-combat)
-    if (((game.user.isGM && ['everyone', 'gmonly'].includes(opencombat)) ||
-        (!game.user.isGM && ['everyone', 'playersonly'].includes(opencombat) && game.settings.get("monks-little-details", "popout-combat")))
-        && combatStarted) {
-		//new combat, pop it out
-		const tabApp = ui["combat"];
-		tabApp.renderPopout(tabApp);
-		
-        if (ui.sidebar.activeTab !== "chat")
-            ui.sidebar.activateTab("chat");
-    }
-
-    if (combatposition() !== '' && delta.active === true) {
-        //+++ make sure if it's not this players turn and it's not the GM to add padding for the button at the bottom
-        MonksLittleDetails.tracker = false;   //delete this so that the next render will reposition the popout, changing between combats changes the height
-    }*/
-});
-
-Hooks.on("createCombatant", async function (combatant, delta, userId) {
-    MonksLittleDetails.checkPopout(combatant.combat, {active: true, bypass: true});
-});
-
+Hooks.once('init', MonksLittleDetails.init);
 Hooks.on("ready", MonksLittleDetails.ready);
 
 Hooks.on("canvasReady", () => {
     canvas.stage.on("mousedown", MonksLittleDetails.moveTokens);    //move all tokens while holding down m
-});
-
-Hooks.on('closeCombatTracker', async (app, html) => {
-    MonksLittleDetails.tracker = false;
 });
 
 Hooks.on('renderTokenHUD', async (app, html, options) => {
@@ -1144,50 +621,6 @@ Hooks.on('renderTokenHUD', async (app, html, options) => {
     //swap the setting and target button
     if (game.settings.get("monks-little-details", "swap-buttons")) {
         $('.col.left .control-icon[data-action="target"]', html).insertBefore($('.col.left .control-icon[data-action="config"]', html));
-    }
-});
-
-Hooks.on('renderCombatTracker', async (app, html, data) => {
-    if (!MonksLittleDetails.tracker && app.options.id == "combat" && app.options.popOut) {
-        MonksLittleDetails.tracker = true;
-
-        if (combatposition() !== '') {
-            MonksLittleDetails.repositionCombat(app);
-        }
-    }
-
-    if (!app.popOut && game.user.isGM && data.combat && !data.combat.started && setting('show-combat-cr') && MonksLittleDetails.xpchart != undefined) {
-        //calculate CR
-        let crdata = MonksLittleDetails.getCR(data.combat);
-
-        if ($('#combat-round .encounter-cr-row').length == 0 && data.combat.combatants.size > 0) {
-            let crChallenge = '';
-            let epicness = '';
-            let crText = '';
-            if (game.system.id == 'pf2e') {
-                crChallenge = MonksLittleDetails.crChallenge[Math.clamped(crdata.cr, 0, MonksLittleDetails.crChallenge.length - 1)];
-                crText = 'XP: ' + crdata.xp;
-            }
-            else {
-                crChallenge = MonksLittleDetails.crChallenge[Math.clamped(crdata.cr - crdata.apl, -1, 3) + 1];
-                epicness = Math.clamped((crdata.cr - crdata.apl - 3), 0, 5);
-                crText = 'CR: ' + MonksLittleDetails.getCRText(crdata.cr);
-            }
-
-            $('<nav>').addClass('encounters flexrow encounter-cr-row')
-                .append($('<h4>').html(crText))
-                .append($('<div>').addClass('encounter-cr').attr('rating', crChallenge.rating).html(i18n(crChallenge.text) + "!".repeat(epicness)))
-                .insertAfter($('#combat .encounter-controls'));
-        }
-    }
-
-    //don't show the previous or next turn if this isn't the GM
-    if (!game.user.isGM && data.combat && data.combat.started) {
-        $('.combat-control[data-control="previousTurn"],.combat-control[data-control="nextTurn"]:last').css({visibility:'hidden'});
-    }
-
-    if (app.options.popOut) {
-        $(app.element).toggleClass("hide-defeated", setting("hide-defeated") == true);
     }
 });
 
@@ -1230,132 +663,8 @@ Hooks.on('renderSceneConfig', async (app, html, options) => {
 });
 
 Hooks.on("renderSettingsConfig", (app, html, data) => {
-    let btn = $('<button>')
-        .addClass('file-picker')
-        .attr('type', 'button')
-        .attr('data-type', "imagevideo")
-        .attr('data-target', "img")
-        .attr('title', "Browse Files")
-        .attr('tabindex', "-1")
-        .html('<i class="fas fa-file-import fa-fw"></i>')
-        .click(function (event) {
-            const fp = new FilePicker({
-                type: "audio",
-                wildcard: true,
-                current: $(event.currentTarget).prev().val(),
-                callback: path => {
-                    $(event.currentTarget).prev().val(path);
-                }
-            });
-            return fp.browse();
-        });
-
-    let parent = $('input[name="monks-little-details.next-sound"]', html).closest('.form-group');
-    $('input[name="monks-little-details.next-sound"]', html).css({ 'flex-basis': 'unset', 'flex-grow': 1 }).insertAfter($('input[name="monks-little-details.play-next-sound"]', html));
-    parent.remove();
-
-    btn.clone(true).insertAfter($('input[name="monks-little-details.next-sound"]', html));
-
-    parent = $('input[name="monks-little-details.turn-sound"]', html).closest('.form-group');
-    $('input[name="monks-little-details.turn-sound"]', html).css({'flex-basis': 'unset', 'flex-grow': 1}).insertAfter($('input[name="monks-little-details.play-turn-sound"]', html));
-    parent.remove();
-
-    btn.clone(true).insertAfter($('input[name="monks-little-details.turn-sound"]', html));
-
-    parent = $('input[name="monks-little-details.round-sound"]', html).closest('.form-group');
-    $('input[name="monks-little-details.round-sound"]', html).css({ 'flex-basis': 'unset', 'flex-grow': 1 }).insertAfter($('input[name="monks-little-details.play-round-sound"]', html));
-    parent.remove();
-
-    btn.clone(true).insertAfter($('input[name="monks-little-details.round-sound"]', html));
-
-    //only show popout-combat if it's a player and it's available
-    let opencombat = setting("opencombat");
-    $('input[name="monks-little-details.popout-combat"]', html).closest('.form-group').toggle(!game.user.isGM && ['everyone', 'playeronly'].includes(opencombat));
-
-    let btn2 = $('<button>')
-        .addClass('file-picker')
-        .attr('type', 'button')
-        .attr('data-type', "imagevideo")
-        .attr('data-target', "img")
-        .attr('title', "Browse Files")
-        .attr('tabindex', "-1")
-        .html('<i class="fas fa-file-import fa-fw"></i>')
-        .click(function (event) {
-            const fp = new FilePicker({
-                type: "imagevideo",
-                current: $(event.currentTarget).prev().val(),
-                callback: path => {
-                    $(event.currentTarget).prev().val(path);
-                }
-            });
-            return fp.browse();
-        });
-
-    btn2.clone(true).insertAfter($('input[name="monks-little-details.token-highlight-picture"]', html).css({ 'flex-basis': 'unset', 'flex-grow': 1 }));
-    btn2.clone(true).insertAfter($('input[name="monks-little-details.token-highlight-picture-hostile"]', html).css({ 'flex-basis': 'unset', 'flex-grow': 1 }));
-    btn2.clone(true).insertAfter($('input[name="monks-little-details.treasure-chest"]', html).css({ 'flex-basis': 'unset', 'flex-grow': 1 }));
-
-    let colour = setting("bloodsplat-colour");
-    $('<input>').attr('type', 'color').attr('data-edit', 'monks-little-details.bloodsplat-colour').val(colour).insertAfter($('input[name="monks-little-details.bloodsplat-colour"]', html).addClass('color'));
-
     $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.SystemChanges")).insertBefore($('[name="monks-little-details.swap-buttons"]').parents('div.form-group:first'));
-    $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.CombatTracker")).insertBefore($('[name="monks-little-details.show-combat-cr"]').parents('div.form-group:first'));
-    $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.CombatTurn")).insertBefore($('[name="monks-little-details.shownextup"]').parents('div.form-group:first'));
-    $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.CombatTokenHighlight")).insertBefore($('[name="monks-little-details.token-combat-highlight"]').parents('div.form-group:first'));
     $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.AddedFeatures")).insertBefore($('[name="monks-little-details.scene-palette"]').parents('div.form-group:first'));
-});
-
-Hooks.on("updateToken", async function (document, data, options, userid) {
-    let hp = getProperty(data, 'actorData.system.attributes.hp.value');
-    let token = document.object;
-
-    if (setting('auto-defeated') != 'none' && game.user.isGM) {
-        if (hp != undefined && (setting('auto-defeated').startsWith('all') || document.disposition != 1)) {
-            let combatant = document.combatant;
-
-            //check to see if the combatant has been defeated
-            let defeated = (setting('auto-defeated').endsWith('negative') ? hp < 0 : hp == 0);
-            if (combatant != undefined && combatant.defeated != defeated) {
-                await combatant.update({ defeated: defeated });
-            }
-
-            if (defeated && setting("invisible-dead")) {
-                await document.update({ hidden: true });
-            }
-        }
-    }
-
-    if (hp != undefined) {
-        token.refresh();
-    }
-
-    if (setting('auto-reveal') && game.user.isGM && data.hidden === false) {
-        let combatant = document.combatant;
-
-        if (combatant?.hidden === true) {
-            await combatant.update({ hidden: false }).then(() => {
-                token.refresh();
-            });
-        }
-    }
-
-    CombatBars.updateToken(document, data);
-});
-
-Hooks.on("updateCombatant", async function (combatant, data, options, userId) {
-    const combat = combatant.parent;
-    if (combat && combat.started && data.defeated != undefined && setting('auto-defeated') != 'none' && game.user.isGM) {
-        let t = combatant.token
-        const a = combatant.token.actor;
-
-        let status = CONFIG.statusEffects.find(e => e.id === CONFIG.specialStatusEffects.DEFEATED);
-        let effect = a && status ? status : CONFIG.controlIcons.defeated;
-        const exists = (effect.icon == undefined ? (t.overlayEffect == effect) : (a.effects.find(e => e.getFlag("core", "statusId") === effect.id) != undefined));
-        if (exists != data.defeated) {
-            await t.object.toggleEffect(effect, { overlay: true, active: data.defeated });
-            t.object.refresh();
-        }
-    }
 });
 
 Hooks.on("renderCompendium", (compendium, html, data) => {
@@ -1735,16 +1044,6 @@ Hooks.on("updateScene", (scene, data, options) => {
     }
 });
 
-Hooks.on("renderCombatTrackerConfig", (app, html, data) => {
-    $('<div>').addClass("form-group")
-        .append($('<label>').html("Hide Defeated?"))
-        .append($('<input>').attr("type", "checkbox").attr("name", "hideDefeated").attr('data-dtype', 'Boolean').prop("checked", setting("hide-defeated") == true))
-        .append($('<p>').addClass("notes").html("Automatically hide combatants marked as defeated?  Requires skip defeated."))
-        .insertAfter($('input[name="skipDefeated"]', html).closest(".form-group"));
-
-    app.setPosition({ height: 'auto' });
-});
-
 Hooks.on("renderFilePicker", (app, html, data) => {
     if ($('button.quick-links', html).length)
         return;
@@ -1802,25 +1101,4 @@ Hooks.on("renderFilePicker", (app, html, data) => {
         )
         .after(list);
     $('input[name="target"]', html).parent().css({position: "relative"});
-});
-
-Hooks.on("preUpdateItem", (item, data, options, user) => {
-    if (setting("prevent-combat-spells") != "false" && !game.user.isGM && user == game.user.id && getProperty(data, "system.preparation.prepared") != undefined) {
-        //Is this actor involved in a combat
-        let inCombat = game.combats.some(c => {
-            return c.started && c.active && c.turns.some(t => t.actorId == item.actor.id);
-        });
-
-        if (inCombat) {
-            if (setting("prevent-combat-spells") == "prevent") {
-                ui.notifications.warn("Cannot change prepared spells while in combat");
-                delete data.system.preparation.prepared;
-                if (Object.keys(data.system.preparation).length == 0) delete data.system.preparation;
-                if (Object.keys(data.system).length == 0) delete data.system;
-                if (Object.keys(data).length == 0) return false;
-            } else if (setting("prevent-combat-spells") == "true") {
-                MonksLittleDetails.emit('spellChange', { user: game.user.id, actor: item.actor.id, name: item.name });
-            }
-        }
-    }
 });
