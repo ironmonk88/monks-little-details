@@ -60,8 +60,8 @@ export const registerSettings = function () {
 		name: i18n("MonksLittleDetails.add-extra-statuses.name"),
 		hint: i18n("MonksLittleDetails.add-extra-statuses.hint"),
 		scope: "world",
-		config: true,
-		default: true,
+		config: game.system.id != "pf2e",
+		default: game.system.id == "dnd5e",
 		type: Boolean,
 	});
 	game.settings.register(modulename, "change-invisible-image", {
@@ -107,6 +107,7 @@ export const registerSettings = function () {
 		name: i18n("MonksLittleDetails.scene-palette.name"),
 		hint: i18n("MonksLittleDetails.scene-palette.hint"),
 		scope: "world",
+		config: true,
 		config: true,
 		default: true,
 		type: Boolean,

@@ -1,3 +1,20 @@
+.mld-warning {
+    background: rgba(47, 80, 132, 0.8);
+    margin-bottom: 0.5em;
+    padding: 6px 8px;
+    line-height: 20px;
+    border: 1px solid var(--color-level-info);
+    border-radius: 5px;
+    box-shadow: 0 0 10px var(--color-shadow-dark);
+    color: var(--color-text-light-1);
+    font-size: var(--font-size-14);
+    text-shadow: 1px 1px black;
+}
+
+.mld-warning a {
+    color: var(--color-text-hyperlink);
+}
+
 .group-header {
     font-weight: bold;
     padding: 8px 20px;

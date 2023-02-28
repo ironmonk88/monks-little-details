@@ -68,6 +68,7 @@ export class MonksLittleDetails {
         MonksLittleDetails.SOCKET = "module.monks-little-details";
 
         MonksLittleDetails._rejectlist = {
+            "add-extra-statuses": ["pf2e"]
         }
         MonksLittleDetails._onlylist = {
             "sort-by-columns": ["dnd5e"],
@@ -663,6 +664,7 @@ Hooks.on('renderSceneConfig', async (app, html, options) => {
 });
 
 Hooks.on("renderSettingsConfig", (app, html, data) => {
+    $('<p>').addClass('mld-warning').append('<i class="fas fa-circle-question"></i> Where have all of my features gone? ').append($('<a>').html("Click here").on("click", () => { new ModuleWarning().render(true); })).insertBefore($('[name="monks-little-details.swap-buttons"]').parents('div.form-group:first'));
     $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.SystemChanges")).insertBefore($('[name="monks-little-details.swap-buttons"]').parents('div.form-group:first'));
     $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.AddedFeatures")).insertBefore($('[name="monks-little-details.scene-palette"]').parents('div.form-group:first'));
 });
