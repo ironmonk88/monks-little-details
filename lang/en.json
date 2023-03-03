@@ -1,6 +1,4 @@
 {
-	"MonksLittleDetails.prevent-token-removal.name": "Prevent token combat removal",
-	"MonksLittleDetails.prevent-token-removal.hint": "Prevent a token from being removed from combat via the Token HUD, restrict it to the Encounter interface only.",
 	"MonksLittleDetails.swap-buttons.name": "Swap target and settings button on the Token HUD",
 	"MonksLittleDetails.swap-buttons.hint": "I think the settings button makes more sense on the bottom rather than in the middle.",
 	"MonksLittleDetails.alter-hud.name": "Alter the Token HUD status effects",
