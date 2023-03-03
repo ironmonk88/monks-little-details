@@ -1,6 +1,5 @@
 # Monk's Little Details
-Add-On Module for Foundry VTT
-It's just a bunch of little things to make the program run a little smoother and look a little better.  But a lot are based on personal preference.
+A bunch of quality of life improvements to make your games run smoother.
 
 ## Installation
 Simply use the install module screen within the FoundryVTT setup
@@ -24,32 +23,8 @@ Scene Compendium
 
 ![monks-little-details](/screenshots/SceneCompendium.webp)
 
-Scene Navigation changes
-
-### Turn notifications
-Added turn notification for the player.  During combat the player will receive an alert notification when their turn is up next, and another one when it's their turn to move.  Either message or accompanying sound effects can be toggled.
-
-### Combat Encounter Automation
-When a combat is started, it will popout the Encounter Dialog and switch to the Chat Tab.
-
-The popup will also close when the encounter has been finished.
-
-1.0.15 When creating an encounter, enemy tokens are kept hidden from players until the combat is started, thereby giving the GM a chance to hide the tokens.
-
-1.0.16 Automatically sets the defeated status when an NPC token reaches 0 HP.
-
-1.0.17 Reveal initiative when changing a token from invisible to visible.
-
-### Show Combat CR
-Display the calculated CR of the Encounter.  This should give you a clue if the encounter might be scaled too hard for the current party.  Not 100% accurate but enough for a good idea.
-
-![monks-little-details](/screenshots/ShowCombatCR.webp)
-
-### Combat tracker 1.0.14
-Display an animated disc behind the token that currently has a turn in the encounter.
-
 ### Altered Status Effects
-I can never remember what the icons stand for.  I'm displaying the names beside the icons aswell as sorting the statuses alphabetically.  Makes finding them a lot easier.  Also added a clear all button in case you want to get rid of all the statuses quickly.  And I've highlighted each item in bold orange so it's easier at a glance to see what's been selected.  And added some more of the standard statuses you might encounter in a 5e game.
+I can never remember what the icons stand for.  I'm displaying the names beside the icons aswell as sorting the statuses alphabetically.  Makes finding them a lot easier.  Also added a clear all button in case you want to get rid of all the statuses quickly.  And I've highlighted each item in bold orange so it's easier at a glance to see what's been selected.  And added some more of the standard statuses you might encounter in a 5e game.  You can also sort the statuses in rows or columns.
 
 ![monks-little-details](/screenshots/TokenHUDUpdates.webp)
 
@@ -63,32 +38,33 @@ Changed the invisible icon from the standard Masked Man image to one that more c
 Added the top 5 dominant colours of a scene so that you can choose a background colour that blends with the scene a bit better.
 ![monks-little-details](/screenshots/BackgroundPalette.webp)
 
-### Drag wall points together
-~~Added a toggle to the wall tools.  When selected, dragging a wall point to a new location will also move any other wall points that exactly overlapped the first one.  So instead of having to move both wall points to the new location it will maintain the connection between wall joints and move the second one after the first has been moved.  Saves me some time when editing lengths of wall.~~
-Dragging Wall points together has moved to the module Monk's Wall Enhancement.  There were a handful of other wall improvements and it made sense to bundle them all together.
-
-### Character Sound Effects
-Added a button to load a sound file to associate with a character.  So if you ever wanted to make a dragon roar, or a banshee howl, you can upload the file, attach it to the character and play from the Token HUD.  From the character sheet, a button with a speaker icon should now be visible.  Clicking that will open a dialog window that will allow you to select a file, adjust the volume and preview the sound effect.  And orange border will denote that I file has been loaded.
-![monks-little-details](/screenshots/AddSound.webp)
-
-While playing, bringing up the Token HUD will show a speaker button under the combat button.  Clicking on the speaker button will play the sound effect using the current volume settings for Foundry.
-![monks-little-details](/screenshots/PlaySound.webp)
-
-You can change what character sheets this button is available for in the settings.  Current options are, `none` to leave the setting off, `everyone` to turn it on all character sheets, and `NPC` to have it only available for NPC character sheets.
-
 ### GM Move characters
 If you select characters, hold down the M Key and clicking on another map location, or holding down the M key and dragging the tokens will instantly move them there.  I found dragging them there has unfortunate side effects of showing spaces they shouldn't see while they're moving.  Teleporting them there preserves the fog of war between the two spots.  Handy for when you're using a map that has multiple levels on one image.  You can teleport from one area to the other quickly.
 As of v9, editing the key that you use for movement has been moved from Monk's Little Details settings to the Core, Configure Controls settings.
 
-### BloodSplats
-When an Monster is killed, show it as a blood splat rather than the icon.  I find this eliminates a bit of clutter on the screen and makes it easier to see what's going on.  Player characters still show with the skull.
-
 ### Swap tools by holding down a key
-New to 1.0.17 Monks Little Details will let you briefly activate another tool by holding down a key.  Pressing Shift+key will change the tool.  This allows you to switch briefly to other layers such as the Tiles layer to update a tile to visible before releasing the key and switching back to whatever layer you were on before.  ~~Requries the module Library: DF Hotkeys to be installed to work.~~
+Monks Little Details will let you briefly activate another tool by holding down a key.  Pressing Shift+key will change the tool.  This allows you to switch briefly to other layers such as the Tiles layer to update a tile to visible before releasing the key and switching back to whatever layer you were on before. 
 As of v9, editing the key that you use has been moved from Monk's Little Details settings to the Core, Configure Controls settings.
 
-### Timer
-If you have the module Library: Chat Commands installed you can use /timer as a chat command.  This will produce a count down timer.  `/timer 5` will add a timer that counts up 5 seconds.  `/timer -5` will count down 5 seconds.  `/timer 5:00 Send this message to the timer (Send this message after the timer is finished)` will add a timer that counts up 5 minutes and displays the first message to the chat message with the timer.  And once the timer it complete it will send a second chat message with the second message that's in parenthesis.
+## Where have my features gone?
+Monk's Little details used to do a lot of things and it got a bit out of control with the features that were added.
+
+The module shas been split into multiple additional modules that are each responsible for a distinct feature originally provided by Little Details.
+
+### Actor Sounds
+Actor sounds have moved to Monk's Sound Enhancements.
+
+### Bloodsplats
+Bloodsplats have been moved to their own module, Monk's Bloodsplats
+
+### Chat Timer
+Chat Timer has moved to its own modules, Monk's Chat Timer
+
+### Combat Tracker
+The combat image displayed when a token has its turn has moved to Monk's Combat Marker.
+
+### Combat Details
+Any of the features that revolved around automating combat has been moved to Monk's Combat Details
 
 ## Bug Reporting
 I'm sure there are lots of issues with it.  It's very much a work in progress.
