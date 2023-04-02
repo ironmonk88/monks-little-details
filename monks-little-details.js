@@ -87,24 +87,7 @@ export class MonksLittleDetails {
             CONFIG.controlIcons.visibility = "modules/monks-little-details/icons/invisible.svg";
 
         if (MonksLittleDetails.canDo("add-extra-statuses") && setting("add-extra-statuses")) {
-            CONFIG.statusEffects = CONFIG.statusEffects.concat(
-                [
-                    { "id": "charmed", "label": "MonksLittleDetails.StatusCharmed", "icon": "modules/monks-little-details/icons/smitten.svg" },
-                    { "id": "exhausted", "label": "MonksLittleDetails.StatusExhausted", "icon": "modules/monks-little-details/icons/oppression.svg" },
-                    { "id": "grappled", "label": "MonksLittleDetails.StatusGrappled", "icon": "modules/monks-little-details/icons/grab.svg" },
-                    { "id": "incapacitated", "label": "MonksLittleDetails.StatusIncapacitated", "icon": "modules/monks-little-details/icons/internal-injury.svg" },
-                    { "id": "petrified", "label": "MonksLittleDetails.StatusPetrified", "icon": "modules/monks-little-details/icons/stone-pile.svg" },
-                    { "id": "hasted", "label": "MonksLittleDetails.StatusHasted", "icon": "modules/monks-little-details/icons/running-shoe.svg" },
-                    { "id": "slowed", "label": "MonksLittleDetails.StatusSlowed", "icon": "modules/monks-little-details/icons/turtle.svg" },
-                    { "id": "concentration", "label": "MonksLittleDetails.StatusConcentrating", "icon": "modules/monks-little-details/icons/beams-aura.svg" },
-                    { "id": "rage", "label": "MonksLittleDetails.StatusRage", "icon": "modules/monks-little-details/icons/enrage.svg" },
-                    { "id": "distracted", "label": "MonksLittleDetails.StatusDistracted", "icon": "modules/monks-little-details/icons/distraction.svg" },
-                    { "id": "dodging", "label": "MonksLittleDetails.StatusDodging", "icon": "modules/monks-little-details/icons/dodging.svg" },
-                    { "id": "disengage", "label": "MonksLittleDetails.StatusDisengage", "icon": "modules/monks-little-details/icons/journey.svg" },
-                    { "id": "cover", "label": "MonksLittleDetails.StatusCover", "icon": "modules/monks-little-details/icons/push.svg" },
-                    { "id": "turned", "label": "MonksLittleDetails.StatusTurned", "icon": "modules/monks-little-details/icons/turned.svg" },
-                ]
-            );
+            CONFIG.statusEffects = CONFIG.statusEffects.concat(setting("additional-effects") || []);
         }
 
         /*if (setting('context-view-artwork')) {
@@ -681,20 +664,24 @@ Hooks.on("renderCompendium", (compendium, html, data) => {
                 let documentId = ev.currentTarget.closest('li').dataset.documentId;
                 compendium.collection.getDocument(documentId).then(entry => {
                     let img = entry.background.src;
-                    if (VideoHelper.hasVideoExtension(img))
-                        ImageHelper.createThumbnail(img, { width: entry.width, height: entry.height }).then(img => {
-                            new ImagePopout(img.thumb, {
+                    if (img) {
+                        if (VideoHelper.hasVideoExtension(img))
+                            ImageHelper.createThumbnail(img, { width: entry.width, height: entry.height }).then(img => {
+                                new ImagePopout(img.thumb, {
+                                    title: entry.name,
+                                    shareable: true,
+                                    uuid: entry.uuid
+                                }).render(true);
+                            });
+                        else {
+                            new ImagePopout(img, {
                                 title: entry.name,
                                 shareable: true,
                                 uuid: entry.uuid
                             }).render(true);
-                        });
-                    else {
-                        new ImagePopout(img, {
-                            title: entry.name,
-                            shareable: true,
-                            uuid: entry.uuid
-                        }).render(true);
+                        }
+                    } else {
+                        ev.currentTarget.parentElement.click();
                     }
                 });
             });
@@ -893,14 +880,6 @@ Hooks.on("renderMacroConfig", (app, html, data) => {
         });
     }
 })
-
-Hooks.on("updateSetting", (setting, data, options, userid) => {
-    if (setting.key.startsWith("monks-little-details")) {
-        const key = setting.key.replace("monks-little-details.", "");
-        if (MonksLittleDetails._setting.hasOwnProperty(key))
-            MonksLittleDetails._setting[key] = data.value;
-    }
-});
 
 Hooks.on('renderModuleManagement', (app, html, data) => {
     if (setting("module-management-changes")) {

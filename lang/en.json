@@ -43,11 +43,19 @@
 	"MonksLittleDetails.large-print.hint": "Display the turn notification in large size",
 	"MonksLittleDetails.open-actor.name": "Open Actor",
 	"MonksLittleDetails.open-actor.hint": "Right click on the actor sidebar icon to open the players character sheet, or the last opened actor sheet.",
+	"MonksLittleDetails.update-images.name": "Update Images",
 
 	"MonksLittleDetails.SystemChanges": "System Changes",
 	"MonksLittleDetails.AddedFeatures": "Added Features",
 	"MonksLittleDetails.ClearWarning": "The contents of this folder will be permanently deleted.",
 	"MonksLittleDetails.FindMyToken": "Find my Token",
+	"MonksLittleDetails.EditEffects": "Edit Effects",
+	"MonksLittleDetails.Code": "ID",
+	"MonksLittleDetails.Name": "Name",
+	"MonksLittleDetails.FileName": "File",
+	"MonksLittleDetails.Add": "Add",
+	"MonksLittleDetails.SaveChanges": "Save Changes",
+	"MonksLittleDetails.ResetDefaults": "Reset Defaults",
 
 	"MonksLittleDetails.ClearAll": "clear all",
 

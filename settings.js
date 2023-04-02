@@ -1,4 +1,6 @@
 import { MonksLittleDetails, i18n } from "./monks-little-details.js";
+import { UpdateImages } from "./apps/update-images.js"
+import { EditEffects } from "./apps/edit-effects.js";
 
 export const registerSettings = function () {
     // Register any custom module settings here
@@ -11,6 +13,24 @@ export const registerSettings = function () {
 		'rows': i18n("MonksLittleDetails.sortstatus.rows"),
 		'columns': i18n("MonksLittleDetails.sortstatus.columns")
 	};
+
+	game.settings.registerMenu(modulename, 'update-images', {
+		name: 'Update Images',
+		label: i18n("MonksLittleDetails.update-images.name"),
+		hint: 'Open a dialog to mass update compendium actor images',
+		icon: 'fas fa-image',
+		restricted: true,
+		type: UpdateImages
+	});
+
+	game.settings.registerMenu(modulename, 'editEffects', {
+		name: 'Edit Effects',
+		label: 'Edit Effects',
+		hint: 'Edit additional status effects',
+		icon: 'fas fa-align-justify',
+		restricted: true,
+		type: EditEffects
+	});
 
 	//System changes
 	game.settings.register(modulename, "swap-buttons", {
@@ -185,6 +205,28 @@ export const registerSettings = function () {
 		config: false,
 		default: true,
 		type: Boolean
+	});
+
+	game.settings.register(modulename, "additional-effects", {
+		scope: "world",
+		config: false,
+		default: game.system.id == "dnd5e" ? [
+			{ "id": "charmed", "label": "MonksLittleDetails.StatusCharmed", "icon": "modules/monks-little-details/icons/smitten.svg" },
+			{ "id": "exhausted", "label": "MonksLittleDetails.StatusExhausted", "icon": "modules/monks-little-details/icons/oppression.svg" },
+			{ "id": "grappled", "label": "MonksLittleDetails.StatusGrappled", "icon": "modules/monks-little-details/icons/grab.svg" },
+			{ "id": "incapacitated", "label": "MonksLittleDetails.StatusIncapacitated", "icon": "modules/monks-little-details/icons/internal-injury.svg" },
+			{ "id": "petrified", "label": "MonksLittleDetails.StatusPetrified", "icon": "modules/monks-little-details/icons/stone-pile.svg" },
+			{ "id": "hasted", "label": "MonksLittleDetails.StatusHasted", "icon": "modules/monks-little-details/icons/running-shoe.svg" },
+			{ "id": "slowed", "label": "MonksLittleDetails.StatusSlowed", "icon": "modules/monks-little-details/icons/turtle.svg" },
+			{ "id": "concentration", "label": "MonksLittleDetails.StatusConcentrating", "icon": "modules/monks-little-details/icons/beams-aura.svg" },
+			{ "id": "rage", "label": "MonksLittleDetails.StatusRage", "icon": "modules/monks-little-details/icons/enrage.svg" },
+			{ "id": "distracted", "label": "MonksLittleDetails.StatusDistracted", "icon": "modules/monks-little-details/icons/distraction.svg" },
+			{ "id": "dodging", "label": "MonksLittleDetails.StatusDodging", "icon": "modules/monks-little-details/icons/dodging.svg" },
+			{ "id": "disengage", "label": "MonksLittleDetails.StatusDisengage", "icon": "modules/monks-little-details/icons/journey.svg" },
+			{ "id": "cover", "label": "MonksLittleDetails.StatusCover", "icon": "modules/monks-little-details/icons/push.svg" },
+			{ "id": "turned", "label": "MonksLittleDetails.StatusTurned", "icon": "modules/monks-little-details/icons/turned.svg" },
+		] : [],
+		type: Array,
 	});
 
 

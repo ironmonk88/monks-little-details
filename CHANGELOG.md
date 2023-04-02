@@ -1,3 +1,13 @@
+# version 10.8
+
+Added the option to customise the extra status effects added to the Token HUD.
+
+Added the Update Images interface to the settings menu.
+
+Fixed the Scene Compendium link to not preview the image if there is no image provided for the scene.
+
+Clarified the information popout to include Little Details in the list of modules so people realise that MLD isn't discontinued.
+
 # version 10.7
 
 Splitting multiple other modules off of this one.
