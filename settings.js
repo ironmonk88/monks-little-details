@@ -113,6 +113,15 @@ export const registerSettings = function () {
 			$('body').toggleClass("change-windows", value);
         }
 	});
+	game.settings.register(modulename, "compendium-shortcuts", {
+		name: i18n("MonksLittleDetails.compendium-shortcuts.name"),
+		hint: i18n("MonksLittleDetails.compendium-shortcuts.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+		onChange: debouncedReload
+	});
 	game.settings.register(modulename, "compendium-view-artwork", {
 		name: game.i18n.localize("MonksLittleDetails.compendium-view-artwork.name"),
 		hint: game.i18n.localize("MonksLittleDetails.compendium-view-artwork.hint"),
@@ -210,7 +219,7 @@ export const registerSettings = function () {
 	game.settings.register(modulename, "additional-effects", {
 		scope: "world",
 		config: false,
-		default: game.system.id == "dnd5e" ? [
+		default: game.system.id !== "pf2e" ? [
 			{ "id": "charmed", "label": "MonksLittleDetails.StatusCharmed", "icon": "modules/monks-little-details/icons/smitten.svg" },
 			{ "id": "exhausted", "label": "MonksLittleDetails.StatusExhausted", "icon": "modules/monks-little-details/icons/oppression.svg" },
 			{ "id": "grappled", "label": "MonksLittleDetails.StatusGrappled", "icon": "modules/monks-little-details/icons/grab.svg" },

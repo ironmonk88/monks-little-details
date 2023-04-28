@@ -44,6 +44,8 @@
 	"MonksLittleDetails.open-actor.name": "Open Actor",
 	"MonksLittleDetails.open-actor.hint": "Right click on the actor sidebar icon to open the players character sheet, or the last opened actor sheet.",
 	"MonksLittleDetails.update-images.name": "Update Images",
+	"MonksLittleDetails.compendium-shortcuts.name": "Compendium Shortcuts",
+	"MonksLittleDetails.compendium-shortcuts.hint": "Add shortcut bar to compendium sections",
 
 	"MonksLittleDetails.SystemChanges": "System Changes",
 	"MonksLittleDetails.AddedFeatures": "Added Features",

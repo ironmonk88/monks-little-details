@@ -26,7 +26,7 @@
     border-color: transparent;
 }
 
-.directory .directory-list .subdirectory {
+#journal .directory .directory-list .subdirectory {
     /*border-left: none;*/
     border-bottom: 4px solid rgba(255, 255, 255, 0.2);
     margin-bottom: 0px;
@@ -589,4 +589,13 @@ body.change-windows #context-menu {
 
 .monks-little-details.edit-effects .items-list .item input:hover {
     border-color: unset;
+}
+
+#sidebar .compendium-sidebar .compendium-shortcut-links .item.disabled {
+    color: var(--color-text-dark-inactive);
+    cursor: default;
+}
+
+#sidebar .compendium-sidebar .compendium-shortcut-links .item.disabled:hover {
+    text-shadow: none;
 }

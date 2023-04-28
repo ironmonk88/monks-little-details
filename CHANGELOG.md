@@ -1,3 +1,13 @@
+# version 10.09
+
+Fixed round marker messages in sw5e
+
+Fixed issues with easy polymorph context menu for actors.  And players should now be able to see the menu.
+
+Added compendium section shortcuts
+
+Restored the default status effects for other systems other than dnd5e.
+
 # version 10.8
 
 Added the option to customise the extra status effects added to the Token HUD.

@@ -1,7 +1,7 @@
 {
   "title": "Monk's Little Details",
   "description": "Things to tidy up the interface and flow",
-  "version": "10.8",
+  "version": "10.09",
   "authors": [
     {
       "name": "IronMonk",
@@ -59,7 +59,7 @@
     "css/monks-little-details.css"
   ],
   "url": "https://github.com/ironmonk88/monks-little-details",
-  "download": "https://github.com/ironmonk88/monks-little-details/archive/10.8.zip",
+  "download": "https://github.com/ironmonk88/monks-little-details/archive/10.09.zip",
   "manifest": "https://github.com/ironmonk88/monks-little-details/releases/latest/download/module.json",
   "bugs": "https://github.com/ironmonk88/monks-little-details/issues",
   "allowBugReporter": true,
