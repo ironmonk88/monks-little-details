@@ -836,7 +836,7 @@ Hooks.on("getSidebarDirectoryFolderContext", (html, entries) => {
                         // Delete contained Documents
                         const deleteDocumentIds = [];
                         for (let d of folder.documentCollection) {
-                            if (d.folder !== folder.id) continue;
+                            if (d.folder?.id !== folder.id) continue;
                             deleteDocumentIds.push(d.id);
                         }
                         if (deleteDocumentIds.length) {
