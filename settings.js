@@ -107,11 +107,20 @@ export const registerSettings = function () {
 		hint: i18n("MonksLittleDetails.window-css-changes.hint"),
 		scope: "world",
 		config: true,
-		default: true,
+		default: !game.modules.get("pf2e-dorako-ui")?.active,
 		type: Boolean,
 		onChange: (value) => {
 			$('body').toggleClass("change-windows", value);
         }
+	});
+	game.settings.register(modulename, "compendium-additional", {
+		name: i18n("MonksLittleDetails.compendium-additional.name"),
+		hint: i18n("MonksLittleDetails.compendium-additional.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+		onChange: debouncedReload
 	});
 	game.settings.register(modulename, "compendium-shortcuts", {
 		name: i18n("MonksLittleDetails.compendium-shortcuts.name"),

@@ -45,7 +45,9 @@
 	"MonksLittleDetails.open-actor.hint": "Right click on the actor sidebar icon to open the players character sheet, or the last opened actor sheet.",
 	"MonksLittleDetails.update-images.name": "Update Images",
 	"MonksLittleDetails.compendium-shortcuts.name": "Compendium Shortcuts",
-	"MonksLittleDetails.compendium-shortcuts.hint": "Add shortcut bar to compendium sections",
+	"MonksLittleDetails.compendium-shortcuts.hint": "Add shortcut bar to compendium sections (will only show up when sorting by type)",
+	"MonksLittleDetails.compendium-additional.name": "Compendium Additional Sorting",
+	"MonksLittleDetails.compendium-additional.hint": "Allow compendium sorting by type and source",
 
 	"MonksLittleDetails.SystemChanges": "System Changes",
 	"MonksLittleDetails.AddedFeatures": "Added Features",
@@ -92,5 +94,10 @@
 
 	"MonksLittleDetails.sortstatus.none": "None",
 	"MonksLittleDetails.sortstatus.rows": "Rows",
-	"MonksLittleDetails.sortstatus.columns": "Columns"
+	"MonksLittleDetails.sortstatus.columns": "Columns",
+
+	"SIDEBAR.SortModeType": "Sorting By Type",
+	"SIDEBAR.SortModeSource": "Sorting By Source",
+	"FOLDER.SortType": "Type",
+	"FOLDER.SortSource": "Source"
 }

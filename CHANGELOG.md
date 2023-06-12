@@ -1,3 +1,13 @@
+# version 11.01
+
+Added v11 support
+
+Fixed issues with updating the images ina compendium to not update the actor sounds with graphic files.
+
+Fixed issue with showing the polymorph option on actors.
+
+Added the option to have additional sorts for the Compendium Directory.  You can now sort by Type, and by Source.  This will essentially restore the old functionality that grouped compendiums by their type.  And made sure that the compendium quicklinks only show up when sorting by type, as this is the only sorting that makes sense to have quick links for.
+
 # version 10.09
 
 Fixed round marker messages in sw5e

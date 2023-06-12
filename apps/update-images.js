@@ -83,12 +83,13 @@ export class UpdateImages extends FormApplication {
         log("Try converting", data);
     }
 
-    async getFiles(filename) {
+    async getFiles(filename, type) {
         let source = "data";
         let pattern = filename;
+        let extensions = Object.keys(type == "sound" ? CONST.AUDIO_FILE_EXTENSIONS : CONST.IMAGE_FILE_EXTENSIONS).map(ext => `.${ext.toLowerCase()}`);
         const browseOptions = {
-            wildcard: true
-            //, extensions: CONST.IMAGE_FILE_EXTENSIONS
+            wildcard: true,
+            extensions: extensions
         };
 
         if (typeof ForgeVTT != "undefined" && ForgeVTT.usingTheForge) {
@@ -117,7 +118,7 @@ export class UpdateImages extends FormApplication {
     }
 
     async fixEntry(entry, prop, imgname, type) {
-        let files = await this.getFiles(imgname);
+        let files = await this.getFiles(imgname, type);
         if (files && files.length > 0) {
             let filenames = files.map(f => {
                 let ext = f.split('.').pop();

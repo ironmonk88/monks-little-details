@@ -3,6 +3,7 @@ import { MMCQ } from "./quantize.js";
 import { UpdateImages } from "./apps/update-images.js";
 import { ModuleWarning } from "./apps/module-warning.js";
 import { HUDChanges } from "./js/hud-changes.js";
+import { MonksCompendium} from "./apps/compendium.js";
 
 export let debugEnabled = 0;
 
@@ -39,6 +40,10 @@ export let patchFunc = (prop, func, type = "WRAPPER") => {
         }`);
     }
 }
+
+export let isV11 = () => {
+    return isNewerVersion(game.version, "10.9999");
+};
 
 export class MonksLittleDetails {
     static tokenHUDimages = {};
@@ -77,6 +82,9 @@ export class MonksLittleDetails {
 
         registerSettings();
         MonksLittleDetails.registerHotKeys();
+
+        if (setting("compendium-additional"))
+            MonksCompendium.init();
 
         if (setting("reposition-collapse"))
             $('body').addClass("reposition-collapse");
@@ -274,6 +282,12 @@ export class MonksLittleDetails {
                 MonksLittleDetails._lastActor = await fromUuid(actorId);
         } catch { }
 
+        const sortingModes = game.settings.get("core", "collectionSortingModes");
+        if (sortingModes["CompendiumPacks"] == undefined && setting("compendium-additional")) {
+            sortingModes["CompendiumPacks"] = "t";
+            game.settings.set("core", "collectionSortingModes", sortingModes);
+        }
+
         $('body').toggleClass("change-windows", setting("window-css-changes"));
 
         game.settings.settings.get("monks-little-details.find-my-token").default = !game.user.isGM;
@@ -363,7 +377,7 @@ export class MonksLittleDetails {
         style.id = "monks-css-changes";
         if (setting("core-css-changes")) {
             innerHTML += `
-.directory .directory-list .directory-item img {
+.directory:not(.compendium-sidebar) .directory-list .directory-item img {
     object-fit: contain !important;
     object-position: center !important;
 }
@@ -541,7 +555,7 @@ background-color: rgba(0, 0, 0, 0.5);
                     const tex = PIXI.RenderTexture.create({ width: texture.width, height: texture.height });
 
                     // Render the sprite to the texture and extract its pixels
-                    canvas.app.renderer.render(sprite, tex);
+                    canvas.app.renderer.render(sprite, { renderTexture: tex });
                     let pixels = canvas.app.renderer.extract.pixels(tex);
                     tex.destroy(true);
 
@@ -752,9 +766,6 @@ Hooks.on("preUpdateToken", (document, update, options, userId) => {
     }
 });
 
-Hooks.once('libChangelogsReady', function () {
-});
-
 Hooks.on("getSceneControlButtons", (controls) => {
     if (setting("find-my-token")) {
         let tokenControls = controls.find(control => control.name === "token")
@@ -929,7 +940,7 @@ Hooks.on("getActorDirectoryEntryContext", (html, entries) => {
             icon: '<i class="fas fa-random"></i>',
             condition: li => {
                 const actor = game.actors.get(li.data("documentId"));
-                const canPolymorph = (game.user.isGM || (actor.testUserPermission(game.user, "OWNER") && game.user.can("TOKEN_CREATE"))) && game.settings.get("dnd5e", "allowPolymorphing");
+                const canPolymorph = game.user.isGM || (actor.testUserPermission(game.user, "OWNER") && game.user.can("TOKEN_CREATE") && game.settings.get("dnd5e", "allowPolymorphing"));
                 return canPolymorph;
             },
             callback: async (li) => {
@@ -1088,51 +1099,4 @@ Hooks.on("renderFilePicker", (app, html, data) => {
         )
         .after(list);
     $('input[name="target"]', html).parent().css({position: "relative"});
-});
-
-Hooks.on('renderCompendiumDirectory', (app, html, data, options) => {
-    if (setting("compendium-shortcuts")) {
-        let shortcut = $('<div>').addClass('action-buttons flexrow').append(`
-        <nav class="tabs compendium-shortcut-links">
-            <a class="item" data-tab="Actor" data-tooltip="DOCUMENT.Actors" alt="DOCUMENT.Actors">
-                <i class="fas fa-user"></i>
-            </a>
-            <a class="item" data-tab="Adventure" data-tooltip="DOCUMENT.Adventures" alt="DOCUMENT.Adventures">
-                <i class="fas fa-map-pin"></i>
-            </a>
-            <a class="item" data-tab="Cards" data-tooltip="DOCUMENT.CardsPlural" alt="DOCUMENT.CardsPlural">
-                <i class="fa-solid fa-cards"></i>
-            </a>
-            <a class="item" data-tab="Item" data-tooltip="DOCUMENT.Items" alt="DOCUMENT.Items">
-                <i class="fas fa-suitcase"></i>
-            </a>
-            <a class="item" data-tab="JournalEntry" data-tooltip="DOCUMENT.JournalEntries" alt="DOCUMENT.JournalEntries">
-                <i class="fas fa-book-open"></i>
-            </a>
-            <a class="item" data-tab="Macro" data-tooltip="DOCUMENT.Macros" alt="DOCUMENT.Macros">
-                <i class="fas fa-code"></i>
-            </a>
-            <a class="item" data-tab="Playlist" data-tooltip="DOCUMENT.Playlists" alt="DOCUMENT.Playlists">
-                <i class="fas fa-music"></i>
-            </a>
-            <a class="item" data-tab="RollTable" data-tooltip="DOCUMENT.RollTables" alt="DOCUMENT.RollTables">
-                <i class="fas fa-th-list"></i>
-            </a>
-            <a class="item" data-tab="Scene" data-tooltip="DOCUMENT.Scenes" alt="DOCUMENT.Scenes">
-                <i class="fas fa-map"></i>
-            </a>
-        </nav>`);
-        $('.item', shortcut).on("click", (evt) => {
-            let id = evt.currentTarget.dataset.tab;
-            let title = $(`h3:contains(${id}),li.compendium-type[data-type="${id}"]`, app.element);
-            if (title.length) {
-                title[0].scrollIntoView({ behavior: "smooth", block: "start" });
-            }
-        }).each((idx, elem) => {
-            let id = elem.dataset.tab;
-            let title = $(`h3:contains(${id}),li.compendium-type[data-type="${id}"]`, app.element);
-            $(elem).toggleClass("disabled", !title.length);
-        });
-        $('.directory-header', html).append(shortcut);
-    }
 });

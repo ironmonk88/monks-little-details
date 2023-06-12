@@ -380,12 +380,13 @@ body.change-windows #context-menu {
     border-bottom-right-radius: 0px;
 }
 
-.filepicker .filepicker-body .quick-links {
+.filepicker .filepicker-header .quick-links {
     flex: 0 0 32px;
     text-align: center;
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
     margin-right: 5px !important;
+    margin-left: -10px;
     padding: 4px 0px;
 }
 
@@ -598,4 +599,24 @@ body.change-windows #context-menu {
 
 #sidebar .compendium-sidebar .compendium-shortcut-links .item.disabled:hover {
     text-shadow: none;
+}
+
+.compendium-sidebar .header-control.toggle-sort #context-menu {
+    left: unset;
+    right: 0px;
+}
+
+.compendium-sidebar .directory-list .compendium-type h3 {
+    margin: 0;
+    padding: 5px;
+    border: 1px solid var(--color-border-dark-4);
+    background: rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    line-height: 21px;
+}
+
+.compendium-sidebar .directory-item.compendium.highlight .compendium-banner {
+    opacity: 1;
 }
