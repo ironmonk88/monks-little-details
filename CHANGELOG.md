@@ -1,3 +1,13 @@
+# version 11.02
+
+Fixed issue with turned.svg, thank you patmanteau
+
+Fixed folder not clearing, thank you yeeshue99
+
+Fixed v11 issue where the clear folder context option was not showing
+
+Moved the clear folder context item to a better spot in the list.
+
 # version 11.01
 
 Added v11 support

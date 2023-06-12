@@ -815,8 +815,8 @@ Hooks.on("renderActorSheet", (sheet) => {
     game.user.setFlag("monks-little-details", "last-actor", sheet.object.uuid);
 })
 
-Hooks.on("getSidebarDirectoryFolderContext", (html, entries) => {
-    entries.push({
+Hooks.on("getSidebarTabFolderContext", (html, entries) => {
+    entries.splice(4, 0, {
         name: "FOLDER.Clear",
         icon: '<i class="fas fa-folder"></i>',
         condition: game.user.isGM,
