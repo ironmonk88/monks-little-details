@@ -134,20 +134,16 @@ export class MonksCompendium {
         }
 
         CompendiumPacks.prototype.constructor._sortByType = function(a, b) {
-            if (a.metadata.type === undefined) throw new Error(`Missing type property for ${a.constructor.metadata.type} ${a.id}`);
-            if (b.metadata.type === undefined) throw new Error(`Missing type property for ${b.constructor.metadata.type} ${b.id}`);
-            if (a.metadata.type !== b.metadata.type)
-                return a.metadata.type.localeCompare(b.metadata.type);
+            if (a.metadata?.type && b.metadata?.type && a.metadata?.type !== b.metadata?.type)
+                return (a.metadata?.type || "").localeCompare(b.metadata?.type || "");
             return CompendiumPacks._sortAlphabetical(a, b);
         }
 
         CompendiumPacks.prototype.constructor._sortBySource = function(a, b) {
-            if (a.metadata.packageName === undefined) throw new Error(`Missing package name property for ${a.constructor.name} ${a.id}`);
-            if (b.metadata.packageName === undefined) throw new Error(`Missing package name property for ${b.constructor.name} ${b.id}`);
-            if (a.metadata.packageType !== b.metadata.packageType)
-                return (a.metadata.packageType === "world" ? 0 : (a.metadata.packageType === "system" ? 1 : 2)) - (b.metadata.packageType === "world" ? 0 : (b.metadata.packageType === "system" ? 1 : 2));
-            if (a.metadata.packageName !== b.metadata.packageName)
-                return a.metadata.packageName.localeCompare(b.metadata.packageName);
+            if (a.metadata?.packageType && b.metadata?.packageType && a.metadata?.packageType !== b.metadata?.packageType)
+                return (a.metadata?.packageType === "world" ? 0 : (a.metadata?.packageType === "system" ? 1 : 2)) - (b.metadata?.packageType === "world" ? 0 : (b.metadata?.packageType === "system" ? 1 : 2));
+            if (a.metadata?.packageName && b.metadata?.packageName && a.metadata?.packageName !== b.metadata?.packageName)
+                return (a.metadata?.packageName || "").localeCompare(b.metadata?.packageName || "");
             return CompendiumPacks._sortAlphabetical(a, b);
         }
 

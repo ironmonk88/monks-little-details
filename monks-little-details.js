@@ -160,6 +160,21 @@ export class MonksLittleDetails {
         if (setting("alter-hud"))
             HUDChanges.init();
 
+        let releaseAll = function (wrapped, ...args) {
+            if (this.controlled.length) {
+                let data = { tokens: this.controlled.map(t => t.document) };
+                let id = window.setTimeout(() => {
+                    if (id == MonksLittleDetails._selectedTokens.id)
+                        delete MonksLittleDetails._selectedTokens;
+                }, 400);
+                data.id = id;
+                MonksLittleDetails._selectedTokens = data;
+            }
+            return wrapped(...args);
+        }
+
+        patchFunc("TokenLayer.prototype.releaseAll", releaseAll);
+
         patchFunc("FilePicker.prototype._onSubmit", async (wrapped, ...args) => {
             let [ev] = args;
             let path = ev.target.file.value;
@@ -477,30 +492,32 @@ background-color: rgba(0, 0, 0, 0.5);
     static async moveTokens(event) {
         let moveKey = MonksLittleDetails.getMoveKey();
 
-        if (game.user.isGM && moveKey && game.keyboard.downKeys.has(moveKey) && canvas.tokens.controlled.length > 0) {
+        let tokens = canvas.tokens.controlled.map(t => t.document);
+        if (!tokens.length && MonksLittleDetails._selectedTokens?.tokens)
+            tokens = MonksLittleDetails._selectedTokens.tokens;
+
+        if (game.user.isGM && moveKey && game.keyboard.downKeys.has(moveKey) && tokens.length > 0) {
             let pos = event.data.getLocalPosition(canvas.app.stage);
             let mid = {
-                x: canvas.tokens.controlled[0].x,
-                y: canvas.tokens.controlled[0].y
+                x: tokens[0].x,
+                y: tokens[0].y
             };
-            for (let i = 1; i < canvas.tokens.controlled.length; i++) {
-                mid.x += canvas.tokens.controlled[i].x;
-                mid.y += canvas.tokens.controlled[i].y;
+            for (let i = 1; i < tokens.length; i++) {
+                mid.x += tokens[i].x;
+                mid.y += tokens[i].y;
             }
-            mid.x = (mid.x / canvas.tokens.controlled.length);
-            mid.y = (mid.y / canvas.tokens.controlled.length);
+            mid.x = (mid.x / tokens.length);
+            mid.y = (mid.y / tokens.length);
 
-            let tokens = canvas.tokens.controlled.map(t => { return t.id; });
             let updates = [];
             for (let i = 0; i < tokens.length; i++) {
-                let t = canvas.tokens.get(tokens[i]);
-                let offsetx = mid.x - t.x;
-                let offsety = mid.y - t.y;
+                let offsetx = mid.x - tokens[i].x;
+                let offsety = mid.y - tokens[i].y;
                 let gridPt = canvas.grid.grid.getGridPositionFromPixels(pos.x - offsetx, pos.y - offsety);
                 let px = canvas.grid.grid.getPixelsFromGridPosition(gridPt[0], gridPt[1]);
 
                 //t.update({ x: px[0], y: px[1] }, { animate: false });
-                updates.push({ _id: t.id, x: px[0], y: px[1] });
+                updates.push({ _id: tokens[i].id, x: px[0], y: px[1] });
             }
             if (updates.length) {
                 MonksLittleDetails.movingToken = true;

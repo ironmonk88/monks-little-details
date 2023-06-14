@@ -1,3 +1,9 @@
+# version 11.03
+
+Fixed issues with compendiums not loading.
+
+Fixed issue with moving using the M key.
+
 # version 11.02
 
 Fixed issue with turned.svg, thank you patmanteau
