@@ -183,38 +183,32 @@ export class MonksLittleDetails {
                 let idx = path.lastIndexOf("/");
                 let target = path.substring(0, idx);
 
-                let quicklinks = (game.user.getFlag("monks-little-details", "quicklinks") || []);
-                let link = quicklinks.find(q => q.target == target);
-
-                let favorites = [];
-                let regular = quicklinks.filter(q => {
-                    if (q.favorite) favorites.push(q);
-                    return !q.favorite;
-                });
-
-                // if this link already exists
-                //      if a favorite then do nothing, not a favorite, then sort it to the top of the list
-                // if this link doesn't exist
-                // check to see if there are any non-favorite spots available and push to the list.  Pop any that are greater than 25
-
-                if (link) {
-                    if (!link.favorite) {
-                        regular.findSplice(q => q.target == target);
-                        regular.unshift(link);
-                    }
-                } else {
-                    if (favorites.length < 4) {
-                        regular.unshift({ target: target, favorite: false });
-                        if (regular.length + favorites.length > 4)
-                            regular = regular.slice(0, 4 - favorites.length);
-                    }
-                }
-
-                quicklinks = favorites.concat(regular);
-                game.user.setFlag("monks-little-details", "quicklinks", quicklinks);
+                MonksLittleDetails.addQuickLink(target);
             }
 
             return wrapped(...args);
+        });
+
+        patchFunc("DocumentSheet.prototype._createDocumentIdLink", function (wrapped, ...args) {
+            wrapped(...args);
+            let [html] = args;
+
+            if (!(this.object instanceof foundry.abstract.Document) || !this.object.id || !(this.object.src || this.object.img)) return;
+            const title = html.find(".window-title");
+            const label = game.i18n.localize(this.object.constructor.metadata.label);
+            const srcLink = document.createElement("a");
+            srcLink.classList.add("document-image-link");
+            srcLink.setAttribute("alt", "Copy image file path");
+            srcLink.dataset.tooltip = "Copy image file path";
+            srcLink.dataset.tooltipDirection = "UP";
+            srcLink.innerHTML = '<i class="fa-solid fa-file-image"></i>';
+            srcLink.addEventListener("click", event => {
+                let src = (this.object.src || this.object.img);
+                event.preventDefault();
+                game.clipboard.copyPlainText(src);
+                ui.notifications.info(`${label} image ${src} copied to clipboard`);
+            });
+            title.append(srcLink);
         });
 
         if (game.settings.get("monks-little-details", "show-notify")) {
@@ -290,6 +284,99 @@ export class MonksLittleDetails {
         }
     }
 
+    static addQuickLink(target, favorite = false) {
+        let quicklinks = (game.user.getFlag("monks-little-details", "quicklinks") || []);
+        let link = quicklinks.find(q => q.target == target);
+
+        let favorites = [];
+        let regular = quicklinks.filter(q => {
+            if (q.favorite) favorites.push(q);
+            return !q.favorite;
+        });
+
+        // if this link already exists
+        //      if a favorite then do nothing, not a favorite, then sort it to the top of the list
+        // if this link doesn't exist
+        // check to see if there are any non-favorite spots available and push to the list.  Pop any that are greater than 25
+
+        if (link) {
+            if (!link.favorite) {
+                regular.findSplice(q => q.target == target);
+                regular.unshift(link);
+            }
+        } else {
+            if (favorites.length < 25) {
+                regular.unshift({ target: target, favorite });
+                if (regular.length + favorites.length > 25)
+                    regular = regular.slice(0, 25 - favorites.length);
+
+                $(".quick-link-input-button").each(function () {
+                    let input = $(this).next().val();
+                    if (input == target) {
+                        $("i", this).attr("class", `fa-star ${favorite ? "fa-solid" : "fa-regular"}`)
+                    }
+                });
+            }
+        }
+
+        quicklinks = favorites.concat(regular);
+        game.user.setFlag("monks-little-details", "quicklinks", quicklinks);
+
+        MonksLittleDetails.buildQuickLinks(quicklinks, $('ul.quick-links-list'));
+    }
+
+    static buildQuickLinks(quicklinks, lists) {
+        let favorites = [];
+        let regular = quicklinks.filter(q => {
+            if (q.favorite) favorites.push(q);
+            return !q.favorite;
+        })
+
+        if (lists.length) {
+            for (let l of lists) {
+                let list = $(l);
+                list.empty();
+                if (quicklinks.length == 0)
+                    list.append($("<li>").addClass('no-quick-links').html("No quick links yet"));
+                else {
+                    list.append(favorites.concat(regular).map(j => {
+                        return $('<li>')
+                            .addClass('quick-link-item flexrow')
+                            .attr('target', j.target)
+                            .append($('<div>').addClass('quick-favorite').html(`<i class="fa-star ${j.favorite ? "fa-solid" : "fa-regular"}"></i>`).click(MonksLittleDetails.toggleFavorite.bind(j, j.target)))
+                            .append($('<div>').addClass('quick-title').html(j.target ? j.target : "-- root --"))
+                            .click(MonksLittleDetails.selectQuickLink.bind(l, j.target));
+                    }));
+                }
+            };
+        }
+    }
+
+    static toggleFavorite(target, event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        let quicklinks = duplicate(game.user.getFlag("monks-little-details", "quicklinks") || []);
+        let link = quicklinks.find(q => q.target == target);
+        link.favorite = !link.favorite;
+        game.user.setFlag("monks-little-details", "quicklinks", quicklinks);
+        $(`.quick-link-item[target="${target}"] .quick-favorite i`).toggleClass("fa-solid", link.favorite).toggleClass("fa-regular", !link.favorite);
+
+        $(".quick-link-input-button").each(function () {
+            let target = $(this).next().val();
+            if (target == link.target) {
+                $("i", this).attr("class", `fa-star ${link?.favorite ? "fa-solid" : "fa-regular"}`)
+            }
+        });
+    }
+
+    static selectQuickLink(target, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.app.browse(target);
+        $('.quick-links-list.open').removeClass('open');
+    }
+
     static async ready() {
         try {
             let actorId = game.user.getFlag("monks-little-details", "last-actor");
@@ -327,6 +414,17 @@ export class MonksLittleDetails {
             hint: 'MonksLittleDetails.movement-key.hint',
             editable: [{ key: 'KeyM' }],
             restricted: true,
+        });
+
+        game.keybindings.register('monks-little-details', 'release-targets', {
+            name: 'MonksLittleDetails.release-targets.name',
+            editable: [{ key: "KeyT", modifiers: [KeyboardManager.MODIFIER_KEYS?.ALT]}],
+            restricted: false,
+            onDown: () => {
+                for (let t of game.user.targets) {
+                    t.setTarget(false, { user: game.user, releaseOthers: false, groupSelection: true });
+                }
+            },
         });
 
         if (game.settings.get("monks-little-details", "key-swap-tool")) {
@@ -419,9 +517,11 @@ export class MonksLittleDetails {
     text-align: left;
 }
 
+/*
 .form-group select{
     width: calc(100% - 2px);
 }
+*/
 
 .compendium.directory .directory-list .directory-item.scene {
     position: relative;
@@ -471,6 +571,9 @@ background-color: rgba(0, 0, 0, 0.5);
 }
 `;
         }
+
+        var r = document.querySelector(':root');
+        r.style.setProperty('--sidebar-padding', `${setting("directory-padding")}px`);
 
         //let iconWidth = '24';
         //if (game.system.id == 'pf2e' || (game.modules.get("illandril-token-hud-scale") != undefined && game.modules.get("illandril-token-hud-scale").active && game.settings.get("illandril-token-hud-scale", "enableStatusSelectorScale")))
@@ -1060,60 +1163,72 @@ Hooks.on("updateScene", (scene, data, options) => {
 });
 
 Hooks.on("renderFilePicker", (app, html, data) => {
-    if ($('button.quick-links', html).length)
-        return;
+    if (setting("add-quicklinks")) {
+        $(app.element).addClass("use-quicklinks");
+        if ($('button.quick-links', html).length)
+            return;
 
-    const selectItem = function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-        app.browse(this.target);
-        $('.quick-links-list.open').removeClass('open');
+        let quicklinks = game.user.getFlag("monks-little-details", "quicklinks") || [];
+
+        let list = $('<ul>').addClass('quick-links-list');
+        list[0].app = app;
+
+        MonksLittleDetails.buildQuickLinks(quicklinks, list);
+        let link = quicklinks.find(q => q.target == app.result.target);
+
+        $(html).click(function () { list.removeClass('open') });
+
+        $('input[name="target"]', html)
+            .css({ "padding-left": "25px" })
+            .before(
+                $("<button>")
+                    .attr("type", "button")
+                    .addClass("quick-link-input-button")
+                    .append($("<i>").addClass(`fa-star ${link?.favorite ? "fa-solid" : "fa-regular"}`))
+                    .click(function (ev) {
+                        let target = $('input[name="target"]', html).val();
+                        let quicklinks = duplicate(game.user.getFlag("monks-little-details", "quicklinks") || []);
+                        let link = quicklinks.find(q => q.target == target);
+                        if (link) {
+                            MonksLittleDetails.toggleFavorite(target, ev);
+                        } else {
+                            MonksLittleDetails.addQuickLink(target, true);
+                        }
+
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        $('input[name="target"]', html).focus();
+                    })
+            )
+            .after(
+                $("<button>")
+                    .attr("type", "button")
+                    .addClass("quick-links")
+                    .append($("<i>").addClass("fas fa-caret-down"))
+                    .click(function (ev) {
+                        //$('.quick-links-list', html).removeClass('open');
+                        list.toggleClass('open');
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                    })
+            )
+            .after(list);
+        $('input[name="target"]', html).parent().css({ position: "relative" });
     }
 
-    const toggleFavorite = function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        let quicklinks = duplicate(game.user.getFlag("monks-little-details", "quicklinks") || []);
-        let link = quicklinks.find(q => q.target == this.target);
-        link.favorite = !link.favorite;
-        game.user.setFlag("monks-little-details", "quicklinks", quicklinks);
-        $(`.quick-link-item[target="${this.target}"] .quick-favorite i`).toggleClass("fa-solid", link.favorite).toggleClass("fa-regular", !link.favorite);
+    if (setting("remove-favorites")) {
+        $(".form-group.favorites", html).remove();
     }
+});
 
-    let quicklinks = game.user.getFlag("monks-little-details", "quicklinks") || [];
-    let favorites = [];
-    let regular = quicklinks.filter(q => {
-        if (q.favorite) favorites.push(q);
-        return !q.favorite;
-    })
-
-    let list = $('<ul>')
-        .addClass('quick-links-list');
-
-    if (quicklinks.length == 0)
-        list.append($("<li>").addClass('no-quick-links').html("No quick links yet"));
-    else {
-        list.append(favorites.concat(regular).map(j => {
-            return $('<li>')
-                .addClass('quick-link-item flexrow')
-                .attr('target', j.target)
-                .append($('<div>').addClass('quick-favorite').html(`<i class="fa-star ${j.favorite ? "fa-solid" : "fa-regular"}"></i>`).click(toggleFavorite.bind(j)))
-                .append($('<div>').addClass('quick-title').html(j.target))
-                .click(selectItem.bind(j));
-        }));
+Hooks.on("renderDocumentDirectory", (app, html, data) => {
+    let parseTree = (node) => {
+        for (let child of node.children) {
+            if (child.folder.color) {
+                $(`.directory-item.folder[data-folder-id="${child.folder.id}"] > .subdirectory`, html).css("border-bottom-color", child.folder.color);
+            }
+            parseTree(child);
+        }
     }
-
-    $(html).click(function () { list.removeClass('open') });
-
-    $('input[name="target"]', html)
-        .after(
-            $("<button>")
-                .attr("type", "button")
-                .addClass("quick-links")
-                .append($("<i>").addClass("fas fa-caret-down"))
-                .click(function (evt) { $('.quick-links-list', html).removeClass('open'); list.toggleClass('open'); evt.preventDefault(); evt.stopPropagation(); })
-        )
-        .after(list);
-    $('input[name="target"]', html).parent().css({position: "relative"});
+    parseTree(data.tree);
 });

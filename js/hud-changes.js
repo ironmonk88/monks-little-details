@@ -123,7 +123,7 @@ export class HUDChanges {
                 //$(this).attr('src', img.attr('src')).toggleClass('active', !!status.isActive);
             });
 
-            if (game.system.id !== 'pf2e') {
+            if (game.system.id !== 'pf2e' && setting("clear-all")) {
                 $('.col.right .control-icon[data-action="effects"] .status-effects', html).append(
                     $('<div>').addClass('clear-all').html(`<i class="fas fa-times-circle"></i> ${i18n("MonksLittleDetails.ClearAll")}`).click($.proxy(HUDChanges.clearAll, this))
                 );

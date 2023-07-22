@@ -6,8 +6,6 @@ export const registerSettings = function () {
     // Register any custom module settings here
 	let modulename = "monks-little-details";
 
-	const debouncedReload = foundry.utils.debounce(function () { window.location.reload(); }, 500);
-	
 	let sortstatus = {
 		'none': i18n("MonksLittleDetails.sortstatus.none"),
 		'rows': i18n("MonksLittleDetails.sortstatus.rows"),
@@ -48,7 +46,16 @@ export const registerSettings = function () {
 		config: MonksLittleDetails.canDo("alter-hud"),
 		default: true,
 		type: Boolean,
-		onChange: debouncedReload
+		requiresReload: true
+	});
+	game.settings.register(modulename, "clear-all", {
+		name: i18n("MonksLittleDetails.clear-all.name"),
+		hint: i18n("MonksLittleDetails.clear-all.hint"),
+		scope: "world",
+		config: MonksLittleDetails.canDo("clear-all"),
+		default: true,
+		type: Boolean,
+		requiresReload: true
 	});
 	game.settings.register(modulename, "sort-by-columns", {
 		name: i18n("MonksLittleDetails.sort-by-columns.name"),
@@ -66,7 +73,7 @@ export const registerSettings = function () {
 		default: 'rows',
 		type: String,
 		choices: sortstatus,
-		onChange: debouncedReload
+		requiresReload: true
 	});
 	game.settings.register(modulename, "alter-hud-colour", {
 		name: i18n("MonksLittleDetails.alter-hud-colour.name"),
@@ -91,7 +98,7 @@ export const registerSettings = function () {
 		config: MonksLittleDetails.canDo("change-invisible-image"),
 		default: true,
 		type: Boolean,
-		onChange: debouncedReload
+		requiresReload: true
 	});
 	game.settings.register(modulename, "core-css-changes", {
 		name: i18n("MonksLittleDetails.core-css-changes.name"),
@@ -100,7 +107,7 @@ export const registerSettings = function () {
 		config: true,
 		default: true,
 		type: Boolean,
-		onChange: debouncedReload
+		requiresReload: true
 	});
 	game.settings.register(modulename, "window-css-changes", {
 		name: i18n("MonksLittleDetails.window-css-changes.name"),
@@ -113,6 +120,23 @@ export const registerSettings = function () {
 			$('body').toggleClass("change-windows", value);
         }
 	});
+	game.settings.register(modulename, "directory-padding", {
+		name: i18n("MonksLittleDetails.directory-padding.name"),
+		hint: i18n("MonksLittleDetails.directory-padding.hint"),
+		scope: "world",
+		config: true,
+		range: {
+			min: 1,
+			max: 10,
+			step: 1,
+		},
+		default: 4,
+		type: Number,
+		onChange: (value) => {
+			var r = document.querySelector(':root');
+			r.style.setProperty('--sidebar-padding', `${value}px`);
+        }
+	});
 	game.settings.register(modulename, "compendium-additional", {
 		name: i18n("MonksLittleDetails.compendium-additional.name"),
 		hint: i18n("MonksLittleDetails.compendium-additional.hint"),
@@ -120,7 +144,7 @@ export const registerSettings = function () {
 		config: true,
 		default: true,
 		type: Boolean,
-		onChange: debouncedReload
+		requiresReload: true
 	});
 	game.settings.register(modulename, "compendium-shortcuts", {
 		name: i18n("MonksLittleDetails.compendium-shortcuts.name"),
@@ -129,7 +153,7 @@ export const registerSettings = function () {
 		config: true,
 		default: true,
 		type: Boolean,
-		onChange: debouncedReload
+		requiresReload: true
 	});
 	game.settings.register(modulename, "compendium-view-artwork", {
 		name: game.i18n.localize("MonksLittleDetails.compendium-view-artwork.name"),
@@ -137,6 +161,22 @@ export const registerSettings = function () {
 		scope: "world",
 		config: true,
 		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "add-quicklinks", {
+		name: game.i18n.localize("MonksLittleDetails.add-quicklinks.name"),
+		hint: game.i18n.localize("MonksLittleDetails.add-quicklinks.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+	});
+	game.settings.register(modulename, "remove-favorites", {
+		name: game.i18n.localize("MonksLittleDetails.remove-favorites.name"),
+		hint: game.i18n.localize("MonksLittleDetails.remove-favorites.hint"),
+		scope: "world",
+		config: true,
+		default: false,
 		type: Boolean,
 	});
 
@@ -189,7 +229,7 @@ export const registerSettings = function () {
 		config: true,
 		default: true,
 		type: Boolean,
-		onChange: debouncedReload
+		requiresReload: true
 	});
 	
 	game.settings.register(modulename, "module-management-changes", {

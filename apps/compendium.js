@@ -15,13 +15,13 @@ export class MonksCompendium {
             }
         });
 
-        CompendiumPacks.prototype.initializeTree = function() {
+        CompendiumPacks.prototype.initializeTree = function () {
             const folders = this.folders.contents;
             const entries = this._getVisibleTreeContents();
             this._tree = this.buildTree(folders, entries);
         }
 
-        CompendiumPacks.prototype.buildTree = function(folders, entries) {
+        CompendiumPacks.prototype.buildTree = function (folders, entries) {
             const handled = new Set();
             const createNode = (root, folder, depth) => {
                 return { root, folder, depth, visible: false, children: [], entries: [] };
@@ -94,7 +94,7 @@ export class MonksCompendium {
             return tree;
         }
 
-        CompendiumPacks.prototype.classifyFolderContent = function(folder, folders, entries, { allowChildren = true } = {}) {
+        CompendiumPacks.prototype.classifyFolderContent = function (folder, folders, entries, { allowChildren = true } = {}) {
             const sort = this.getSort(getProperty(folder, "flags.monks-little-details.sorting"));
 
             // Determine whether an entry belongs to a folder, via folder ID or folder reference
@@ -123,7 +123,7 @@ export class MonksCompendium {
             this.initializeTree();
         }
 
-        CompendiumPacks.prototype.getSort = function(sort) {
+        CompendiumPacks.prototype.getSort = function (sort) {
             switch (sort) {
                 case "a": return this.constructor._sortAlphabetical;
                 case "m": return this.constructor._sortStandard;
@@ -133,13 +133,13 @@ export class MonksCompendium {
             }
         }
 
-        CompendiumPacks.prototype.constructor._sortByType = function(a, b) {
+        CompendiumPacks.prototype.constructor._sortByType = function (a, b) {
             if (a.metadata?.type && b.metadata?.type && a.metadata?.type !== b.metadata?.type)
                 return (a.metadata?.type || "").localeCompare(b.metadata?.type || "");
             return CompendiumPacks._sortAlphabetical(a, b);
         }
 
-        CompendiumPacks.prototype.constructor._sortBySource = function(a, b) {
+        CompendiumPacks.prototype.constructor._sortBySource = function (a, b) {
             if (a.metadata?.packageType && b.metadata?.packageType && a.metadata?.packageType !== b.metadata?.packageType)
                 return (a.metadata?.packageType === "world" ? 0 : (a.metadata?.packageType === "system" ? 1 : 2)) - (b.metadata?.packageType === "world" ? 0 : (b.metadata?.packageType === "system" ? 1 : 2));
             if (a.metadata?.packageName && b.metadata?.packageName && a.metadata?.packageName !== b.metadata?.packageName)
@@ -216,6 +216,11 @@ export class MonksCompendium {
                                 name = checkName == key ? name : checkName;
                             }
 
+                            if (sort === "s" && entry.metadata.packageType === "module") {
+                                let module = game.modules.get(entry.metadata.packageName);
+                                if (module && module.flags["forge-compendium-browser"]?.active)
+                                    continue;
+                            }
                             elem.before(`<li class="compendium-type" data-type="${prop}"><h3 class="noborder">${name}</h3></li>`);
                             types[prop] = true;
                         }

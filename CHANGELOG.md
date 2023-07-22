@@ -1,3 +1,21 @@
+# version 11.04
+
+Added compatibility with Forge Compendium Library.
+
+Cleaned up the Compendium Art Updater, although it looks like 5e has been locked out from making changes to the Monsters SRD.  To make changes to that compendium you'll have to make a copy and updating the images will work on the copy.
+
+Fixed issue with the directory padding to make it easier to see what things are indented.
+
+Added option to add or remove the clear all button on the status list.
+
+Added the option to add a directory to the quick links dropdown by pressing the favorites star.
+
+Added the option to hide the core Favorites list in the Filepicker if you prefer to use the quick links instead.
+
+Added an icon on window header to copy the image source of any window that contains an image.  So like the UUID link, this makes it easier to copy and paste the source image.
+
+Added key binding to clear all targets.
+
 # version 11.03
 
 Fixed issues with compendiums not loading.

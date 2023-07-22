@@ -12,8 +12,9 @@ export class UpdateImages extends FormApplication {
             classes: ["form"],
             title: "Update Images",
             template: "modules/monks-little-details/templates/update-images.html",
-            width: 550,
-            height: 'auto'
+            tabs: [{ navSelector: ".tabs", contentSelector: ".sheet-body", initial: "action-container" }],
+            width: 700,
+            height: 'auto',
         });
     }
 
@@ -45,7 +46,7 @@ export class UpdateImages extends FormApplication {
     }
 
     scrollResults(event) {
-        if (event.currentTarget.scrollTop + $(event.currentTarget).height() == event.currentTarget.scrollHeight)
+        if (event.currentTarget.scrollTop + $(event.currentTarget).height() >= event.currentTarget.scrollHeight)
             this.autoscroll = true;
         else
             this.autoscroll = false;
@@ -54,8 +55,8 @@ export class UpdateImages extends FormApplication {
     convert() {
         let data = expandObject(super._getSubmitData());
 
-        $('.conversion-results', this.element).empty().show();
-        this.setPosition();
+        $('.conversion-results', this.element).empty();
+        this._tabs[0].activate("action-results", { triggerCallback: true });
 
         let pack = game.packs.get(data.compendium);
 
@@ -78,7 +79,7 @@ export class UpdateImages extends FormApplication {
         if (data["sound-folder"])
             game.user.setFlag("monks-little-details", "sound-folder", data["sound-folder"]);
 
-        this.fixImages(pack, data["strict-name"], avatars, tokens, data["sound-folder"]);
+        this.fixImages(pack, avatars, tokens, data["sound-folder"], { strict: data["strict-name"], wildcard: data["wildcards"]});
 
         log("Try converting", data);
     }
@@ -117,8 +118,8 @@ export class UpdateImages extends FormApplication {
         return [];
     }
 
-    async fixEntry(entry, prop, imgname, type) {
-        let files = await this.getFiles(imgname, type);
+    async fixEntry(entry, prop, root, imgname, type, wildcard) {
+        let files = await this.getFiles(root + imgname, type);
         if (files && files.length > 0) {
             let filenames = files.map(f => {
                 let ext = f.split('.').pop();
@@ -129,28 +130,47 @@ export class UpdateImages extends FormApplication {
             });
             filenames = filenames.sort((a, b) => { return b.ext.localeCompare(a.ext); });
 
-            if (getProperty(entry, prop) == filenames[0].name) {
+            let usename = (root.startsWith("/") ? "/" : "") + filenames[0].name;
+            if (wildcard && files.length > 1) {
+                // figure out the correct extension
+                let extension = filenames.map(f => f.name.split('.').pop()).filter((value, index, array) => array.indexOf(value) === index).sort((a, b) => b.localeCompare(a))[0];
+                let names = filenames.filter(f =>
+                    f.name.endsWith(extension)
+                ).map(f => {
+                    let name = f.name.replace(root.startsWith("/") ? root.substring(1) : root, "");
+                    return name.substr(0, name.length - extension.length - 1);
+                });
+                if (names.length == 1)
+                    usename = `${root}${names[0]}.${extension}`;
+                else
+                    usename = `${root}{${names.join(",")}}.${extension}`;
+            }
+
+            if (getProperty(entry, prop) == usename) {
                 this.addText(`<span>Ignoring ${type}: ${entry.name}, image is the same</span>`, "ignoring-update");
                 return true;
             }
 
             let update = {};
-            update[prop] = filenames[0].name;
+            update[prop] = usename;
+            if (prop.startsWith("prototypeToken") && wildcard) {
+                update["prototypeToken.randomImg"] = true;
+            }
             update = expandObject(update);
 
-            try {
-                await entry.update(update);
-                log('Fixing:', entry.name, filenames[0].name);
-                this.addText(`<span>Fixing ${type}: ${entry.name}, ${filenames[0].name}</span>`, "fixing-update");
-            } catch {
-                this.addText(`<span>Error: ${entry.name}, ${filenames[0].name}</span>`, "error-update");
-            }
-            return true;
+            //try {
+            log('Fixing:', entry.name, usename);
+            this.addText(`<span>Fixing ${type}: ${entry.name}, ${usename}</span>`, "fixing-update");
+            return update;
+            //} catch {
+            //    this.addText(`<span>Error: ${entry.name}, ${usename}</span>`, "error-update");
+            //}
+            //return true;
         }
         return false;
     }
 
-    async fixImages(pack, strictname, avatars, tokens, sound) {
+    async fixImages(pack, avatars, tokens, sound, options) {
         let onlyUnique = function (value, index, self) {
             return self.indexOf(value) === index;
         }
@@ -158,10 +178,12 @@ export class UpdateImages extends FormApplication {
         if (pack) {
             await pack.configure({ locked: false });
 
+            let updates = [];
             this.addText(`Start conversion: ${pack.title}`);
             await pack.getDocuments().then(async (entries) => {
                 for (var i = 0; i < entries.length; i++) {
                     var entry = entries[i];
+                    let update = {};
                     let names = [entry.name, entry.name.toLowerCase()];
                     let altname = entry.name.replace(/-/g, '').replace(/'/g, '').replace(/\(.*\)/, '').replace(/\s/g, '');
                     if (altname != entry.name) {
@@ -176,7 +198,7 @@ export class UpdateImages extends FormApplication {
                         names.push(altname);
                         names.push(altname.toLowerCase());
                     }
-                    if (!strictname) {
+                    if (!options.strict) {
                         for (let name of duplicate(names)) {
                             let flexname = name.replace('ancient', '').replace('adult', '').replace('young', '').replace('Ancient', '').replace('Adult', '').replace('Young', '');
                             if (flexname != name)
@@ -206,10 +228,14 @@ export class UpdateImages extends FormApplication {
                     for (let avatar of avatars) {
                         for (let name of names) {
                             for (let type of mtype) {
-                                let imgname = `${avatar}/${type != "" ? type + "/" : ""}${name}.*`;
-                                let result = await this.fixEntry(entry, "img", imgname, "avatar");
-                                if (result) {
+                                let imgname = `${name}.*`;
+                                let root = `${avatar}/${type != "" ? type + "/" : ""}`;
+                                let result = await this.fixEntry(entry, "img", root, imgname, "avatar", false);
+                                if (!!result) {
                                     found = true;
+                                    if (result !== true) {
+                                        mergeObject(update, result);
+                                    }
                                     break foundAvatar;
                                 }
                             }
@@ -224,11 +250,14 @@ export class UpdateImages extends FormApplication {
                     for (let token of tokens) {
                         for (let name of names) {
                             for (let type of mtype) {
-                                var imgname = `${token}/${type != "" ? type + "/" : ""}${name}.*`;
-
-                                let result = await this.fixEntry(entry, "prototypeToken.texture.src", imgname, "token");
-                                if (result) {
+                                var imgname = `${name}${options.wildcard ? "*" : ".*"}`;
+                                let root = `${token}/${type != "" ? type + "/" : ""}`;
+                                let result = await this.fixEntry(entry, "prototypeToken.texture.src", root, imgname, "token", options.wildcard);
+                                if (!!result) {
                                     found = true;
+                                    if (result !== true) {
+                                        mergeObject(update, result);
+                                    }
                                     break foundToken;
                                 }
                             }
@@ -241,14 +270,27 @@ export class UpdateImages extends FormApplication {
                     foundSound:
                     for (let name of names) {
                         for (let type of mtype) {
-                            var soundname = `${sound}/${type != "" ? type + "/" : ""}${name}.*`;
-
-                            let result = await this.fixEntry(entry, "flags.monks-little-details.sound-effect", soundname, "sound");
-                            if (result)
+                            var soundname = `${name}${options.wildcard ? "*" : ".*"}`;
+                            let root = `${sound}/${type != "" ? type + "/" : ""}`;
+                            let result = await this.fixEntry(entry, "flags.monks-little-details.sound-effect", root, soundname, "sound", options.wildcard);
+                            if (!!result) {
+                                if (result !== true) {
+                                    mergeObject(update, result);
+                                }
                                 break foundSound;
+                            }
                         }
                     }
-                    
+
+                    if (!isEmpty(update)) {
+                        update._id = entry._id;
+                        updates.push(update);
+                    }
+                }
+
+                if (updates.length) {
+                    this.addText(`Saving: ${pack.title}`);
+                    await CONFIG.Actor.documentClass.updateDocuments(updates, { pack: pack.metadata.id });
                 }
 
                 pack.configure({ locked: true });

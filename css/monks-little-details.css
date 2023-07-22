@@ -1,3 +1,7 @@
+:root {
+    --sidebar-padding: 4px;
+}
+
 .mld-warning {
     background: rgba(47, 80, 132, 0.8);
     margin-bottom: 0.5em;
@@ -22,18 +26,23 @@
 }
 
 .sidebar-tab .directory-list .subdirectory .folder {
-    border-left: 6px solid transparent;
+    /*border-left: var(--sidebar-padding) solid transparent;*/
     border-color: transparent;
 }
 
-#journal .directory .directory-list .subdirectory {
-    /*border-left: none;*/
-    border-bottom: 4px solid rgba(255, 255, 255, 0.2);
+.directory-list .subdirectory {
+    border-bottom: var(--sidebar-padding) solid rgba(255, 255, 255, 0.2);
     margin-bottom: 0px;
+    border-left-width: var(--sidebar-padding);
+}
+
+.directory-list .subdirectory li:last-child {
+    /*margin-bottom: var(--sidebar-padding);*/
+    border-bottom: 1px solid var(--color-border-dark-1);
 }
 
 .subdirectory .subdirectory {
-    border-left: 4px solid rgba(255, 255, 255, 0.2);
+    border-left: var(--sidebar-padding) solid rgba(255, 255, 255, 0.2);
     margin-bottom: 0px;
 }
 
@@ -374,7 +383,7 @@ body.change-windows #context-menu {
     transform-origin: center left;
 }
 
-.filepicker .filepicker-body input[name="target"] {
+.filepicker.use-quicklinks .filepicker-body input[name="target"] {
     margin-right: 0px;
     border-top-right-radius: 0px;
     border-bottom-right-radius: 0px;
@@ -390,9 +399,24 @@ body.change-windows #context-menu {
     padding: 4px 0px;
 }
 
+.filepicker .filepicker-header .quick-link-input-button {
+    background: transparent;
+    border: none;
+    float: left;
+    position: absolute;
+    top: 5px;
+    left: 4px;
+    width: 20px;
+    padding-left: 1px;
+}
+.filepicker .filepicker-header .quick-link-input-button:hover,
+.filepicker .filepicker-header .quick-link-input-button:focus {
+    box-shadow: none;
+}
+
 .quick-links-list {
     display: none;
-    max-height: 150px;
+    max-height: 250px;
     overflow-y: auto;
     color: black;
     position: absolute;
@@ -619,4 +643,10 @@ body.change-windows #context-menu {
 
 .compendium-sidebar .directory-item.compendium.highlight .compendium-banner {
     opacity: 1;
+}
+
+.window-app .window-header .window-title .document-image-link {
+    margin-left: 0.25rem;
+    opacity: 0.5;
+    cursor: pointer;
 }
