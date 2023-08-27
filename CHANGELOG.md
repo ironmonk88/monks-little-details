@@ -1,3 +1,15 @@
+# version 11.05
+
+Added both name and label to status effects because there seems to be some confusion as to which one to use.
+
+Unlocking and restoring the lock on compendiums that have the update images run against them.
+
+Moved the paused icon up and made it bigger, but only for the players.
+
+Added the option to use dominant palette colours for the user configuration colour.
+
+Added the option to clear the palette window when clicking anywhere on the form.
+
 # version 11.04
 
 Added compatibility with Forge Compendium Library.

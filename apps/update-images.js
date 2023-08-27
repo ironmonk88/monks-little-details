@@ -176,7 +176,9 @@ export class UpdateImages extends FormApplication {
         }
 
         if (pack) {
-            await pack.configure({ locked: false });
+            const oldLock = pack.locked;
+            if (oldLock)
+                await pack.configure({ locked: false });
 
             let updates = [];
             this.addText(`Start conversion: ${pack.title}`);
@@ -293,7 +295,8 @@ export class UpdateImages extends FormApplication {
                     await CONFIG.Actor.documentClass.updateDocuments(updates, { pack: pack.metadata.id });
                 }
 
-                pack.configure({ locked: true });
+                if (oldLock)
+                    pack.configure({ locked: true });
                 log("Completed: " + pack.title);
                 this.addText(`Completed: ${pack.title}`);
             });

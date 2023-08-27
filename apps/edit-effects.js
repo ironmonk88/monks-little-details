@@ -29,7 +29,7 @@ export class EditEffects extends FormApplication {
     }
 
     _updateObject() {
-        let data = this.effects.filter(c => !!c.id && !!c.label);
+        let data = this.effects.filter(c => !!c.id && !!c.label).map(c => { c.name = c.label; return c; });
         game.settings.set('monks-little-details', 'additional-effects', data);
         this.submitting = true;
     }

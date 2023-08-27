@@ -89,8 +89,6 @@ export class MonksLittleDetails {
         if (setting("reposition-collapse"))
             $('body').addClass("reposition-collapse");
 
-        MonksLittleDetails.injectCSS();
-
         if (MonksLittleDetails.canDo("change-invisible-image") && setting("change-invisible-image"))
             CONFIG.controlIcons.visibility = "modules/monks-little-details/icons/invisible.svg";
 
@@ -378,6 +376,8 @@ export class MonksLittleDetails {
     }
 
     static async ready() {
+        MonksLittleDetails.injectCSS();
+
         try {
             let actorId = game.user.getFlag("monks-little-details", "last-actor");
             if (actorId)
@@ -564,10 +564,17 @@ background-color: rgba(0, 0, 0, 0.5);
 
         }
 
-        if (setting("move-pause")) {
+        if (setting("move-pause") && !game.user.isGM) {
             innerHTML += `
-#pause{
+#pause {
     bottom:30%;
+}
+#pause img {
+    top: -100px;
+    left: calc(50% - 150px);
+    height: 300px;
+    width: 300px;
+    opacity: 0.3;
 }
 `;
         }
@@ -659,7 +666,7 @@ background-color: rgba(0, 0, 0, 0.5);
         return pixelArray;
     }
 
-    static getPalette(src, element) {
+    static getPalette(src, element, fn) {
         // Create custom CanvasImage object
         if (src != undefined) {
             loadTexture(src).then((texture) => {
@@ -688,21 +695,26 @@ background-color: rgba(0, 0, 0, 0.5);
                     // Send array to quantize function which clusters values
                     // using median cut algorithm
                     const cmap = MMCQ.quantize(pixelArray, 5);
-                    const palette = cmap ? cmap.palette() : null;
+                    const palette = cmap ? cmap.palette() : [];
 
                     $(element).empty();
                     for (let i = 0; i < palette.length; i++) {
                         var hexCode = MonksLittleDetails.rgbToHex(palette[i][0], palette[i][1], palette[i][2]);
-                        $(element).append($('<div>').addClass('background-palette').attr('title', hexCode).css({ backgroundColor: hexCode }).on('click', $.proxy(MonksLittleDetails.updateSceneBackground, MonksLittleDetails, hexCode)));
+                        $(element).append($('<div>').addClass('background-palette').attr('title', hexCode).css({ backgroundColor: hexCode }).on('click', $.proxy(fn, MonksLittleDetails, hexCode, element)));
                     }
                 }
             })
         }
     };
 
-    static async updateSceneBackground(hexCode) {
-        $('.background-palette-container').remove();
+    static async updateSceneBackground(hexCode, element) {
+        $('.background-palette-container', element).remove();
         await MonksLittleDetails.currentScene.update({ backgroundColor: hexCode });
+    }
+
+    static async updatePlayerColour(hexCode, element) {
+        $('.background-palette-container', element).remove();
+        await MonksLittleDetails.currentUser.update({ color: hexCode });
     }
 
     static emit(action, args = {}) {
@@ -752,12 +764,15 @@ Hooks.on('renderSceneConfig', async (app, html, options) => {
             let element = $(this).siblings('.background-palette-container');
             if (element.length == 0) {
                 element = $('<div>').addClass('background-palette-container flexrow').insertAfter(this);
-                MonksLittleDetails.getPalette(MonksLittleDetails.currentScene.background.src, element);
+                MonksLittleDetails.getPalette(MonksLittleDetails.currentScene.background.src, element, MonksLittleDetails.updateSceneBackground);
             } else {
                 element.remove();
             }
             e.preventDefault();
+            e.stopPropagation();
         }).insertAfter(backgroundColor);
+
+        $(html).on("click", () => { $('.background-palette-container', html).remove(); });
     }
 
     /*
@@ -777,6 +792,30 @@ Hooks.on('renderSceneConfig', async (app, html, options) => {
         .append($('<p>').addClass('notes').html(`Configure the thumbnail image that's shown in the scenes directory`))
         .insertAfter($('input[name="foreground"]', html).closest('.form-group'));
         */
+    app.setPosition({ height: 'auto' });
+});
+
+Hooks.on('renderUserConfig', async (app, html, options) => {
+    if (game.settings.get("monks-little-details", 'scene-palette') && app.object.avatar) {
+        MonksLittleDetails.currentUser = app.object;
+
+        let playerColor = $('input[data-edit="color"]', html);
+        playerColor.parents('.form-group:first').css({ position: 'relative' });
+        $('<button>').attr('type', 'button').html('<i class="fas fa-palette"></i>').on('click', function (e) {
+            let element = $(this).siblings('.background-palette-container');
+            if (element.length == 0) {
+                element = $('<div>').addClass('background-palette-container flexrow').insertAfter(this);
+                MonksLittleDetails.getPalette(MonksLittleDetails.currentUser.avatar, element, MonksLittleDetails.updatePlayerColour);
+            } else {
+                element.remove();
+            }
+            e.preventDefault();
+            e.stopPropagation();
+        }).insertAfter(playerColor);
+    }
+
+    $(html).on("click", () => { $('.background-palette-container', html).remove(); });
+
     app.setPosition({ height: 'auto' });
 });
 

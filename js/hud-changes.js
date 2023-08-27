@@ -22,7 +22,11 @@ export class HUDChanges {
 
             let getStatusEffectChoices = function (wrapped, ...args) {
                 if (setting('sort-statuses') != 'none') {
-                    CONFIG.statusEffects = CONFIG.statusEffects.sort(function (a, b) {
+                    CONFIG.statusEffects = CONFIG.statusEffects.map(e => {
+                        let label = e.label ?? e.name;
+                        e.label = e.name = label;
+                        return e;
+                    }).sort(function (a, b) {
                         let aid = (a.label != undefined ? i18n(a.label) : a.id || a);
                         let bid = (b.label != undefined ? i18n(b.label) : b.id || b);
                         return (aid > bid ? 1 : (aid < bid ? -1 : 0));
