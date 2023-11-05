@@ -36,7 +36,12 @@ Changed the invisible icon from the standard Masked Man image to one that more c
 
 ### Dominant Scene Colours
 Added the top 5 dominant colours of a scene so that you can choose a background colour that blends with the scene a bit better.
-![monks-little-details](/screenshots/BackgroundPalette.webp)
+
+![monks-little-details](/screenshots/BackgroundPalette.png)
+
+You can also use this to find the dominant colour in your player avatar and change your player colour to one of the top 5.
+
+![monks-little-details](/screenshots/PlayerPalette.png)
 
 ### GM Move characters
 If you select characters, hold down the M Key and clicking on another map location, or holding down the M key and dragging the tokens will instantly move them there.  I found dragging them there has unfortunate side effects of showing spaces they shouldn't see while they're moving.  Teleporting them there preserves the fog of war between the two spots.  Handy for when you're using a map that has multiple levels on one image.  You can teleport from one area to the other quickly.
