@@ -1,3 +1,7 @@
+# version 11.07
+
+Added the option to change the colour of the pause border
+
 # version 11.06
 
 Added a highlight around the screen when the game is paused in my continual pursuit of finding something that alerts users to the fact the game is paused a little better.

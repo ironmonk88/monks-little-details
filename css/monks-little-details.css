@@ -1,5 +1,6 @@
 :root {
     --sidebar-padding: 4px;
+    --pause-border-color: 77, 208, 225;
 }
 
 body.mld-paused:after {
@@ -10,7 +11,7 @@ body.mld-paused:after {
     height: 100%;
     content: '';
     pointer-events: none;
-    box-shadow: rgba(77, 208, 225, 0.5) 0px 0px 100px 50px inset
+    box-shadow: rgba(var(--pause-border-color), 0.5) 0px 0px 100px 50px inset
 }
 
 .mld-warning {

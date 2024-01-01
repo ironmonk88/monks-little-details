@@ -59,6 +59,8 @@
 	"MonksLittleDetails.remove-favorites.hint": "If you want to clean up the Filepicker and use the quicklinks instead of favorites, you can hide them.",
 	"MonksLittleDetails.pause-border.name": "Pause Border",
 	"MonksLittleDetails.pause-border.hint": "Add a border around the screen to make it more obvious that the game is paused.",
+	"MonksLittleDetails.pause-border-colour.name": "Pause Border Colour",
+	"MonksLittleDetails.pause-border-colour.hint": "Change the colour of the pause border.",
 
 	"MonksLittleDetails.SystemChanges": "System Changes",
 	"MonksLittleDetails.AddedFeatures": "Added Features",

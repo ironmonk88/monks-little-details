@@ -585,10 +585,8 @@ background-color: rgba(0, 0, 0, 0.5);
 
         var r = document.querySelector(':root');
         r.style.setProperty('--sidebar-padding', `${setting("directory-padding")}px`);
-
-        //let iconWidth = '24';
-        //if (game.system.id == 'pf2e' || (game.modules.get("illandril-token-hud-scale") != undefined && game.modules.get("illandril-token-hud-scale").active && game.settings.get("illandril-token-hud-scale", "enableStatusSelectorScale")))
-        //    iconWidth = '36';
+        const rgb = Color.from(setting("pause-border-colour")).rgb;
+        r.style.setProperty('--pause-border-color', `${rgb[0] * 255}, ${rgb[1] * 255}, ${rgb[2] * 255}`);
 
         style.innerHTML = innerHTML;
         if (innerHTML != '')
@@ -827,7 +825,17 @@ Hooks.on("renderSettingsConfig", (app, html, data) => {
     $('<p>').addClass('mld-warning').append('<i class="fas fa-circle-question"></i> Where have all of my features gone? ').append($('<a>').html("Click here").on("click", () => { new ModuleWarning().render(true); })).insertBefore($('[name="monks-little-details.swap-buttons"]').parents('div.form-group:first'));
     $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.SystemChanges")).insertBefore($('[name="monks-little-details.swap-buttons"]').parents('div.form-group:first'));
     $('<div>').addClass('form-group group-header').html(i18n("MonksLittleDetails.AddedFeatures")).insertBefore($('[name="monks-little-details.scene-palette"]').parents('div.form-group:first'));
-});
+
+    $(`<input type="color" style="flex: 0 0 90px;" value="${$('[name="monks-little-details.pause-border-colour"]').val()}" data-edit="monks-little-details.pause-border-colour">`).insertAfter($('[name="monks-little-details.pause-border-colour"]'));
+    $('[name="monks-little-details.pause-border-colour"]').css("flex", "0 0 90px").on("change", function () {
+        let val = $(this).val();
+        if (val && !val.startsWith("#")) {
+            val = "#" + val;
+            $(this).val(val);
+        }
+        $(this).next().val($(this).val());
+    });
+    });
 
 Hooks.on("renderCompendium", (compendium, html, data) => {
     if (setting('compendium-view-artwork')) {

@@ -228,6 +228,21 @@ export const registerSettings = function () {
 				$("body").removeClass("mld-paused");
 		}
 	});
+	game.settings.register(modulename, "pause-border-colour", {
+		name: i18n("MonksLittleDetails.pause-border-colour.name"),
+        hint: i18n("MonksLittleDetails.pause-border-colour.hint"),
+        scope: "world",
+        config: true,
+		default: "#4DD0E1",
+        type: String,
+        onChange: (value) => {
+			if (game.paused) {
+				var r = document.querySelector(':root');
+				const rgb = Color.from(value).rgb;
+				r.style.setProperty('--pause-border-color', `${rgb[0] * 255}, ${rgb[1] * 255}, ${rgb[2] * 255}`);
+			}
+        }
+    });
 	game.settings.register(modulename, "open-actor", {
 		name: i18n("MonksLittleDetails.open-actor.name"),
 		hint: i18n("MonksLittleDetails.open-actor.hint"),
