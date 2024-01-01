@@ -214,6 +214,20 @@ export const registerSettings = function () {
 		default: false,
 		type: Boolean,
 	});
+	game.settings.register(modulename, "pause-border", {
+		name: i18n("MonksLittleDetails.pause-border.name"),
+		hint: i18n("MonksLittleDetails.pause-border.hint"),
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+		onChange: (value) => {
+			if (value && game.paused)
+				$("body").addClass("mld-paused");
+			else
+				$("body").removeClass("mld-paused");
+		}
+	});
 	game.settings.register(modulename, "open-actor", {
 		name: i18n("MonksLittleDetails.open-actor.name"),
 		hint: i18n("MonksLittleDetails.open-actor.hint"),
@@ -264,6 +278,17 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean
 	});
+
+	/*
+	game.settings.register(modulename, "facts-list", {
+		name: i18n("MonksLittleDetails.facts-list.name"),
+		hint: i18n("MonksLittleDetails.facts-list.hint"),
+		scope: "world",
+		config: false,
+		default: "",
+		type: String
+	});
+	*/
 
 	game.settings.register(modulename, "additional-effects", {
 		scope: "world",

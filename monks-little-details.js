@@ -378,6 +378,10 @@ export class MonksLittleDetails {
     static async ready() {
         MonksLittleDetails.injectCSS();
 
+        if (setting("pause-border") && game.paused) {
+            $("body").addClass("mld-paused");
+        }
+
         try {
             let actorId = game.user.getFlag("monks-little-details", "last-actor");
             if (actorId)
@@ -1271,3 +1275,9 @@ Hooks.on("renderDocumentDirectory", (app, html, data) => {
     }
     parseTree(data.tree);
 });
+
+Hooks.on("pauseGame", (state) => {
+    if (setting("pause-border")) {
+        $("body").toggleClass("mld-paused", state);
+    }
+})

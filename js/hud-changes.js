@@ -146,7 +146,11 @@ export class HUDChanges {
 
         for (const [k, status] of Object.entries(statuses)) {
             if (status.isActive) {
-                await this.object.toggleEffect({ id: status.id, icon: status.src });
+                let effect = { id: status.id, icon: status.src };
+                if (game.system.id == "D35E" && !Object.keys(CONFIG.D35E.conditions).includes(status.id)) {
+                    effect = status.id;
+                }
+                await this.object.toggleEffect(effect);
             }
         }
 

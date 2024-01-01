@@ -1,3 +1,9 @@
+# version 11.06
+
+Added a highlight around the screen when the game is paused in my continual pursuit of finding something that alerts users to the fact the game is paused a little better.
+
+Fixed issues with removing all status effects in D&D3.5
+
 # version 11.05
 
 Added both name and label to status effects because there seems to be some confusion as to which one to use.
