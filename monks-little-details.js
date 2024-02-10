@@ -378,9 +378,10 @@ export class MonksLittleDetails {
     static async ready() {
         MonksLittleDetails.injectCSS();
 
-        if (setting("pause-border") && game.paused) {
+        if (setting("pause-border") && game.paused && $('#board').length) {
             $("body").addClass("mld-paused");
-        }
+        } else
+            $("body").removeClass("mld-paused");
 
         try {
             let actorId = game.user.getFlag("monks-little-details", "last-actor");
@@ -568,7 +569,7 @@ background-color: rgba(0, 0, 0, 0.5);
 
         }
 
-        if (setting("move-pause") && !game.user.isGM) {
+        if (setting("move-pause") == "all" || (setting("move-pause") == "true" && !game.user.isGM)) {
             innerHTML += `
 #pause {
     bottom:30%;
@@ -1286,6 +1287,6 @@ Hooks.on("renderDocumentDirectory", (app, html, data) => {
 
 Hooks.on("pauseGame", (state) => {
     if (setting("pause-border")) {
-        $("body").toggleClass("mld-paused", state);
+        $("body").toggleClass("mld-paused", state && $('#board').length);
     }
 })

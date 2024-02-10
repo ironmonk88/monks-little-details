@@ -1,3 +1,13 @@
+# version 11.08
+
+Fixed issues with clearing all effects in dnd5e
+
+Added the option to change the pause position for GM or players
+
+Fixed issue with D&D5e context menus
+
+May or may not have fixed issue with showing the pause border on pooped-out windows
+
 # version 11.07
 
 Added the option to change the colour of the pause border

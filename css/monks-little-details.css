@@ -11,7 +11,8 @@ body.mld-paused:after {
     height: 100%;
     content: '';
     pointer-events: none;
-    box-shadow: rgba(var(--pause-border-color), 0.5) 0px 0px 100px 50px inset
+    box-shadow: rgba(var(--pause-border-color), 0.5) 0px 0px 100px 50px inset;
+    z-index: 0;
 }
 
 .mld-warning {
@@ -347,7 +348,7 @@ body.change-windows:not(.system-forbidden-lands) .window-app > header {
     border-top-left-radius: 4px;
 }
 
-body.change-windows #context-menu {
+body.change-windows #context-menu:not(.dnd5e2) {
     background: #0f002c;
 }
 

@@ -129,7 +129,7 @@ export class HUDChanges {
 
             if (game.system.id !== 'pf2e' && setting("clear-all")) {
                 $('.col.right .control-icon[data-action="effects"] .status-effects', html).append(
-                    $('<div>').addClass('clear-all').html(`<i class="fas fa-times-circle"></i> ${i18n("MonksLittleDetails.ClearAll")}`).click($.proxy(HUDChanges.clearAll, this))
+                    $('<div>').addClass('clear-all').html(`<i class="fas fa-times-circle"></i> ${i18n("MonksLittleDetails.ClearAll")}`).on("click", HUDChanges.clearAll.bind(this))
                 );
             }
 
@@ -146,11 +146,20 @@ export class HUDChanges {
 
         for (const [k, status] of Object.entries(statuses)) {
             if (status.isActive) {
-                let effect = { id: status.id, icon: status.src };
-                if (game.system.id == "D35E" && !Object.keys(CONFIG.D35E.conditions).includes(status.id)) {
-                    effect = status.id;
+                if (game.system.id == "dnd5e") {
+                    let id = `dnd5e${status.id}`;
+                    if (id.length >= 16) id = id.substring(0, 16);
+                    id = id.padEnd(16, "0");
+                    const existing = this.object.actor.effects.get(id);
+                    if (existing)
+                        await this.object.actor.deleteEmbeddedDocuments("ActiveEffect", [id]);
+                } else {
+                    let effect = { id: status.id, icon: status.src };
+                    if (game.system.id == "D35E" && !Object.keys(CONFIG.D35E.conditions).includes(status.id)) {
+                        effect = status.id;
+                    }
+                    await this.object.toggleEffect(effect);
                 }
-                await this.object.toggleEffect(effect);
             }
         }
 

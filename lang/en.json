@@ -105,6 +105,10 @@
 	"MonksLittleDetails.StatusCover": "Cover",
 	"MonksLittleDetails.StatusTurned": "Turned",
 
+	"MonksLittleDetails.pausemove.noone": "No one",
+	"MonksLittleDetails.pausemove.everyone": "Everyone",
+  "MonksLittleDetails.pausemove.players": "Players",
+
 	"MonksLittleDetails.sortstatus.none": "None",
 	"MonksLittleDetails.sortstatus.rows": "Rows",
 	"MonksLittleDetails.sortstatus.columns": "Columns",

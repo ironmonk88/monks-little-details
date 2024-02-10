@@ -12,6 +12,12 @@ export const registerSettings = function () {
 		'columns': i18n("MonksLittleDetails.sortstatus.columns")
 	};
 
+	let pausemove = {
+		'false': i18n("MonksLittleDetails.pausemove.noone"),
+		'true': i18n("MonksLittleDetails.pausemove.players"),
+		'all': i18n("MonksLittleDetails.pausemove.everyone")
+	};
+
 	game.settings.registerMenu(modulename, 'update-images', {
 		name: 'Update Images',
 		label: i18n("MonksLittleDetails.update-images.name"),
@@ -211,8 +217,10 @@ export const registerSettings = function () {
 		hint: i18n("MonksLittleDetails.move-pause.hint"),
 		scope: "world",
 		config: true,
-		default: false,
-		type: Boolean,
+		default: "false",
+		type: String,
+		choices: pausemove,
+		requiresReload: true
 	});
 	game.settings.register(modulename, "pause-border", {
 		name: i18n("MonksLittleDetails.pause-border.name"),
@@ -222,7 +230,7 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean,
 		onChange: (value) => {
-			if (value && game.paused)
+			if (value && game.paused && $('#board').length)
 				$("body").addClass("mld-paused");
 			else
 				$("body").removeClass("mld-paused");
@@ -236,11 +244,9 @@ export const registerSettings = function () {
 		default: "#4DD0E1",
         type: String,
         onChange: (value) => {
-			if (game.paused) {
-				var r = document.querySelector(':root');
-				const rgb = Color.from(value).rgb;
-				r.style.setProperty('--pause-border-color', `${rgb[0] * 255}, ${rgb[1] * 255}, ${rgb[2] * 255}`);
-			}
+			var r = document.querySelector(':root');
+			const rgb = Color.from(value).rgb;
+			r.style.setProperty('--pause-border-color', `${rgb[0] * 255}, ${rgb[1] * 255}, ${rgb[2] * 255}`);
         }
     });
 	game.settings.register(modulename, "open-actor", {
