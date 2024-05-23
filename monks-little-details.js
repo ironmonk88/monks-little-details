@@ -209,6 +209,15 @@ export class MonksLittleDetails {
             title.append(srcLink);
         });
 
+        patchFunc("ControlsLayer.prototype.drawCursor", function (wrapped, ...args) {
+            let result = wrapped(...args);
+            let [user] = args;
+            if (!user.hasPermission("SHOW_CURSOR")) {
+                let cursor = this._cursors[user.id];
+                if (cursor) cursor.visible = false;
+            }
+        });
+
         if (game.settings.get("monks-little-details", "show-notify")) {
             let chatLogNotify = function (...args) {
                 let message = args[0]
@@ -576,7 +585,7 @@ background-color: rgba(0, 0, 0, 0.5);
 }
 #pause img {
     top: -100px;
-    left: calc(50% - 150px);
+    left: calc(50% - var(--pause-padding));
     height: 300px;
     width: 300px;
     opacity: 0.3;
@@ -1287,6 +1296,6 @@ Hooks.on("renderDocumentDirectory", (app, html, data) => {
 
 Hooks.on("pauseGame", (state) => {
     if (setting("pause-border")) {
-        $("body").toggleClass("mld-paused", state && $('#board').length);
+        $("body").toggleClass("mld-paused", state && $('#board').length > 0);
     }
 })

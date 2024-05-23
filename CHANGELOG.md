@@ -1,3 +1,19 @@
+# version 11.09
+
+Fixed pause positioning in Cyberpunk Red core
+
+Fixed positioning of status effects in DnD 5e
+
+Fixed window header shading in DnD 5e
+
+Fixed tab spacing in the macro textarea
+
+Added the feature to hide cursors when they should be hidden, rather than being displayed in the upper corner and revealing map size.
+
+Fixed issue with Breaktime and the pause border
+
+Fixed wording of tooltip for alter HUD setting
+
 # version 11.08
 
 Fixed issues with clearing all effects in dnd5e
