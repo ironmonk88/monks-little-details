@@ -7,7 +7,7 @@ export class EditEffects extends FormApplication {
 
     /** @override */
     static get defaultOptions() {
-        return mergeObject(super.defaultOptions, {
+        return foundry.utils.mergeObject(super.defaultOptions, {
             id: "edit-effects",
             classes: ["form", "edit-effects", "monks-little-details"],
             title: i18n("MonksLittleDetails.EditEffects"),
@@ -21,7 +21,7 @@ export class EditEffects extends FormApplication {
 
     getData(options) {
         this.effects = this.effects || setting("additional-effects");
-        return mergeObject(super.getData(options),
+        return foundry.utils.mergeObject(super.getData(options),
             {
                 effects: this.effects
             }

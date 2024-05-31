@@ -41,10 +41,6 @@ export let patchFunc = (prop, func, type = "WRAPPER") => {
     }
 }
 
-export let isV11 = () => {
-    return isNewerVersion(game.version, "10.9999");
-};
-
 export class MonksLittleDetails {
     static tokenHUDimages = {};
     static movingToken = false;
@@ -234,7 +230,7 @@ export class MonksLittleDetails {
                 }
 
                 // Play a notification sound effect
-                if (message.sound) AudioHelper.play({ src: message.sound });
+                if (message.sound) foundry.audio.AudioHelper.play({ src: message.sound });
             }
 
             if (game.modules.get("lib-wrapper")?.active) {
@@ -363,7 +359,7 @@ export class MonksLittleDetails {
         event.preventDefault();
         event.stopPropagation();
 
-        let quicklinks = duplicate(game.user.getFlag("monks-little-details", "quicklinks") || []);
+        let quicklinks = foundry.utils.duplicate(game.user.getFlag("monks-little-details", "quicklinks") || []);
         let link = quicklinks.find(q => q.target == target);
         link.favorite = !link.favorite;
         game.user.setFlag("monks-little-details", "quicklinks", quicklinks);
@@ -620,6 +616,8 @@ background-color: rgba(0, 0, 0, 0.5);
 
         if (game.user.isGM && moveKey && game.keyboard.downKeys.has(moveKey) && tokens.length > 0) {
             let pos = event.data.getLocalPosition(canvas.app.stage);
+            let gs = canvas.scene.dimensions.size;
+
             let mid = {
                 x: tokens[0].x,
                 y: tokens[0].y
@@ -633,13 +631,15 @@ background-color: rgba(0, 0, 0, 0.5);
 
             let updates = [];
             for (let i = 0; i < tokens.length; i++) {
-                let offsetx = mid.x - tokens[i].x;
-                let offsety = mid.y - tokens[i].y;
-                let gridPt = canvas.grid.grid.getGridPositionFromPixels(pos.x - offsetx, pos.y - offsety);
-                let px = canvas.grid.grid.getPixelsFromGridPosition(gridPt[0], gridPt[1]);
+                let offset = { x: tokens[i].x - mid.x, y: tokens[i].y - mid.y };
+                let pt = { x: pos.x + offset.x, y: pos.y + offset.y };
+                pt.x = Math.floor(pt.x / gs) * gs;
+                pt.y = Math.floor(pt.y / gs) * gs;
+                let shift = { x: Math.floor(((tokens[i].width * gs) / 2) / gs) * gs, y: Math.floor(((tokens[i].height * gs) / 2) / gs) * gs };
+                pt = { x: pt.x - shift.x, y: pt.y - shift.y };
 
                 //t.update({ x: px[0], y: px[1] }, { animate: false });
-                updates.push({ _id: tokens[i].id, x: px[0], y: px[1] });
+                updates.push({ _id: tokens[i].id, x: pt.x, y: pt.y });
             }
             if (updates.length) {
                 MonksLittleDetails.movingToken = true;
@@ -770,8 +770,8 @@ Hooks.on('renderSceneConfig', async (app, html, options) => {
     if (game.settings.get("monks-little-details", 'scene-palette')) {
         MonksLittleDetails.currentScene = app.object;
 
-        let backgroundColor = $('input[data-edit="backgroundColor"]', html);
-        backgroundColor.parents('.form-group:first').css({ position: 'relative' });
+        let backgroundColor = $('color-picker[name="backgroundColor"]', html);
+        backgroundColor.css({ position: 'relative' });
         $('<button>').attr('type', 'button').html('<i class="fas fa-palette"></i>').on('click', function (e) {
             let element = $(this).siblings('.background-palette-container');
             if (element.length == 0) {
@@ -782,7 +782,7 @@ Hooks.on('renderSceneConfig', async (app, html, options) => {
             }
             e.preventDefault();
             e.stopPropagation();
-        }).insertAfter(backgroundColor);
+        }).appendTo(backgroundColor);
 
         $(html).on("click", () => { $('.background-palette-container', html).remove(); });
     }
@@ -904,7 +904,7 @@ Hooks.on("renderCompendium", (compendium, html, data) => {
                             }
                             if (compendium.currentsound == undefined || compendium.currentsound.sound.path != sound.path) {
                                 sound.playing = true;
-                                let audio = AudioHelper.play({ src: sound.path });
+                                let audio = foundry.audio.AudioHelper.play({ src: sound.path });
                                 compendium.currentsound = {
                                     sound: sound,
                                     audio: audio
@@ -1178,8 +1178,8 @@ Hooks.on("getCompendiumEntryContext", (html, entries) => {
 });
 
 Hooks.on("updateScene", (scene, data, options) => {
-    if ((data.darkness == 0 || data.darkness == 1) && options.animateDarkness != undefined && ui.controls.activeControl == "lighting") {
-        let tool = $(`#controls .sub-controls .control-tool[data-tool="${data.darkness == 0 ? 'day' : 'night'}"]`);
+    if ((data.environment?.darknessLevel == 0 || data.environment?.darknessLevel == 1) && options.animateDarkness != undefined && ui.controls.activeControl == "lighting") {
+        let tool = $(`#controls .sub-controls .control-tool[data-tool="${data.environment?.darknessLevel == 0 ? 'day' : 'night'}"]`);
         $('#darkness-progress').remove();
 
         let leftSide = $("<div>").attr("deg", 0);
@@ -1248,7 +1248,7 @@ Hooks.on("renderFilePicker", (app, html, data) => {
                     .append($("<i>").addClass(`fa-star ${link?.favorite ? "fa-solid" : "fa-regular"}`))
                     .click(function (ev) {
                         let target = $('input[name="target"]', html).val();
-                        let quicklinks = duplicate(game.user.getFlag("monks-little-details", "quicklinks") || []);
+                        let quicklinks = foundry.utils.duplicate(game.user.getFlag("monks-little-details", "quicklinks") || []);
                         let link = quicklinks.find(q => q.target == target);
                         if (link) {
                             MonksLittleDetails.toggleFavorite(target, ev);

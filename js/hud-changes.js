@@ -90,25 +90,27 @@ export class HUDChanges {
             $('#token-hud').addClass('monks-little-details').toggleClass('highlight-image', setting('alter-hud-colour'));
             const statuses = this._getStatusEffectChoices();
 
-            for (let img of $('> img,> picture', '.col.right .control-icon[data-action="effects"] .status-effects')) {
+            for (let img of $('> img,> picture', '.col.right .status-effects')) {
                 let src = $(img).attr('src');
                 if (src == '') {
                     $(img).css({ 'visibility': 'hidden' });
                 } else {
                     //const status = statuses[img.getAttribute("src")] || {};
-                    let title = $(img).attr('title') || $(img).attr('data-condition');
+                    let title = $(img).attr('data-tooltip') || $(img).attr('data-status-id') || $(img).attr('title') || $(img).attr('data-condition');
+
+                    $(img).removeAttr('data-tooltip');
 
                     if (game.system.id == "pf2e") {
                         $('<div>')
                             .addClass('effect-name')
-                            .attr('title', title)
+                            //.attr('title', title)
                             .html(title)
                             .insertAfter($('img', img));
                     } else {
                         $('<div>')
                             .addClass('effect-container')//$(img).attr('class'))
                             //.toggleClass('active', !!status.isActive)
-                            .attr('title', title)
+                            //.attr('title', title)
                             //.attr('src', $(img).attr('src'))
                             .insertAfter(img)
                             .append(img)//.removeClass('effect-control'))
@@ -118,7 +120,7 @@ export class HUDChanges {
                 }
             };
 
-            $('.col.right .control-icon[data-action="effects"] .status-effects > div.pf2e-effect-img-container', html).each(function () {
+            $('.col.right .status-effects > div.pf2e-effect-img-container', html).each(function () {
                 let img = $('img', this);
                 let title = img.attr('data-condition');
                 let div = $('<div>').addClass('effect-name').attr('title', title).html(title).insertAfter(img);
@@ -128,7 +130,7 @@ export class HUDChanges {
             });
 
             if (game.system.id !== 'pf2e' && setting("clear-all")) {
-                $('.col.right .control-icon[data-action="effects"] .status-effects', html).append(
+                $('.col.right .status-effects', html).append(
                     $('<div>').addClass('clear-all').html(`<i class="fas fa-times-circle"></i> ${i18n("MonksLittleDetails.ClearAll")}`).on("click", HUDChanges.clearAll.bind(this))
                 );
             }
