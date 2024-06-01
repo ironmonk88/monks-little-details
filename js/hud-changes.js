@@ -1,26 +1,18 @@
-import { MonksLittleDetails, i18n, log, setting } from "../monks-little-details.js";
+import { MonksLittleDetails, i18n, log, setting, patchFunc } from "../monks-little-details.js";
 
 export class HUDChanges {
     static init() {
         if (game.settings.get("monks-little-details", "alter-hud")) {
-            let tokenHUDRender = function (wrapped, ...args) {
+            patchFunc("TokenHUD.prototype._render", function (wrapped, ...args) {
                 let result = wrapped(...args).then((a, b) => {
                     HUDChanges.alterHUD.call(this, this.element);
                     CONFIG.statusEffects = CONFIG.statusEffects.filter(e => e.id != "");
                 });
 
                 return result;
-            }
-            if (game.modules.get("lib-wrapper")?.active) {
-                libWrapper.register("monks-little-details", "TokenHUD.prototype._render", tokenHUDRender, "WRAPPER");
-            } else {
-                const oldTokenHUDRender = TokenHUD.prototype._render;
-                TokenHUD.prototype._render = function (event) {
-                    return tokenHUDRender.call(this, oldTokenHUDRender.bind(this), ...arguments);
-                }
-            }
+            });
 
-            let getStatusEffectChoices = function (wrapped, ...args) {
+            patchFunc("TokenHUD.prototype._getStatusEffectChoices", function (wrapped, ...args) {
                 if (setting('sort-statuses') != 'none') {
                     CONFIG.statusEffects = CONFIG.statusEffects.map(e => {
                         let label = e.label ?? e.name;
@@ -34,49 +26,8 @@ export class HUDChanges {
                     });
                 }
 
-                /*
-                if (setting('sort-statuses') == 'columns') {
-                    let effects = [];
-                    let temp = CONFIG.statusEffects.filter(e => e.id != "");
-                    let mid = Math.ceil(temp.length / 4);
-                    for (let i = 0; i < mid; i++) {
-                        for (let j = 0; j < 4; j++) {
-                            let spot = i + (j * mid)
-                            effects.push((spot < temp.length ? temp[spot] : { id: "", icon: "", label: "" }));
-                        }
-                    }
-                    CONFIG.statusEffects = effects;
-                }*/
-
                 return wrapped(...args);
-            }
-
-            if (game.modules.get("lib-wrapper")?.active) {
-                libWrapper.register("monks-little-details", "TokenHUD.prototype._getStatusEffectChoices", getStatusEffectChoices, "WRAPPER");
-            } else {
-                const oldGetStatusEffectChoices = TokenHUD.prototype._getStatusEffectChoices;
-                TokenHUD.prototype._getStatusEffectChoices = function () {
-                    return getStatusEffectChoices.call(this, oldGetStatusEffectChoices.bind(this), ...arguments);
-                }
-            }
-
-            let refreshStatusIcons = function () {
-                const effects = this.element.find(".status-effects")[0];
-                const statuses = this._getStatusEffectChoices();
-                for (let img of $('[src]', effects)) {
-                    const status = statuses[img.getAttribute("src")] || {};
-                    img.classList.toggle("overlay", !!status.isOverlay);
-                    img.classList.toggle("active", !!status.isActive);
-                }
-            }
-
-            if (game.modules.get("lib-wrapper")?.active) {
-                libWrapper.register("monks-little-details", "TokenHUD.prototype.refreshStatusIcons", refreshStatusIcons, "OVERRIDE");
-            } else {
-                TokenHUD.prototype.refreshStatusIcons = function (event) {
-                    return refreshStatusIcons.call(this);
-                }
-            }
+            });
         }
     }
 

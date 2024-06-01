@@ -31,13 +31,20 @@ export let setting = key => {
 };
 
 export let patchFunc = (prop, func, type = "WRAPPER") => {
-    if (game.modules.get("lib-wrapper")?.active) {
-        libWrapper.register("monks-little-details", prop, func, type);
-    } else {
+    let nonLibWrapper = () => {
         const oldFunc = eval(prop);
         eval(`${prop} = function (event) {
-            return func.call(this, oldFunc.bind(this), ...arguments);
+            return func.call(this, ${type != "OVERRIDE" ? "oldFunc.bind(this)," : ""} ...arguments);
         }`);
+    }
+    if (game.modules.get("lib-wrapper")?.active) {
+        try {
+            libWrapper.register("monks-little-details", prop, func, type);
+        } catch (e) {
+            nonLibWrapper();
+        }
+    } else {
+        nonLibWrapper();
     }
 }
 
@@ -215,12 +222,12 @@ export class MonksLittleDetails {
         });
 
         if (game.settings.get("monks-little-details", "show-notify")) {
-            let chatLogNotify = function (...args) {
+            patchFunc("ChatLog.prototype.notify", function (...args) {
                 let message = args[0]
                 this._lastMessageTime = new Date();
                 if (!this.rendered) return;
 
-                // Display the chat notification icon and remove it 3 seconds later
+                // Display the chat notification icon and remove it 3 seconds later if the chat tab is active
                 let icon = $('#chat-notification');
                 if (icon.is(":hidden")) icon.fadeIn(100);
                 if (ui.sidebar.activeTab == 'chat') {
@@ -231,18 +238,10 @@ export class MonksLittleDetails {
 
                 // Play a notification sound effect
                 if (message.sound) foundry.audio.AudioHelper.play({ src: message.sound });
-            }
-
-            if (game.modules.get("lib-wrapper")?.active) {
-                libWrapper.register("monks-little-details", "ChatLog.prototype.notify", chatLogNotify, "OVERRIDE");
-            } else {
-                ChatLog.prototype.notify = function (event) {
-                    return chatLogNotify.call(this, ...arguments);
-                }
-            }
+            }, "OVERRIDE");
         }
-
-        let onDropData = async function (...args) {
+        /*
+        patchFunc("TilesLayer.prototype._onDropData", async function (...args) {
             const [event, data] = args;
             if (!data.texture?.src) return;
             if (!this.active) this.activate();
@@ -257,34 +256,25 @@ export class MonksLittleDetails {
             // Create the Tile Document
             const cls = getDocumentClass(this.constructor.documentName);
             return cls.create(createData, { parent: canvas.scene });
-        }
+        }, "OVERRIDE");
+        */
 
-        if (game.modules.get("lib-wrapper")?.active) {
-            libWrapper.register("monks-little-details", "TilesLayer.prototype._onDropData", onDropData, "OVERRIDE");
-        } else {
-            //const oldOnDropData = MapLayer.prototype._onDropData;
-            TilesLayer.prototype._onDropData = function () {
-                return onDropData.call(this, ...arguments);
-            }
-        }
-
-        let oldRenderPopout = ActorDirectory.prototype.renderPopout;
-        ActorDirectory.prototype.renderPopout = function () {
+        patchFunc("ActorDirectory.prototype.renderPopout", function (wrapped, ...args) {
             if (setting("open-actor")) {
                 if (game.user.isGM) {
                     if (MonksLittleDetails._lastActor)
                         MonksLittleDetails._lastActor.sheet.render(true, { focus: true });
                     else
-                        return oldRenderPopout.call(this);
+                        return wrapped(...args);
                 } else {
                     if (game.user.character)
                         game.user.character.sheet.render(true, { focus: true });
                     else
-                        return oldRenderPopout.call(this);
+                        return wrapped(...args);
                 }
             } else
-                return oldRenderPopout.call(this);
-        }
+                return wrapped(...args);
+        }, "MIXED");
     }
 
     static addQuickLink(target, favorite = false) {

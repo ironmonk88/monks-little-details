@@ -1,3 +1,9 @@
+# version 12.02
+
+Fixing an issue with v12 compatibility
+
+Cleaning up the code
+
 # version 12.01
 
 v12 Compatibility
