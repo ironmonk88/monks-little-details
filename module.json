@@ -72,7 +72,6 @@
   "download": "https://github.com/ironmonk88/monks-little-details/archive/12.02.zip",
   "manifest": "https://github.com/ironmonk88/monks-little-details/releases/latest/download/module.json",
   "bugs": "https://github.com/ironmonk88/monks-little-details/issues",
-  "allowBugReporter": true,
   "id": "monks-little-details",
   "compatibility": {
     "minimum": "12",
