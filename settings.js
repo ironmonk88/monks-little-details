@@ -18,6 +18,12 @@ export const registerSettings = function () {
 		'all': i18n("MonksLittleDetails.pausemove.everyone")
 	};
 
+	let dualMonitor = {
+		'none': i18n("MonksLittleDetails.dualmonitor.none"),
+        'left': i18n("MonksLittleDetails.dualmonitor.left"),
+        'right': i18n("MonksLittleDetails.dualmonitor.right")
+    };
+
 	game.settings.registerMenu(modulename, 'update-images', {
 		name: 'Update Images',
 		label: i18n("MonksLittleDetails.update-images.name"),
@@ -66,7 +72,7 @@ export const registerSettings = function () {
 	game.settings.register(modulename, "sort-by-columns", {
 		name: i18n("MonksLittleDetails.sort-by-columns.name"),
 		hint: i18n("MonksLittleDetails.sort-by-columns.hint"),
-		scope: "world",
+		scope: "client",
 		config: false,
 		default: false,
 		type: Boolean,
@@ -74,7 +80,7 @@ export const registerSettings = function () {
 	game.settings.register(modulename, "sort-statuses", {
 		name: i18n("MonksLittleDetails.sort-statuses.name"),
 		hint: i18n("MonksLittleDetails.sort-statuses.hint"),
-		scope: "world",
+		scope: "client",
 		config: MonksLittleDetails.canDo("sort-statuses"),
 		default: 'rows',
 		type: String,
@@ -291,6 +297,16 @@ export const registerSettings = function () {
 		config: true,
 		default: false,
 		type: Boolean,
+	});
+
+	game.settings.register(modulename, "dual-monitor", {
+		name: i18n("MonksLittleDetails.dual-monitor.name"),
+		hint: i18n("MonksLittleDetails.dual-monitor.hint"),
+		scope: "client",
+		config: true,
+		default: "none",
+		type: String,
+		choices: dualMonitor
 	});
 
 	game.settings.register(modulename, "show-warning", {

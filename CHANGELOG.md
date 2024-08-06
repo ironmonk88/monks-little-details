@@ -1,3 +1,11 @@
+# version 12.03
+
+Added the option to shift the center of a popUp dialog, in case you use dual monitors and want to stretch across both, you can have popUp windows center on the left or right monitor rather than in the middle split between them.
+
+Fixed issue setting the player colour using the palette of their avatar
+
+Changed the setting for sorting by columns to client controlled.  So this is a user choice and not set by the GM.
+
 # version 12.02
 
 Fixing an issue with v12 compatibility

@@ -61,6 +61,8 @@
 	"MonksLittleDetails.pause-border.hint": "Add a border around the screen to make it more obvious that the game is paused.",
 	"MonksLittleDetails.pause-border-colour.name": "Pause Border Colour",
 	"MonksLittleDetails.pause-border-colour.hint": "Change the colour of the pause border.",
+	"MonksLittleDetails.dual-monitor.name": "Dual Monitor",
+	"MonksLittleDetails.dual-monitor.hint": "Using a dual monitor, have a new pop up window center to one side or the other",
 
 	"MonksLittleDetails.SystemChanges": "System Changes",
 	"MonksLittleDetails.AddedFeatures": "Added Features",
@@ -107,11 +109,15 @@
 
 	"MonksLittleDetails.pausemove.noone": "No one",
 	"MonksLittleDetails.pausemove.everyone": "Everyone",
-  "MonksLittleDetails.pausemove.players": "Players",
+	"MonksLittleDetails.pausemove.players": "Players",
 
 	"MonksLittleDetails.sortstatus.none": "None",
 	"MonksLittleDetails.sortstatus.rows": "Rows",
 	"MonksLittleDetails.sortstatus.columns": "Columns",
+
+	"MonksLittleDetails.dualmonitor.none": "None",
+	"MonksLittleDetails.dualmonitor.left": "Left",
+	"MonksLittleDetails.dualmonitor.right": "Right",
 
 	"SIDEBAR.SortModeType": "Sorting By Type",
 	"SIDEBAR.SortModeSource": "Sorting By Source",

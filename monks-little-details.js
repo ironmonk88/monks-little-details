@@ -275,6 +275,34 @@ export class MonksLittleDetails {
             } else
                 return wrapped(...args);
         }, "MIXED");
+
+        patchFunc("Application.prototype.setPosition", function (wrapped, ...args) {
+            let [options] = args;
+            let { left } = (options || {});
+            let noPosition = !this.position || !this.position.left;
+            let noLeft = !left;
+            let result = wrapped(...args);
+            [options] = args;
+            left = (options || {}).left;
+            let scale = (options || {}).scale;
+            if (noLeft && noPosition && this.popOut && setting("dual-monitor") != "none") {
+                const el = this.element[0];
+                const currentPosition = this.position;
+                if (scale === null) scale = 1;
+                scale = scale ?? currentPosition.scale ?? 1;
+                let adjustWidth = window.innerWidth / 4;
+
+                const scaledWidth = this.position.width * scale;
+                const tarL = ((window.innerWidth / 2) - scaledWidth) / 2 + (setting("dual-monitor") == "right" ? (window.innerWidth / 2) : 0);
+                const maxL = Math.max(window.innerWidth - scaledWidth, 0);
+                currentPosition.left = left = Math.clamp(tarL, 0, maxL);
+                el.style.left = `${currentPosition.left}px`;
+
+                return currentPosition;
+            }
+
+            return result;
+        });
     }
 
     static addQuickLink(target, favorite = false) {
@@ -668,7 +696,7 @@ background-color: rgba(0, 0, 0, 0.5);
         return pixelArray;
     }
 
-    static getPalette(src, element, fn) {
+    static getPalette(src, element, ctrl, fn) {
         // Create custom CanvasImage object
         if (src != undefined) {
             loadTexture(src).then((texture) => {
@@ -692,6 +720,11 @@ background-color: rgba(0, 0, 0, 0.5);
 
                     const pixelArray = MonksLittleDetails.createPixelArray(pixels, pixelCount, 10);
 
+                    if (pixelArray.length == 0) {
+                        $(element).remove();
+                        return;
+                    }
+
                     sprite.destroy();
 
                     // Send array to quantize function which clusters values
@@ -702,21 +735,21 @@ background-color: rgba(0, 0, 0, 0.5);
                     $(element).empty();
                     for (let i = 0; i < palette.length; i++) {
                         var hexCode = MonksLittleDetails.rgbToHex(palette[i][0], palette[i][1], palette[i][2]);
-                        $(element).append($('<div>').addClass('background-palette').attr('title', hexCode).css({ backgroundColor: hexCode }).on('click', $.proxy(fn, MonksLittleDetails, hexCode, element)));
+                        $(element).append($('<div>').addClass('background-palette').attr('title', hexCode).css({ backgroundColor: hexCode }).on('click', $.proxy(fn, MonksLittleDetails, hexCode, ctrl, element)));
                     }
                 }
             })
         }
     };
 
-    static async updateSceneBackground(hexCode, element) {
+    static async updateSceneBackground(hexCode, ctrl, element) {
         $('.background-palette-container', element).remove();
         await MonksLittleDetails.currentScene.update({ backgroundColor: hexCode });
     }
 
-    static async updatePlayerColour(hexCode, element) {
+    static updatePlayerColour(hexCode, ctrl, element) {
         $('.background-palette-container', element).remove();
-        await MonksLittleDetails.currentUser.update({ color: hexCode });
+        $('input', ctrl).val(hexCode).get(0).dispatchEvent(new Event('change'));   
     }
 
     static emit(action, args = {}) {
@@ -766,7 +799,7 @@ Hooks.on('renderSceneConfig', async (app, html, options) => {
             let element = $(this).siblings('.background-palette-container');
             if (element.length == 0) {
                 element = $('<div>').addClass('background-palette-container flexrow').insertAfter(this);
-                MonksLittleDetails.getPalette(MonksLittleDetails.currentScene.background.src, element, MonksLittleDetails.updateSceneBackground);
+                MonksLittleDetails.getPalette(MonksLittleDetails.currentScene.background.src, element, "", MonksLittleDetails.updateSceneBackground);
             } else {
                 element.remove();
             }
@@ -798,25 +831,26 @@ Hooks.on('renderSceneConfig', async (app, html, options) => {
 });
 
 Hooks.on('renderUserConfig', async (app, html, options) => {
-    if (game.settings.get("monks-little-details", 'scene-palette') && app.object.avatar) {
-        MonksLittleDetails.currentUser = app.object;
+    if (game.settings.get("monks-little-details", 'scene-palette') && app.document.avatar) {
+        MonksLittleDetails.currentUser = app.document;
 
-        let playerColor = $('input[data-edit="color"]', html);
-        playerColor.parents('.form-group:first').css({ position: 'relative' });
+        let playerColor = $(`color-picker[id="UserConfig-${app.document.uuid}-form-color"]`, app.element);
+        playerColor.css({ position: 'relative' });
         $('<button>').attr('type', 'button').html('<i class="fas fa-palette"></i>').on('click', function (e) {
             let element = $(this).siblings('.background-palette-container');
             if (element.length == 0) {
                 element = $('<div>').addClass('background-palette-container flexrow').insertAfter(this);
-                MonksLittleDetails.getPalette(MonksLittleDetails.currentUser.avatar, element, MonksLittleDetails.updatePlayerColour);
+                let avatar = $(`file-picker[id="UserConfig-${app.document.uuid}-form-avatar"] input`, app.element).val();
+                MonksLittleDetails.getPalette(avatar, element, playerColor, MonksLittleDetails.updatePlayerColour);
             } else {
                 element.remove();
             }
             e.preventDefault();
             e.stopPropagation();
-        }).insertAfter(playerColor);
+        }).appendTo(playerColor);
     }
 
-    $(html).on("click", () => { $('.background-palette-container', html).remove(); });
+    $(app.element).on("click", () => { $('.background-palette-container', app.element).remove(); });
 
     app.setPosition({ height: 'auto' });
 });
