@@ -1,26 +1,18 @@
-import { MonksLittleDetails, i18n, log, setting } from "../monks-little-details.js";
+import { MonksLittleDetails, i18n, log, setting, patchFunc } from "../monks-little-details.js";
 
 export class HUDChanges {
     static init() {
         if (game.settings.get("monks-little-details", "alter-hud")) {
-            let tokenHUDRender = function (wrapped, ...args) {
+            patchFunc("TokenHUD.prototype._render", function (wrapped, ...args) {
                 let result = wrapped(...args).then((a, b) => {
                     HUDChanges.alterHUD.call(this, this.element);
                     CONFIG.statusEffects = CONFIG.statusEffects.filter(e => e.id != "");
                 });
 
                 return result;
-            }
-            if (game.modules.get("lib-wrapper")?.active) {
-                libWrapper.register("monks-little-details", "TokenHUD.prototype._render", tokenHUDRender, "WRAPPER");
-            } else {
-                const oldTokenHUDRender = TokenHUD.prototype._render;
-                TokenHUD.prototype._render = function (event) {
-                    return tokenHUDRender.call(this, oldTokenHUDRender.bind(this), ...arguments);
-                }
-            }
+            });
 
-            let getStatusEffectChoices = function (wrapped, ...args) {
+            patchFunc("TokenHUD.prototype._getStatusEffectChoices", function (wrapped, ...args) {
                 if (setting('sort-statuses') != 'none') {
                     CONFIG.statusEffects = CONFIG.statusEffects.map(e => {
                         let label = e.label ?? e.name;
@@ -34,49 +26,8 @@ export class HUDChanges {
                     });
                 }
 
-                /*
-                if (setting('sort-statuses') == 'columns') {
-                    let effects = [];
-                    let temp = CONFIG.statusEffects.filter(e => e.id != "");
-                    let mid = Math.ceil(temp.length / 4);
-                    for (let i = 0; i < mid; i++) {
-                        for (let j = 0; j < 4; j++) {
-                            let spot = i + (j * mid)
-                            effects.push((spot < temp.length ? temp[spot] : { id: "", icon: "", label: "" }));
-                        }
-                    }
-                    CONFIG.statusEffects = effects;
-                }*/
-
                 return wrapped(...args);
-            }
-
-            if (game.modules.get("lib-wrapper")?.active) {
-                libWrapper.register("monks-little-details", "TokenHUD.prototype._getStatusEffectChoices", getStatusEffectChoices, "WRAPPER");
-            } else {
-                const oldGetStatusEffectChoices = TokenHUD.prototype._getStatusEffectChoices;
-                TokenHUD.prototype._getStatusEffectChoices = function () {
-                    return getStatusEffectChoices.call(this, oldGetStatusEffectChoices.bind(this), ...arguments);
-                }
-            }
-
-            let refreshStatusIcons = function () {
-                const effects = this.element.find(".status-effects")[0];
-                const statuses = this._getStatusEffectChoices();
-                for (let img of $('[src]', effects)) {
-                    const status = statuses[img.getAttribute("src")] || {};
-                    img.classList.toggle("overlay", !!status.isOverlay);
-                    img.classList.toggle("active", !!status.isActive);
-                }
-            }
-
-            if (game.modules.get("lib-wrapper")?.active) {
-                libWrapper.register("monks-little-details", "TokenHUD.prototype.refreshStatusIcons", refreshStatusIcons, "OVERRIDE");
-            } else {
-                TokenHUD.prototype.refreshStatusIcons = function (event) {
-                    return refreshStatusIcons.call(this);
-                }
-            }
+            });
         }
     }
 
@@ -90,25 +41,27 @@ export class HUDChanges {
             $('#token-hud').addClass('monks-little-details').toggleClass('highlight-image', setting('alter-hud-colour'));
             const statuses = this._getStatusEffectChoices();
 
-            for (let img of $('> img,> picture', '.col.right .control-icon[data-action="effects"] .status-effects')) {
+            for (let img of $('> img,> picture', '.col.right .status-effects')) {
                 let src = $(img).attr('src');
                 if (src == '') {
                     $(img).css({ 'visibility': 'hidden' });
                 } else {
                     //const status = statuses[img.getAttribute("src")] || {};
-                    let title = $(img).attr('title') || $(img).attr('data-condition');
+                    let title = $(img).attr('data-tooltip') || $(img).attr('data-status-id') || $(img).attr('title') || $(img).attr('data-condition');
+
+                    $(img).removeAttr('data-tooltip');
 
                     if (game.system.id == "pf2e") {
                         $('<div>')
                             .addClass('effect-name')
-                            .attr('title', title)
+                            //.attr('title', title)
                             .html(title)
                             .insertAfter($('img', img));
                     } else {
                         $('<div>')
                             .addClass('effect-container')//$(img).attr('class'))
                             //.toggleClass('active', !!status.isActive)
-                            .attr('title', title)
+                            //.attr('title', title)
                             //.attr('src', $(img).attr('src'))
                             .insertAfter(img)
                             .append(img)//.removeClass('effect-control'))
@@ -118,7 +71,7 @@ export class HUDChanges {
                 }
             };
 
-            $('.col.right .control-icon[data-action="effects"] .status-effects > div.pf2e-effect-img-container', html).each(function () {
+            $('.col.right .status-effects > div.pf2e-effect-img-container', html).each(function () {
                 let img = $('img', this);
                 let title = img.attr('data-condition');
                 let div = $('<div>').addClass('effect-name').attr('title', title).html(title).insertAfter(img);
@@ -128,7 +81,7 @@ export class HUDChanges {
             });
 
             if (game.system.id !== 'pf2e' && setting("clear-all")) {
-                $('.col.right .control-icon[data-action="effects"] .status-effects', html).append(
+                $('.col.right .status-effects', html).append(
                     $('<div>').addClass('clear-all').html(`<i class="fas fa-times-circle"></i> ${i18n("MonksLittleDetails.ClearAll")}`).on("click", HUDChanges.clearAll.bind(this))
                 );
             }

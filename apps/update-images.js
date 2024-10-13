@@ -53,7 +53,7 @@ export class UpdateImages extends FormApplication {
     }
 
     convert() {
-        let data = expandObject(super._getSubmitData());
+        let data = foundry.utils.expandObject(super._getSubmitData());
 
         $('.conversion-results', this.element).empty();
         this._tabs[0].activate("action-results", { triggerCallback: true });
@@ -146,7 +146,7 @@ export class UpdateImages extends FormApplication {
                     usename = `${root}{${names.join(",")}}.${extension}`;
             }
 
-            if (getProperty(entry, prop) == usename) {
+            if (foundry.utils.getProperty(entry, prop) == usename) {
                 this.addText(`<span>Ignoring ${type}: ${entry.name}, image is the same</span>`, "ignoring-update");
                 return true;
             }
@@ -156,7 +156,7 @@ export class UpdateImages extends FormApplication {
             if (prop.startsWith("prototypeToken") && wildcard) {
                 update["prototypeToken.randomImg"] = true;
             }
-            update = expandObject(update);
+            update = foundry.utils.expandObject(update);
 
             //try {
             log('Fixing:', entry.name, usename);
@@ -201,14 +201,14 @@ export class UpdateImages extends FormApplication {
                         names.push(altname.toLowerCase());
                     }
                     if (!options.strict) {
-                        for (let name of duplicate(names)) {
+                        for (let name of foundry.utils.duplicate(names)) {
                             let flexname = name.replace('ancient', '').replace('adult', '').replace('young', '').replace('Ancient', '').replace('Adult', '').replace('Young', '');
                             if (flexname != name)
                                 names.push(flexname);
                         }
                     }
 
-                    var mtype = entry.system.details.type?.value.toLowerCase() || entry.system.traits?.traits?.value || ""; //|| entry.system.details.creatureType?.toLowerCase()
+                    var mtype = entry.system.details.type?.value?.toLowerCase() || entry.system.traits?.traits?.value || ""; //|| entry.system.details.creatureType?.toLowerCase()
                     mtype = (mtype instanceof Array ? mtype : [mtype]);
                     if (entry.name.toLowerCase().startsWith("swarm"))
                         mtype.push("swarm");
@@ -236,7 +236,7 @@ export class UpdateImages extends FormApplication {
                                 if (!!result) {
                                     found = true;
                                     if (result !== true) {
-                                        mergeObject(update, result);
+                                        foundry.utils.mergeObject(update, result);
                                     }
                                     break foundAvatar;
                                 }
@@ -258,7 +258,7 @@ export class UpdateImages extends FormApplication {
                                 if (!!result) {
                                     found = true;
                                     if (result !== true) {
-                                        mergeObject(update, result);
+                                        foundry.utils.mergeObject(update, result);
                                     }
                                     break foundToken;
                                 }
@@ -277,14 +277,14 @@ export class UpdateImages extends FormApplication {
                             let result = await this.fixEntry(entry, "flags.monks-little-details.sound-effect", root, soundname, "sound", options.wildcard);
                             if (!!result) {
                                 if (result !== true) {
-                                    mergeObject(update, result);
+                                    foundry.utils.mergeObject(update, result);
                                 }
                                 break foundSound;
                             }
                         }
                     }
 
-                    if (!isEmpty(update)) {
+                    if (!foundry.utils.isEmpty(update)) {
                         update._id = entry._id;
                         updates.push(update);
                     }

@@ -1,6 +1,11 @@
 :root {
     --sidebar-padding: 4px;
     --pause-border-color: 77, 208, 225;
+    --pause-padding: 150px;
+}
+
+body.system-cyberpunk-red-core {
+    --pause-padding: 4rem;
 }
 
 body.mld-paused:after {
@@ -98,9 +103,9 @@ body.mld-paused:after {
 
 .background-palette-container {
     position: absolute;
-    width: 385px;
+    width: 100%;
     height: 30px;
-    top: 30px;
+    top: 34px;
     border-radius: 4px;
     border: 1px solid #7a7971;
     background: url(../../../ui/parchment.jpg) repeat;
@@ -225,6 +230,10 @@ body.system-pf2e #token-hud.monks-little-details .status-effects .pf2e-effect-va
     filter: sepia(100%) saturate(2000%) hue-rotate(-50deg);
 }
 
+body.system-dnd5e #token-hud.monks-little-details.highlight-image .status-effects .effect-control.active {
+    background-position-x: left !important;
+}
+
 #token-hud.monks-little-details .status-effects .effect-container:hover .effect-control.active,
 #token-hud.monks-little-details .status-effects .pf2e-effect-img-container:hover .pf2e-effect-control.active {
     color: #ffc163 !important;
@@ -342,7 +351,7 @@ body.change-windows:not(.system-forbidden-lands) .window-app:not(.image-popout) 
     background-color: var(--color-border-dark-5);
 }
 
-body.change-windows:not(.system-forbidden-lands) .window-app > header {
+body.change-windows:not(.system-forbidden-lands) .window-app:not(.dnd5e2.character) > header {
     border: 1px solid var(--color-border-dark-4);
     border-bottom: 1px solid var(--color-border-dark);
     border-top-right-radius: 4px;
@@ -418,7 +427,7 @@ body.change-windows #context-menu:not(.dnd5e2) {
     border: none;
     float: left;
     position: absolute;
-    top: 5px;
+    top: 0px;
     left: 4px;
     width: 20px;
     padding-left: 1px;
@@ -663,4 +672,8 @@ body.change-windows #context-menu:not(.dnd5e2) {
     margin-left: 0.25rem;
     opacity: 0.5;
     cursor: pointer;
+}
+
+textarea[name="command"] {
+    tab-size: 20px;
 }

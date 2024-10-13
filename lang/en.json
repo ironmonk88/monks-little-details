@@ -2,7 +2,7 @@
 	"MonksLittleDetails.swap-buttons.name": "Swap target and settings button on the Token HUD",
 	"MonksLittleDetails.swap-buttons.hint": "I think the settings button makes more sense on the bottom rather than in the middle.",
 	"MonksLittleDetails.alter-hud.name": "Alter the Token HUD status effects",
-	"MonksLittleDetails.alter-hud.hint": "Alter the Token HUD to show detailed status effects and allow to clear all effects.",
+	"MonksLittleDetails.alter-hud.hint": "Alter the Token HUD to show detailed status effects.",
 	"MonksLittleDetails.alter-hud-colour.name": "Highlight Token HUD status effects",
 	"MonksLittleDetails.alter-hud-colour.hint": "When a status is selected in Token HUD change the colour to highlight it.  Disable if you use coloured images.",
 	"MonksLittleDetails.add-extra-statuses.name": "Add extra statuses",
@@ -61,6 +61,8 @@
 	"MonksLittleDetails.pause-border.hint": "Add a border around the screen to make it more obvious that the game is paused.",
 	"MonksLittleDetails.pause-border-colour.name": "Pause Border Colour",
 	"MonksLittleDetails.pause-border-colour.hint": "Change the colour of the pause border.",
+	"MonksLittleDetails.dual-monitor.name": "Dual Monitor",
+	"MonksLittleDetails.dual-monitor.hint": "Using a dual monitor, have a new pop up window center to one side or the other",
 
 	"MonksLittleDetails.SystemChanges": "System Changes",
 	"MonksLittleDetails.AddedFeatures": "Added Features",
@@ -107,11 +109,15 @@
 
 	"MonksLittleDetails.pausemove.noone": "No one",
 	"MonksLittleDetails.pausemove.everyone": "Everyone",
-  "MonksLittleDetails.pausemove.players": "Players",
+	"MonksLittleDetails.pausemove.players": "Players",
 
 	"MonksLittleDetails.sortstatus.none": "None",
 	"MonksLittleDetails.sortstatus.rows": "Rows",
 	"MonksLittleDetails.sortstatus.columns": "Columns",
+
+	"MonksLittleDetails.dualmonitor.none": "None",
+	"MonksLittleDetails.dualmonitor.left": "Left",
+	"MonksLittleDetails.dualmonitor.right": "Right",
 
 	"SIDEBAR.SortModeType": "Sorting By Type",
 	"SIDEBAR.SortModeSource": "Sorting By Source",

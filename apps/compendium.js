@@ -95,7 +95,7 @@ export class MonksCompendium {
         }
 
         CompendiumPacks.prototype.classifyFolderContent = function (folder, folders, entries, { allowChildren = true } = {}) {
-            const sort = this.getSort(getProperty(folder, "flags.monks-little-details.sorting"));
+            const sort = this.getSort(foundry.utils.getProperty(folder, "flags.monks-little-details.sorting"));
 
             // Determine whether an entry belongs to a folder, via folder ID or folder reference
             function folderMatches(entry) {
@@ -199,7 +199,7 @@ export class MonksCompendium {
 
             let parseEntries = (item) => {
                 let types = {};
-                let sort = getProperty(item, "folder.flags.monks-little-details.sorting") || sortingMode;
+                let sort = foundry.utils.getProperty(item, "folder.flags.monks-little-details.sorting") || sortingMode;
                 if (sort == "t" || sort == "s") {
                     for (let entry of item.entries) {
                         let prop = entry.metadata[sort == "t" ? "type" : "packageName"];
@@ -291,7 +291,7 @@ export class MonksCompendium {
                     `<option value="m">${i18n("FOLDER.SortManual")}</option>`,
                     `<option value="t">${i18n("FOLDER.SortType")}</option>`,
                     `<option value="s">${i18n("FOLDER.SortSource")}</option>`
-                ]).val(getProperty(options, "folder.flags.monks-little-details.sorting") || "a"));
+                ]).val(foundry.utils.getProperty(options, "folder.flags.monks-little-details.sorting") || "a"));
             }
         });
     }

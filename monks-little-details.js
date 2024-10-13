@@ -31,19 +31,22 @@ export let setting = key => {
 };
 
 export let patchFunc = (prop, func, type = "WRAPPER") => {
-    if (game.modules.get("lib-wrapper")?.active) {
-        libWrapper.register("monks-little-details", prop, func, type);
-    } else {
+    let nonLibWrapper = () => {
         const oldFunc = eval(prop);
         eval(`${prop} = function (event) {
-            return func.call(this, oldFunc.bind(this), ...arguments);
+            return func.call(this, ${type != "OVERRIDE" ? "oldFunc.bind(this)," : ""} ...arguments);
         }`);
     }
+    if (game.modules.get("lib-wrapper")?.active) {
+        try {
+            libWrapper.register("monks-little-details", prop, func, type);
+        } catch (e) {
+            nonLibWrapper();
+        }
+    } else {
+        nonLibWrapper();
+    }
 }
-
-export let isV11 = () => {
-    return isNewerVersion(game.version, "10.9999");
-};
 
 export class MonksLittleDetails {
     static tokenHUDimages = {};
@@ -209,13 +212,22 @@ export class MonksLittleDetails {
             title.append(srcLink);
         });
 
+        patchFunc("ControlsLayer.prototype.drawCursor", function (wrapped, ...args) {
+            let result = wrapped(...args);
+            let [user] = args;
+            if (!user.hasPermission("SHOW_CURSOR")) {
+                let cursor = this._cursors[user.id];
+                if (cursor) cursor.visible = false;
+            }
+        });
+
         if (game.settings.get("monks-little-details", "show-notify")) {
-            let chatLogNotify = function (...args) {
+            patchFunc("ChatLog.prototype.notify", function (...args) {
                 let message = args[0]
                 this._lastMessageTime = new Date();
                 if (!this.rendered) return;
 
-                // Display the chat notification icon and remove it 3 seconds later
+                // Display the chat notification icon and remove it 3 seconds later if the chat tab is active
                 let icon = $('#chat-notification');
                 if (icon.is(":hidden")) icon.fadeIn(100);
                 if (ui.sidebar.activeTab == 'chat') {
@@ -225,19 +237,11 @@ export class MonksLittleDetails {
                 }
 
                 // Play a notification sound effect
-                if (message.sound) AudioHelper.play({ src: message.sound });
-            }
-
-            if (game.modules.get("lib-wrapper")?.active) {
-                libWrapper.register("monks-little-details", "ChatLog.prototype.notify", chatLogNotify, "OVERRIDE");
-            } else {
-                ChatLog.prototype.notify = function (event) {
-                    return chatLogNotify.call(this, ...arguments);
-                }
-            }
+                if (message.sound) foundry.audio.AudioHelper.play({ src: message.sound });
+            }, "OVERRIDE");
         }
-
-        let onDropData = async function (...args) {
+        /*
+        patchFunc("TilesLayer.prototype._onDropData", async function (...args) {
             const [event, data] = args;
             if (!data.texture?.src) return;
             if (!this.active) this.activate();
@@ -252,34 +256,53 @@ export class MonksLittleDetails {
             // Create the Tile Document
             const cls = getDocumentClass(this.constructor.documentName);
             return cls.create(createData, { parent: canvas.scene });
-        }
+        }, "OVERRIDE");
+        */
 
-        if (game.modules.get("lib-wrapper")?.active) {
-            libWrapper.register("monks-little-details", "TilesLayer.prototype._onDropData", onDropData, "OVERRIDE");
-        } else {
-            //const oldOnDropData = MapLayer.prototype._onDropData;
-            TilesLayer.prototype._onDropData = function () {
-                return onDropData.call(this, ...arguments);
-            }
-        }
-
-        let oldRenderPopout = ActorDirectory.prototype.renderPopout;
-        ActorDirectory.prototype.renderPopout = function () {
+        patchFunc("ActorDirectory.prototype.renderPopout", function (wrapped, ...args) {
             if (setting("open-actor")) {
                 if (game.user.isGM) {
                     if (MonksLittleDetails._lastActor)
                         MonksLittleDetails._lastActor.sheet.render(true, { focus: true });
                     else
-                        return oldRenderPopout.call(this);
+                        return wrapped(...args);
                 } else {
                     if (game.user.character)
                         game.user.character.sheet.render(true, { focus: true });
                     else
-                        return oldRenderPopout.call(this);
+                        return wrapped(...args);
                 }
             } else
-                return oldRenderPopout.call(this);
-        }
+                return wrapped(...args);
+        }, "MIXED");
+
+        patchFunc("Application.prototype.setPosition", function (wrapped, ...args) {
+            let [options] = args;
+            let { left } = (options || {});
+            let noPosition = !this.position || !this.position.left;
+            let noLeft = !left;
+            let result = wrapped(...args);
+            [options] = args;
+            left = (options || {}).left;
+            let scale = (options || {}).scale;
+            if (noLeft && noPosition && this.popOut && setting("dual-monitor") != "none") {
+                const el = this.element[0];
+                const currentPosition = this.position;
+                if (scale === null) scale = 1;
+                scale = scale ?? currentPosition.scale ?? 1;
+                let adjustWidth = window.innerWidth / 4;
+
+                const scaledWidth = this.position.width * scale;
+                const tarL = ((window.innerWidth / 2) - scaledWidth) / 2 + (setting("dual-monitor") == "right" ? (window.innerWidth / 2) : 0);
+                const maxL = Math.max(window.innerWidth - scaledWidth, 0);
+                currentPosition.left = left = Math.clamp(tarL, 0, maxL);
+                el.style.left = `${currentPosition.left}px`;
+
+                return currentPosition;
+            }
+
+            return result;
+        });
     }
 
     static addQuickLink(target, favorite = false) {
@@ -354,7 +377,7 @@ export class MonksLittleDetails {
         event.preventDefault();
         event.stopPropagation();
 
-        let quicklinks = duplicate(game.user.getFlag("monks-little-details", "quicklinks") || []);
+        let quicklinks = foundry.utils.duplicate(game.user.getFlag("monks-little-details", "quicklinks") || []);
         let link = quicklinks.find(q => q.target == target);
         link.favorite = !link.favorite;
         game.user.setFlag("monks-little-details", "quicklinks", quicklinks);
@@ -576,7 +599,7 @@ background-color: rgba(0, 0, 0, 0.5);
 }
 #pause img {
     top: -100px;
-    left: calc(50% - 150px);
+    left: calc(50% - var(--pause-padding));
     height: 300px;
     width: 300px;
     opacity: 0.3;
@@ -611,6 +634,8 @@ background-color: rgba(0, 0, 0, 0.5);
 
         if (game.user.isGM && moveKey && game.keyboard.downKeys.has(moveKey) && tokens.length > 0) {
             let pos = event.data.getLocalPosition(canvas.app.stage);
+            let gs = canvas.scene.dimensions.size;
+
             let mid = {
                 x: tokens[0].x,
                 y: tokens[0].y
@@ -624,13 +649,15 @@ background-color: rgba(0, 0, 0, 0.5);
 
             let updates = [];
             for (let i = 0; i < tokens.length; i++) {
-                let offsetx = mid.x - tokens[i].x;
-                let offsety = mid.y - tokens[i].y;
-                let gridPt = canvas.grid.grid.getGridPositionFromPixels(pos.x - offsetx, pos.y - offsety);
-                let px = canvas.grid.grid.getPixelsFromGridPosition(gridPt[0], gridPt[1]);
+                let offset = { x: tokens[i].x - mid.x, y: tokens[i].y - mid.y };
+                let pt = { x: pos.x + offset.x, y: pos.y + offset.y };
+                pt.x = Math.floor(pt.x / gs) * gs;
+                pt.y = Math.floor(pt.y / gs) * gs;
+                let shift = { x: Math.floor(((tokens[i].width * gs) / 2) / gs) * gs, y: Math.floor(((tokens[i].height * gs) / 2) / gs) * gs };
+                pt = { x: pt.x - shift.x, y: pt.y - shift.y };
 
                 //t.update({ x: px[0], y: px[1] }, { animate: false });
-                updates.push({ _id: tokens[i].id, x: px[0], y: px[1] });
+                updates.push({ _id: tokens[i].id, x: pt.x, y: pt.y });
             }
             if (updates.length) {
                 MonksLittleDetails.movingToken = true;
@@ -669,7 +696,7 @@ background-color: rgba(0, 0, 0, 0.5);
         return pixelArray;
     }
 
-    static getPalette(src, element, fn) {
+    static getPalette(src, element, ctrl, fn) {
         // Create custom CanvasImage object
         if (src != undefined) {
             loadTexture(src).then((texture) => {
@@ -693,6 +720,11 @@ background-color: rgba(0, 0, 0, 0.5);
 
                     const pixelArray = MonksLittleDetails.createPixelArray(pixels, pixelCount, 10);
 
+                    if (pixelArray.length == 0) {
+                        $(element).remove();
+                        return;
+                    }
+
                     sprite.destroy();
 
                     // Send array to quantize function which clusters values
@@ -703,21 +735,21 @@ background-color: rgba(0, 0, 0, 0.5);
                     $(element).empty();
                     for (let i = 0; i < palette.length; i++) {
                         var hexCode = MonksLittleDetails.rgbToHex(palette[i][0], palette[i][1], palette[i][2]);
-                        $(element).append($('<div>').addClass('background-palette').attr('title', hexCode).css({ backgroundColor: hexCode }).on('click', $.proxy(fn, MonksLittleDetails, hexCode, element)));
+                        $(element).append($('<div>').addClass('background-palette').attr('title', hexCode).css({ backgroundColor: hexCode }).on('click', $.proxy(fn, MonksLittleDetails, hexCode, ctrl, element)));
                     }
                 }
             })
         }
     };
 
-    static async updateSceneBackground(hexCode, element) {
+    static async updateSceneBackground(hexCode, ctrl, element) {
         $('.background-palette-container', element).remove();
         await MonksLittleDetails.currentScene.update({ backgroundColor: hexCode });
     }
 
-    static async updatePlayerColour(hexCode, element) {
+    static updatePlayerColour(hexCode, ctrl, element) {
         $('.background-palette-container', element).remove();
-        await MonksLittleDetails.currentUser.update({ color: hexCode });
+        $('input', ctrl).val(hexCode).get(0).dispatchEvent(new Event('change'));   
     }
 
     static emit(action, args = {}) {
@@ -761,19 +793,19 @@ Hooks.on('renderSceneConfig', async (app, html, options) => {
     if (game.settings.get("monks-little-details", 'scene-palette')) {
         MonksLittleDetails.currentScene = app.object;
 
-        let backgroundColor = $('input[data-edit="backgroundColor"]', html);
-        backgroundColor.parents('.form-group:first').css({ position: 'relative' });
+        let backgroundColor = $('color-picker[name="backgroundColor"]', html);
+        backgroundColor.css({ position: 'relative' });
         $('<button>').attr('type', 'button').html('<i class="fas fa-palette"></i>').on('click', function (e) {
             let element = $(this).siblings('.background-palette-container');
             if (element.length == 0) {
                 element = $('<div>').addClass('background-palette-container flexrow').insertAfter(this);
-                MonksLittleDetails.getPalette(MonksLittleDetails.currentScene.background.src, element, MonksLittleDetails.updateSceneBackground);
+                MonksLittleDetails.getPalette(MonksLittleDetails.currentScene.background.src, element, "", MonksLittleDetails.updateSceneBackground);
             } else {
                 element.remove();
             }
             e.preventDefault();
             e.stopPropagation();
-        }).insertAfter(backgroundColor);
+        }).appendTo(backgroundColor);
 
         $(html).on("click", () => { $('.background-palette-container', html).remove(); });
     }
@@ -799,25 +831,26 @@ Hooks.on('renderSceneConfig', async (app, html, options) => {
 });
 
 Hooks.on('renderUserConfig', async (app, html, options) => {
-    if (game.settings.get("monks-little-details", 'scene-palette') && app.object.avatar) {
-        MonksLittleDetails.currentUser = app.object;
+    if (game.settings.get("monks-little-details", 'scene-palette') && app.document.avatar) {
+        MonksLittleDetails.currentUser = app.document;
 
-        let playerColor = $('input[data-edit="color"]', html);
-        playerColor.parents('.form-group:first').css({ position: 'relative' });
+        let playerColor = $(`color-picker[id="UserConfig-${app.document.uuid}-form-color"]`, app.element);
+        playerColor.css({ position: 'relative' });
         $('<button>').attr('type', 'button').html('<i class="fas fa-palette"></i>').on('click', function (e) {
             let element = $(this).siblings('.background-palette-container');
             if (element.length == 0) {
                 element = $('<div>').addClass('background-palette-container flexrow').insertAfter(this);
-                MonksLittleDetails.getPalette(MonksLittleDetails.currentUser.avatar, element, MonksLittleDetails.updatePlayerColour);
+                let avatar = $(`file-picker[id="UserConfig-${app.document.uuid}-form-avatar"] input`, app.element).val();
+                MonksLittleDetails.getPalette(avatar, element, playerColor, MonksLittleDetails.updatePlayerColour);
             } else {
                 element.remove();
             }
             e.preventDefault();
             e.stopPropagation();
-        }).insertAfter(playerColor);
+        }).appendTo(playerColor);
     }
 
-    $(html).on("click", () => { $('.background-palette-container', html).remove(); });
+    $(app.element).on("click", () => { $('.background-palette-container', app.element).remove(); });
 
     app.setPosition({ height: 'auto' });
 });
@@ -895,7 +928,7 @@ Hooks.on("renderCompendium", (compendium, html, data) => {
                             }
                             if (compendium.currentsound == undefined || compendium.currentsound.sound.path != sound.path) {
                                 sound.playing = true;
-                                let audio = AudioHelper.play({ src: sound.path });
+                                let audio = foundry.audio.AudioHelper.play({ src: sound.path });
                                 compendium.currentsound = {
                                     sound: sound,
                                     audio: audio
@@ -1169,8 +1202,8 @@ Hooks.on("getCompendiumEntryContext", (html, entries) => {
 });
 
 Hooks.on("updateScene", (scene, data, options) => {
-    if ((data.darkness == 0 || data.darkness == 1) && options.animateDarkness != undefined && ui.controls.activeControl == "lighting") {
-        let tool = $(`#controls .sub-controls .control-tool[data-tool="${data.darkness == 0 ? 'day' : 'night'}"]`);
+    if ((data.environment?.darknessLevel == 0 || data.environment?.darknessLevel == 1) && options.animateDarkness != undefined && ui.controls.activeControl == "lighting") {
+        let tool = $(`#controls .sub-controls .control-tool[data-tool="${data.environment?.darknessLevel == 0 ? 'day' : 'night'}"]`);
         $('#darkness-progress').remove();
 
         let leftSide = $("<div>").attr("deg", 0);
@@ -1239,7 +1272,7 @@ Hooks.on("renderFilePicker", (app, html, data) => {
                     .append($("<i>").addClass(`fa-star ${link?.favorite ? "fa-solid" : "fa-regular"}`))
                     .click(function (ev) {
                         let target = $('input[name="target"]', html).val();
-                        let quicklinks = duplicate(game.user.getFlag("monks-little-details", "quicklinks") || []);
+                        let quicklinks = foundry.utils.duplicate(game.user.getFlag("monks-little-details", "quicklinks") || []);
                         let link = quicklinks.find(q => q.target == target);
                         if (link) {
                             MonksLittleDetails.toggleFavorite(target, ev);
@@ -1287,6 +1320,6 @@ Hooks.on("renderDocumentDirectory", (app, html, data) => {
 
 Hooks.on("pauseGame", (state) => {
     if (setting("pause-border")) {
-        $("body").toggleClass("mld-paused", state && $('#board').length);
+        $("body").toggleClass("mld-paused", state && $('#board').length > 0);
     }
 })
