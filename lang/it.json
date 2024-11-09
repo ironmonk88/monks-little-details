@@ -61,6 +61,8 @@
 	"MonksLittleDetails.pause-border.hint": "Aggiungi un bordo attorno allo schermo per rendere più evidente che il gioco è in pausa.",
 	"MonksLittleDetails.pause-border-colour.name": "Colore Bordo Pausa",
 	"MonksLittleDetails.pause-border-colour.hint": "Cambia il colore del bordo della pausa.",
+	"MonksLittleDetails.dual-monitor.name": "Doppio Monitor",
+	"MonksLittleDetails.dual-monitor.hint": "Utilizzando un doppio monitor, hai una nuova finestra pop-up al centro su un lato o sull'altro",
 
 	"MonksLittleDetails.SystemChanges": "Modifiche Sistema",
 	"MonksLittleDetails.AddedFeatures": "Funzionalità aggiunte",
@@ -112,6 +114,10 @@
 	"MonksLittleDetails.sortstatus.none": "Nessuno",
 	"MonksLittleDetails.sortstatus.rows": "Righe",
 	"MonksLittleDetails.sortstatus.columns": "Colonne",
+
+	"MonksLittleDetails.dualmonitor.none": "Nessuno",
+	"MonksLittleDetails.dualmonitor.left": "Sinistra",
+	"MonksLittleDetails.dualmonitor.right": "Destra",
 
 	"SIDEBAR.SortModeType": "Ordina per Tipo",
 	"SIDEBAR.SortModeSource": "Ordina per Fonte",
