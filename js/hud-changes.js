@@ -47,17 +47,21 @@ export class HUDChanges {
                     $(img).css({ 'visibility': 'hidden' });
                 } else {
                     //const status = statuses[img.getAttribute("src")] || {};
-                    let title = $(img).attr('data-tooltip') || $(img).attr('data-status-id') || $(img).attr('title') || $(img).attr('data-condition');
 
+                    const dataTooltip = $(img).attr('data-tooltip');
                     $(img).removeAttr('data-tooltip');
 
                     if (game.system.id == "pf2e") {
+                        let title = $(img).attr('title') || dataTooltip || $(img).attr('data-status-id') || $(img).attr('data-condition');
+
                         $('<div>')
                             .addClass('effect-name')
                             //.attr('title', title)
                             .html(title)
                             .insertAfter($('img', img));
                     } else {
+                        let title = dataTooltip || $(img).attr('data-status-id') || $(img).attr('title') || $(img).attr('data-condition');
+
                         $('<div>')
                             .addClass('effect-container')//$(img).attr('class'))
                             //.toggleClass('active', !!status.isActive)
