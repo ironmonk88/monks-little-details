@@ -76,7 +76,8 @@ export class MonksLittleDetails {
         MonksLittleDetails.SOCKET = "module.monks-little-details";
 
         MonksLittleDetails._rejectlist = {
-            "add-extra-statuses": ["pf2e"]
+            "add-extra-statuses": ["pf2e"],
+            "alter-hud": ["sfrpg"]
         }
         MonksLittleDetails._onlylist = {
             "sort-by-columns": ["dnd5e"],
@@ -290,7 +291,6 @@ export class MonksLittleDetails {
                 const currentPosition = this.position;
                 if (scale === null) scale = 1;
                 scale = scale ?? currentPosition.scale ?? 1;
-                let adjustWidth = window.innerWidth / 4;
 
                 const scaledWidth = this.position.width * scale;
                 const tarL = ((window.innerWidth / 2) - scaledWidth) / 2 + (setting("dual-monitor") == "right" ? (window.innerWidth / 2) : 0);
@@ -303,6 +303,18 @@ export class MonksLittleDetails {
 
             return result;
         });
+
+        /*
+        patchFunc("ControlsLayer.prototype.handlePing", function (wrapped, ...args) {
+            let [user, position, options] = args;
+            if (setting("dual-monitor") != "none") {
+                var offset = (window.innerWidth / 2) * (setting("dual-monitor") == "right" ? 1 : -1);
+                position.x += offset;
+
+            }
+            return wrapped(...args);
+        });
+        */
     }
 
     static addQuickLink(target, favorite = false) {
@@ -464,6 +476,7 @@ export class MonksLittleDetails {
                 { name: "Wall Layer", tool: 'walls', restricted: true },
                 { name: "Lighting Layer", tool: 'lighting', def: "KeyJ", restricted: true },
                 { name: "Sound Layer", tool: 'sounds', def: "KeyK", restricted: true },
+                { name: "Region Layer", tool: 'regions', restricted: true },
                 { name: "Note Layer", tool: 'notes', restricted: false }
             ];
             if (game.modules["enhanced-terrain-layer"]?.active)
@@ -628,41 +641,44 @@ background-color: rgba(0, 0, 0, 0.5);
     static async moveTokens(event) {
         let moveKey = MonksLittleDetails.getMoveKey();
 
-        let tokens = canvas.tokens.controlled.map(t => t.document);
-        if (!tokens.length && MonksLittleDetails._selectedTokens?.tokens)
-            tokens = MonksLittleDetails._selectedTokens.tokens;
+        if (game.user.isGM && moveKey && game.keyboard.downKeys.has(moveKey)) {
+            let tokens = canvas.tokens.controlled.map(t => t.document);
+            if (!tokens.length && MonksLittleDetails._selectedTokens?.tokens)
+                tokens = MonksLittleDetails._selectedTokens.tokens;
+            if (tokens.length > 0) {
+                let pos = event.data.getLocalPosition(canvas.app.stage);
+                let gs = canvas.scene.dimensions.size;
+                pos.x = Math.floor(pos.x / gs) * gs;
+                pos.y = Math.floor(pos.y / gs) * gs;
 
-        if (game.user.isGM && moveKey && game.keyboard.downKeys.has(moveKey) && tokens.length > 0) {
-            let pos = event.data.getLocalPosition(canvas.app.stage);
-            let gs = canvas.scene.dimensions.size;
+                let mid = {
+                    x: tokens[0].x,
+                    y: tokens[0].y
+                };
+                for (let i = 1; i < tokens.length; i++) {
+                    mid.x += tokens[i].x;
+                    mid.y += tokens[i].y;
+                }
+                mid.x = (mid.x / tokens.length);
+                mid.y = (mid.y / tokens.length);
 
-            let mid = {
-                x: tokens[0].x,
-                y: tokens[0].y
-            };
-            for (let i = 1; i < tokens.length; i++) {
-                mid.x += tokens[i].x;
-                mid.y += tokens[i].y;
-            }
-            mid.x = (mid.x / tokens.length);
-            mid.y = (mid.y / tokens.length);
+                let updates = [];
+                for (let i = 0; i < tokens.length; i++) {
+                    let offset = { x: tokens[i].x - mid.x, y: tokens[i].y - mid.y };
+                    let pt = { x: pos.x + offset.x, y: pos.y + offset.y };
+                    //let shift = { x: Math.floor(((tokens[i].width * gs) / 2) / gs) * gs, y: Math.floor(((tokens[i].height * gs) / 2) / gs) * gs };
+                    //pt = { x: pt.x - shift.x, y: pt.y - shift.y };
+                    pt.x = Math.floor(pt.x / gs) * gs;
+                    pt.y = Math.floor(pt.y / gs) * gs;
 
-            let updates = [];
-            for (let i = 0; i < tokens.length; i++) {
-                let offset = { x: tokens[i].x - mid.x, y: tokens[i].y - mid.y };
-                let pt = { x: pos.x + offset.x, y: pos.y + offset.y };
-                pt.x = Math.floor(pt.x / gs) * gs;
-                pt.y = Math.floor(pt.y / gs) * gs;
-                let shift = { x: Math.floor(((tokens[i].width * gs) / 2) / gs) * gs, y: Math.floor(((tokens[i].height * gs) / 2) / gs) * gs };
-                pt = { x: pt.x - shift.x, y: pt.y - shift.y };
-
-                //t.update({ x: px[0], y: px[1] }, { animate: false });
-                updates.push({ _id: tokens[i].id, x: pt.x, y: pt.y });
-            }
-            if (updates.length) {
-                MonksLittleDetails.movingToken = true;
-                await canvas.scene.updateEmbeddedDocuments("Token", updates, { animate: false, bypass: true });
-                MonksLittleDetails.movingToken = false;
+                    //t.update({ x: px[0], y: px[1] }, { animate: false });
+                    updates.push({ _id: tokens[i].id, x: pt.x, y: pt.y });
+                }
+                if (updates.length) {
+                    MonksLittleDetails.movingToken = true;
+                    await canvas.scene.updateEmbeddedDocuments("Token", updates, { animate: false, bypass: true });
+                    MonksLittleDetails.movingToken = false;
+                }
             }
         }
     }
@@ -1173,32 +1189,34 @@ Hooks.on("getActorDirectoryEntryContext", (html, entries) => {
 });
 
 Hooks.on("getCompendiumEntryContext", (html, entries) => {
-    entries.push({
-        name: "Transform into this Actor",
-        icon: '<i class="fas fa-random"></i>',
-        condition: li => {
-            if (!$(li).hasClass("actor"))
-                return false;
-            const canPolymorph = game.user.isGM || (game.settings.get("dnd5e", "allowPolymorphing"));
-            return canPolymorph;
-        },
-        callback: async (li) => {
-            let compendium = $(li).closest('.directory');
-            let data = {
-                pack: compendium.data("pack"),
-                id: li.data("documentId")
+    if (game.system.id == "dnd5e") {
+        entries.push({
+            name: "Transform into this Actor",
+            icon: '<i class="fas fa-random"></i>',
+            condition: li => {
+                if (!$(li).hasClass("actor"))
+                    return false;
+                const canPolymorph = game.user.isGM || (game.settings.get("dnd5e", "allowPolymorphing"));
+                return canPolymorph;
+            },
+            callback: async (li) => {
+                let compendium = $(li).closest('.directory');
+                let data = {
+                    pack: compendium.data("pack"),
+                    id: li.data("documentId")
+                }
+
+                let actors = canvas.tokens.controlled.map(t => t.actor);
+
+                if (actors.length == 0 && !game.user.isGM)
+                    actors = [game.user.character];
+
+                for (let actor of actors) {
+                    actor.sheet._onDropActor(null, data);
+                }
             }
-
-            let actors = canvas.tokens.controlled.map(t => t.actor);
-
-            if (actors.length == 0 && !game.user.isGM)
-                actors = [game.user.character];
-
-            for (let actor of actors) {
-                actor.sheet._onDropActor(null, data);
-            }
-        }
-    });
+        });
+    }
 });
 
 Hooks.on("updateScene", (scene, data, options) => {
@@ -1322,4 +1340,8 @@ Hooks.on("pauseGame", (state) => {
     if (setting("pause-border")) {
         $("body").toggleClass("mld-paused", state && $('#board').length > 0);
     }
-})
+});
+
+Hooks.on("renderChatMessage", (app, html, data) => {
+    $(".message-timestamp", html).attr("title", new Date(data.message.timestamp).toLocaleString());
+});

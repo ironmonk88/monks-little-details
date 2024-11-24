@@ -1,3 +1,23 @@
+# version 12.04
+
+Fixed deprecation warning when sorting conditions
+
+Fixed how the labels are found for the status texts
+
+Fixed issue with the clear all conditions.
+
+Removed the alter HUD functionality in StarFinder system since that RPG already does it.
+
+Added Region Layer to the quick access key press list
+
+Fixed issues when teleporting using the M key to a new location when there are tokens of differing sizes involved.
+
+Fixed issue where compendium actors were getting the option to be transformed to that actor when the system doesn't support it.
+
+Added a tooltip to the chat message time so you can see the specific time the message was sent rather than just how long ago it was sent.
+
+Adding Italian translations
+
 # version 12.03
 
 Added the option to shift the center of a popUp dialog, in case you use dual monitors and want to stretch across both, you can have popUp windows center on the left or right monitor rather than in the middle split between them.

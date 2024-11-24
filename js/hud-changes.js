@@ -14,13 +14,13 @@ export class HUDChanges {
 
             patchFunc("TokenHUD.prototype._getStatusEffectChoices", function (wrapped, ...args) {
                 if (setting('sort-statuses') != 'none') {
-                    CONFIG.statusEffects = CONFIG.statusEffects.map(e => {
-                        let label = e.label ?? e.name;
-                        e.label = e.name = label;
-                        return e;
-                    }).sort(function (a, b) {
-                        let aid = (a.label != undefined ? i18n(a.label) : a.id || a);
-                        let bid = (b.label != undefined ? i18n(b.label) : b.id || b);
+                    CONFIG.statusEffects = CONFIG.statusEffects.sort(function (a, b) {
+                        let aName = a.name;
+                        let bName = b.name;
+                        if (!aName) aName = i18n(a.label);
+                        if (!bName) bName = i18n(b.label);
+                        let aid = aName || a.id || a;
+                        let bid = bName || b.id || b;
                         return (aid > bid ? 1 : (aid < bid ? -1 : 0));
                         //return (a.id == undefined || a.id > b.id ? 1 : (a.id < b.id ? -1 : 0)); //(a.label == undefined || i18n(a.label) > i18n(b.label) ? 1 : (i18n(a.label) < i18n(b.label) ? -1 : 0));
                     });
@@ -47,7 +47,12 @@ export class HUDChanges {
                     $(img).css({ 'visibility': 'hidden' });
                 } else {
                     //const status = statuses[img.getAttribute("src")] || {};
-                    let title = $(img).attr('data-tooltip') || $(img).attr('data-status-id') || $(img).attr('title') || $(img).attr('data-condition');
+                    let statusId = $(img).attr('data-status-id') || $(img).attr('data-condition');
+                    let title = $(img).attr('data-tooltip') || $(img).attr('title');
+
+                    var condition = CONFIG.statusEffects.find(c => c.id == statusId);
+                    if (condition)
+                        title = i18n(condition.name);
 
                     $(img).removeAttr('data-tooltip');
 
@@ -100,12 +105,9 @@ export class HUDChanges {
         for (const [k, status] of Object.entries(statuses)) {
             if (status.isActive) {
                 if (game.system.id == "dnd5e") {
-                    let id = `dnd5e${status.id}`;
-                    if (id.length >= 16) id = id.substring(0, 16);
-                    id = id.padEnd(16, "0");
-                    const existing = this.object.actor.effects.get(id);
+                    const existing = this.object.actor.effects.find(e => e.statuses.has(status.id));
                     if (existing)
-                        await this.object.actor.deleteEmbeddedDocuments("ActiveEffect", [id]);
+                        await this.object.actor.deleteEmbeddedDocuments("ActiveEffect", [existing.id]);
                 } else {
                     let effect = { id: status.id, icon: status.src };
                     if (game.system.id == "D35E" && !Object.keys(CONFIG.D35E.conditions).includes(status.id)) {
